@@ -19,6 +19,12 @@ import numpy as np
 # -----------------------------------------------------------------
 # Functions to provide the library data to the rest of the
 # application.
+def cities():
+    """List of (city name, city ID), alphabetically sorted.
+    """
+    city_list = list(zip(df_city.Name, df_city.index))
+    city_list.sort()   # sorts in place; returns None
+    return city_list
 
 # -----------------------------------------------------------------
 # One-time Processing of AkWarm CSV data occurs here when this
