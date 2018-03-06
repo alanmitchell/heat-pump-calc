@@ -2,14 +2,7 @@
 given a block rate structure, possibly including PCE. 
 """
 import math
-
-def chg_null(val, null_val):
-    """Changes a nan or a None to 'null_val'.  Otherwise returns val.
-    """
-    if math.isnan(val) or (val is None):
-        return null_val
-    else:
-        return val
+from utils import chg_nonnum
 
 class ElecCostCalc:
     """Class to calculate monthly electric cost given a block rate structure possibly including
@@ -23,8 +16,8 @@ class ElecCostCalc:
         pce_limit=500.0,     # maximum number kWh that PCE can apply to. None or nan if no limit.
         demand_charge=0.0,   # $/kW for peak demand
         customer_charge=0.0, # Fixed charge each month in $
-        reg_surchg_add=0.0,  # $/kWh additive regulatory surcharge
-        reg_surchg_mult=1.0, # multiplicative regulatory surcharge
+        reg_surchg=0.0,      # $/kWh additive regulatory surcharge
+        sales_tax=0.0,       # sales tax, as a decimal fraction applied to electric utility costs.
         ):
         """Constructor parameters:
         blocks:            list of (block_kwh, block_rate) where block_kwh is max kWh for block, block_rate is $/kWh.
@@ -33,13 +26,11 @@ class ElecCostCalc:
         pce_limit:         maximum number kWh that PCE can apply to. None or nan if no limit.
         demand_charge:     $/kW for peak demand
         customer_charge:   Fixed charge each month in $
-        reg_surchg_add:    Additive Regulatory Surcharge is $/kWh
-        reg_surchg_mult:   Multiplicative Regulatory Surcharge (1.0 is no charge)
+        reg_surchg:        Additive Regulatory Surcharge is $/kWh
         """
-        # save some of the variables for use in other methods
-        self.demand_charge =  demand_charge
-        self.customer_charge = customer_charge
-        self.reg_surchg_mult = reg_surchg_mult
+        # save some of the variables for use in other methods, but include sales tax
+        self.demand_charge =  demand_charge * (1. + sales_tax)
+        self.customer_charge = customer_charge * (1. + sales_tax)
 
         # Make a set of blocks that:
         #   * have the quantity of kWh in the block instead of the block upper limit kWh
@@ -47,7 +38,7 @@ class ElecCostCalc:
         #   * include the regulatory surcharges
 
         # Convert PCE limit to infinite if no limit
-        pce_limit = chg_null(pce_limit, math.inf)
+        pce_limit = chg_nonnum(pce_limit, math.inf)
 
         # make sure PCE adjustment is 0 if the PCE limit is 0 or less
         pce_adj = pce if pce_limit > 0.0 else 0.0
@@ -56,7 +47,7 @@ class ElecCostCalc:
         done = False
         temp_blocks = []
         for max_kwh, rate in blocks:
-            b_kwh = chg_null(max_kwh, math.inf)
+            b_kwh = chg_nonnum(max_kwh, math.inf)
             done = (b_kwh == math.inf)
 
             # Determine whether it is time to insert the PCE block or not.
@@ -75,13 +66,21 @@ class ElecCostCalc:
 
             if done:
                 break
-        
-        # make the final blocks including the PCE adjustment and the 
-        # regulatory surcharges
+
+        # Include the PCE adjustment, the regulatory surcharges, and sales tax.
+        # Also, convert the block quantities so that they are the quantity of 
+        # kWh in the block instead of the upper limit of the block.
+        prev_upper = 0.0
         self.__blocks = []    # final block list
         for max_kwh, rate in temp_blocks:
             if max_kwh <= pce_limit:
                 rate -= pce_adj
-            rate = (rate + reg_surchg_add) * reg_surchg_mult
-            self.__blocks.append((max_kwh, rate))
+            rate += reg_surchg
+            rate *= (1. + sales_tax)
+            self.__blocks.append( (max_kwh - prev_upper, rate) )
+            prev_upper = max_kwh
 
+    def final_blocks(self):
+        """Debug method to return underlying rate blocks
+        """
+        return self.__blocks

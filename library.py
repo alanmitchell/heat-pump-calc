@@ -12,9 +12,12 @@ import os
 import csv
 from datetime import datetime
 import pickle
+import math
 
 import pandas as pd
 import numpy as np
+
+from utils import chg_nonnum
 
 # -----------------------------------------------------------------
 # Functions to provide the library data to the rest of the
@@ -53,31 +56,21 @@ def utility_blocks(util_id):
         through block5]
     The block_kwh values are the upper limit kWh for the particular block.
     If the block applies to all kWh beyond the prior the block, the value
-    of None is returned.
+    of math.nan is returned.
     The block_rate values are rates per kWh ($/kWh) for the block, including fuel 
     surcharge and purchased power rate elements.  In blocks beyond the last one
-    a rate of None is returned.
+    a rate of math.nan is returned.
     """
     util = df_util.loc[util_id]
-    adjust = nan_to_zero(util.FuelSurcharge) + nan_to_zero(util.PurchasedEnergyAdj)
+    adjust = chg_nonnum(util.FuelSurcharge, 0.0) + chg_nonnum(util.PurchasedEnergyAdj, 0.0)
     blocks = []
     for blk in range(1, 6):
-        block_kwh = nan_to_none(util['Block{}'.format(blk)])
-        block_rate = nan_to_none(util['Rate{}'.format(blk)])
-        if not block_rate is None:
+        block_kwh = chg_nonnum(util['Block{}'.format(blk)], math.nan)
+        block_rate = chg_nonnum(util['Rate{}'.format(blk)], math.nan)
+        if not math.isnan(block_rate):
             block_rate += adjust
         blocks.append((block_kwh, block_rate))
     return blocks
-    
-def nan_to_zero(val):
-    """If val is NaN, returns 0.0 otherwise return val.
-    """
-    return 0.0 if np.isnan(val) else val
-
-def nan_to_none(val):
-    """If val is NaN, returns None otherwise returns val.
-    """
-    return None if np.isnan(val) else val
 
 # -----------------------------------------------------------------
 # One-time Processing of AkWarm CSV data occurs here when this
@@ -189,7 +182,7 @@ for ix, city_ser in df_city.iterrows():
     # at a usage of 130 ccf/month, and assign that to the City.
     # This avoids the complication of working with the block rate
     # structure.
-    gas_price = np.nan
+    gas_price = math.nan
     gas_utils = df_city_utils.query('Type==2 and Active==1').copy()
     # Use a residential gas utility, the smallest ID
     if len(gas_utils):
@@ -198,10 +191,10 @@ for ix, city_ser in df_city.iterrows():
         for block in range(1, 6):
             block_val = gas_util['Block{}'.format(block)]
             #set_trace()
-            if np.isnan(block_val) or block_val >= 130:
+            if math.isnan(block_val) or block_val >= 130:
                 gas_price = gas_util['Rate{}'.format(block)] + \
-                            nan_to_zero(gas_util.FuelSurcharge) + \
-                            nan_to_zero(gas_util.PurchasedEnergyAdj)
+                            chg_nonnum(gas_util.FuelSurcharge, 0.0) + \
+                            chg_nonnum(gas_util.PurchasedEnergyAdj, 0.0)
                 break
 
     gas_prices.append(gas_price)
