@@ -39,6 +39,45 @@ def util_names(util_id_list):
     names = df_util.loc[util_id_list].Name
     return list(zip(names, util_id_list))
 
+def util_from_id(util_id):
+    """Returns a Pandas series containing all of the Utility information for
+    the Utility identified by util_id.
+    """
+    return df_util.loc[util_id]
+
+def utility_blocks(util_id):
+    """Returns a list of rate blocks for the Utility identified by 'util_id', 
+    formatted as:
+       [(block1_kwh, block1_rate),
+        (block2_kwh, block2_rate),
+        through block5]
+    The block_kwh values are the upper limit kWh for the particular block.
+    If the block applies to all kWh beyond the prior the block, the value
+    of None is returned.
+    The block_rate values are rates per kWh ($/kWh) for the block, including fuel 
+    surcharge and purchased power rate elements.  In blocks beyond the last one
+    a rate of None is returned.
+    """
+    util = df_util.loc[util_id]
+    adjust = nan_to_zero(util.FuelSurcharge) + nan_to_zero(util.PurchasedEnergyAdj)
+    blocks = []
+    for blk in range(1, 6):
+        block_kwh = nan_to_none(util['Block{}'.format(blk)])
+        block_rate = nan_to_none(util['Rate{}'.format(blk)])
+        if not block_rate is None:
+            block_rate += adjust
+        blocks.append((block_kwh, block_rate))
+    return blocks
+    
+def nan_to_zero(val):
+    """If val is NaN, returns 0.0 otherwise return val.
+    """
+    return 0.0 if np.isnan(val) else val
+
+def nan_to_none(val):
+    """If val is NaN, returns None otherwise returns val.
+    """
+    return None if np.isnan(val) else val
 
 # -----------------------------------------------------------------
 # One-time Processing of AkWarm CSV data occurs here when this
@@ -72,11 +111,6 @@ def closest_tmy(city_ser, dft):
     closest_id = dists.idxmin()
     tmy_site = dft.loc[closest_id]
     return closest_id, '{}, {}'.format(tmy_site.city, tmy_site.state)
-
-def nan_to_zero(val):
-    """If val is NaN, returns 0.0 otherwise return val.
-    """
-    return 0.0 if np.isnan(val) else val
 
 # Determine the directory where the CSV files are located.
 this_dir = os.path.dirname(os.path.realpath(__file__))
