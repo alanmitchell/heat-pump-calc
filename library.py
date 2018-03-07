@@ -50,30 +50,6 @@ def util_from_id(util_id):
     """
     return df_util.loc[util_id]
 
-def utility_blocks(util_id):
-    """Returns a list of rate blocks for the Utility identified by 'util_id', 
-    formatted as:
-       [(block1_kwh, block1_rate),
-        (block2_kwh, block2_rate),
-        through block5]
-    The block_kwh values are the upper limit kWh for the particular block.
-    If the block applies to all kWh beyond the prior the block, the value
-    of math.nan is returned.
-    The block_rate values are rates per kWh ($/kWh) for the block, including fuel 
-    surcharge and purchased power rate elements.  In blocks beyond the last one
-    a rate of math.nan is returned.
-    """
-    util = df_util.loc[util_id]
-    adjust = chg_nonnum(util.FuelSurcharge, 0.0) + chg_nonnum(util.PurchasedEnergyAdj, 0.0)
-    blocks = []
-    for blk in range(1, 6):
-        block_kwh = chg_nonnum(util['Block{}'.format(blk)], math.nan)
-        block_rate = chg_nonnum(util['Rate{}'.format(blk)], math.nan)
-        if not math.isnan(block_rate):
-            block_rate += adjust
-        blocks.append((block_kwh, block_rate))
-    return blocks
-
 def miscellaneous_info():
     """Returns the Miscellaneous information stored in the AkWarm Library.
     """
@@ -149,11 +125,31 @@ df_city = pd.read_csv(os.path.join(data_dir, 'City.csv'), engine='python')
 
 df_city_util_link = pd.read_csv(os.path.join(data_dir, 'City_Utility_Links.csv'), engine='python')
 
+# Retrieve the Miscellaneous Information and store into a Pandas Series.
+misc_info = pd.read_csv(os.path.join(data_dir, 'Misc_Info.csv'), engine='python').iloc[0]
+
 df_util = pd.read_csv(os.path.join(data_dir, 'Utility.csv'), engine='python') 
 df_util.ID = df_util.ID.astype(int)
 df_util.drop(['SiteSourceMultiplierOverride', 'BuybackRate', 'Notes'], axis=1, inplace=True)
 df_util.index = df_util.ID
 df_util['NameShort'] = df_util['Name'].str[:6]
+
+# make a list of blocks with rates for each utility and save that as
+# a column in the DataFrame.
+blocks_col = []
+for ix, util in df_util.iterrows():
+    adjust = chg_nonnum(util.FuelSurcharge, 0.0) + chg_nonnum(util.PurchasedEnergyAdj, 0.0)
+    if util.ChargesRCC:
+        adjust += chg_nonnum(misc_info.RegSurchargeElectric, 0.0)
+    blocks = []
+    for blk in range(1, 6):
+        block_kwh = chg_nonnum(util['Block{}'.format(blk)], math.nan)
+        block_rate = chg_nonnum(util['Rate{}'.format(blk)], math.nan)
+        if not math.isnan(block_rate):
+            block_rate += adjust
+        blocks.append((block_kwh, block_rate))
+    blocks_col.append(blocks)
+df_util['Blocks'] = blocks_col
 
 df_city = df_city.query('Active == 1')[[
     'ID',
@@ -232,6 +228,12 @@ df_city['TMYname'] = tmy_names
 df_city['ElecUtilities'] = utils
 df_city['GasPrice'] =  gas_prices
 
+# delete out the individual block and rate columns in the utility table,
+# and surcharges, as they are no longer needed.
+df_util.drop(['Block{}'.format(n) for n in range(1, 6)], axis=1, inplace=True)
+df_util.drop(['Rate{}'.format(n) for n in range(1, 6)], axis=1, inplace=True)
+df_util.drop(['PurchasedEnergyAdj', 'FuelSurcharge'], axis=1, inplace=True)
+
 # Also have to look to see if a city relies on another city
 # for its fuel prices
 for ix, cty in df_city.query('FuelRefer > 0').iterrows():
@@ -241,9 +243,6 @@ for ix, cty in df_city.query('FuelRefer > 0').iterrows():
     for c in df_city.columns:
         if c.endswith('Price'):
             df_city.loc[ix, c] = cty_fuel[c]
-
-# Retrieve the Miscellaneous Information and store into a Pandas Series.
-misc_info = pd.read_csv(os.path.join(data_dir, 'Misc_Info.csv'), engine='python').iloc[0]
 
 # Retrieve the Fuel information and store in a DataFrame
 df_fuel = pd.read_excel(os.path.join(data_dir, 'Fuel.xlsx'), index_col='id')
@@ -280,29 +279,18 @@ df_fuel['btus'] = df_fuel.btus.astype(float)
 # Utility Information: df_util
 # The index is the Utility ID, but also left as a column too.
 #
-# ID                                                1
-# Name                  Chugach Electric- Residential
-# Active                                            1
-# Type                                              1
-# IsCommercial                                      0
-# ChargesRCC                                        1
-# FuelSurcharge                                  0.06
-# PurchasedEnergyAdj                          0.00623
-# PCE                                               0
-# CO2                                             1.1
-# CustomerChg                                       8
-# DemandCharge                                    NaN
-# Block1                                          NaN
-# Block2                                          NaN
-# Block3                                          NaN
-# Block4                                          NaN
-# Block5                                          NaN
-# Rate1                                          0.11
-# Rate2                                           NaN
-# Rate3                                           NaN
-# Rate4                                           NaN
-# Rate5                                           NaN
-# NameShort                                    Chugac
+# ID                                                              1
+# Name                                Chugach Electric- Residential
+# Active                                                          1
+# Type                                                            1
+# IsCommercial                                                    0
+# ChargesRCC                                                      1
+# PCE                                                             0
+# CO2                                                           1.1
+# CustomerChg                                                     8
+# DemandCharge                                                  NaN
+# NameShort                                                  Chugac
+# Blocks          [(nan, 0.17713), (nan, nan), (nan, nan), (nan,...
 
 # Miscellaneous Information (this is Pandas Series): misc_info
 #
