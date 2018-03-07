@@ -156,6 +156,8 @@ df_city = df_city.query('Active == 1')[[
     'Name',
     'Latitude',
     'Longitude',
+    'ERHRegionID',
+    'WAPRegionID',
     'FuelRefer',
     'FuelCityID',
     'Oil1Price',
@@ -303,7 +305,7 @@ df_fuel['btus'] = df_fuel.btus.astype(float)
 # PCEFundingPct                                                           1
 # MiscNotes               Inflation factors and discount rate from 2011 ...
 
-# Fuel Information DataFrame
+# Fuel Information DataFrame: df_fuel
 # Index is 'id' of fuel
 #
 # desc         Natural Gas
