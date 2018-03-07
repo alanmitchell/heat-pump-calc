@@ -91,6 +91,13 @@ def fuel_from_id(fuel_id):
     """
     return df_fuel.loc[fuel_id]
 
+def tmy_from_id(tmy_id):
+    """Returns a DataFrame of TMY data for the climate site identified
+    by 'tmy_id'.
+    """
+    df = pd.read_pickle(os.path.join(data_dir, 'climate/{}.pkl'.format(tmy_id)))
+    return df
+
 # -----------------------------------------------------------------
 # One-time Processing of AkWarm CSV data occurs here when this
 # module is imported.
@@ -236,10 +243,10 @@ for ix, cty in df_city.query('FuelRefer > 0').iterrows():
             df_city.loc[ix, c] = cty_fuel[c]
 
 # Retrieve the Miscellaneous Information and store into a Pandas Series.
-misc_info = pd.read_csv('data/Misc_Info.csv', engine='python').iloc[0]
+misc_info = pd.read_csv(os.path.join(data_dir, 'Misc_Info.csv'), engine='python').iloc[0]
 
 # Retrieve the Fuel information and store in a DataFrame
-df_fuel = pd.read_excel('data/Fuel.xlsx', index_col='id')
+df_fuel = pd.read_excel(os.path.join(data_dir, 'Fuel.xlsx'), index_col='id')
 df_fuel['btus'] = df_fuel.btus.astype(float)
 
 # -------------------------------------------------------------------------------------
