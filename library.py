@@ -13,6 +13,7 @@ import csv
 from datetime import datetime
 import pickle
 import math
+from enum import Enum
 
 import pandas as pd
 import numpy as np
@@ -35,12 +36,13 @@ def city_from_id(city_id):
     """
     return df_city.loc[city_id]
 
-def util_names(util_id_list):
-    """For the list of utility IDs 'util_id_list' returns a list
-    of (utility name, utility ID), in the same order as 'util_id_list' 
+def fuel_price(fuel_id, city_id):
+    """Returns the fuel price for the fuel identified by the ID of 
+    'fuel_id' for the city identified by 'city_id'.
     """
-    names = df_util.loc[util_id_list].Name
-    return list(zip(names, util_id_list))
+    city = df_city.loc[city_id]
+    fuel = df_fuel.loc[fuel_id]
+    return city[fuel.price_col]
 
 def util_from_id(util_id):
     """Returns a Pandas series containing all of the Utility information for
@@ -71,6 +73,23 @@ def utility_blocks(util_id):
             block_rate += adjust
         blocks.append((block_kwh, block_rate))
     return blocks
+
+def miscellaneous_info():
+    """Returns the Miscellaneous information stored in the AkWarm Library.
+    """
+    return misc_info
+
+def fuels():
+    """Returns a list of (fuel name, fuel ID) for all fuels.
+    """
+    fuel_list = list(zip(df_fuel.desc, df_fuel.index))
+    return fuel_list
+
+def fuel_from_id(fuel_id):
+    """Returns a Pandas Series of fuel information for the fuel with
+    and ID of 'fuel_id'
+    """
+    return df_fuel.loc[fuel_id]
 
 # -----------------------------------------------------------------
 # One-time Processing of AkWarm CSV data occurs here when this
@@ -172,11 +191,11 @@ for ix, city_ser in df_city.iterrows():
     elec_utils = df_city_utils.query('Type==1 and Active==1').copy()
     elec_utils.sort_values(by=['NameShort', 'IsCommercial', 'ID'], inplace=True)
     if len(elec_utils) > 0:
-        utils.append(list(elec_utils.ID))
+        utils.append(list(zip(elec_utils.Name, elec_utils.ID)))
     else:
         # If there is no Electric Utility associated with this city,
         # assign the self-generation electric utility.
-        utils.append([SELF_GEN_ID])
+        utils.append([('Self Generation', SELF_GEN_ID)])
         
     # if there is a gas utility, determine the marginal gas price
     # at a usage of 130 ccf/month, and assign that to the City.
@@ -216,8 +235,12 @@ for ix, cty in df_city.query('FuelRefer > 0').iterrows():
         if c.endswith('Price'):
             df_city.loc[ix, c] = cty_fuel[c]
 
-# Retrieve the Miscellansous Information and store into a Pandas Series.
+# Retrieve the Miscellaneous Information and store into a Pandas Series.
 misc_info = pd.read_csv('data/Misc_Info.csv', engine='python').iloc[0]
+
+# Retrieve the Fuel information and store in a DataFrame
+df_fuel = pd.read_excel('data/Fuel.xlsx', index_col='id')
+df_fuel['btus'] = df_fuel.btus.astype(float)
 
 # -------------------------------------------------------------------------------------
 # These are the Pandas DataFrames and Series created from the above processing.
@@ -284,3 +307,12 @@ misc_info = pd.read_csv('data/Misc_Info.csv', engine='python').iloc[0]
 # PCEkWhLimit                                                           500
 # PCEFundingPct                                                           1
 # MiscNotes               Inflation factors and discount rate from 2011 ...
+
+# Fuel Information DataFrame
+# Index is 'id' of fuel
+#
+# desc         Natural Gas
+# unit                 ccf
+# btus              103700
+# co2                  117
+# price_col       GasPrice
