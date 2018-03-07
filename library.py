@@ -310,4 +310,5 @@ df_fuel['btus'] = df_fuel.btus.astype(float)
 # unit                 ccf
 # btus              103700
 # co2                  117
+# effic                0.8
 # price_col       GasPrice
