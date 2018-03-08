@@ -258,25 +258,27 @@ df_fuel['btus'] = df_fuel.btus.astype(float)
 # City Information:  df_city
 # The index (not shown here) is the City ID
 #
-# Name                                  Anchorage
-# Latitude                                  61.15
-# Longitude                               -149.86
-# FuelRefer                                     0
-# FuelCityID                                  NaN
-# Oil1Price                                  3.07
-# Oil2Price                                   NaN
-# PropanePrice                                4.5
-# BirchPrice                                  325
-# SprucePrice                                 345
-# CoalPrice                                   175
-# SteamPrice                                  NaN
-# HotWaterPrice                               NaN
-# MunicipalSalesTax                           NaN
-# BoroughSalesTax                             NaN
-# TMYid                                    702725
-# TMYname                  LAKE HOOD SEAPLANE, AK
-# ElecUtilities        [2, 293, 480, 1, 361, 548]
-# GasPrice                                   0.97
+# Name                                                         Anchorage
+# Latitude                                                         61.15
+# Longitude                                                      -149.86
+# ERHRegionID                                                          2
+# WAPRegionID                                                          2
+# FuelRefer                                                            0
+# FuelCityID                                                         NaN
+# Oil1Price                                                         3.07
+# Oil2Price                                                          NaN
+# PropanePrice                                                       4.5
+# BirchPrice                                                         325
+# SprucePrice                                                        345
+# CoalPrice                                                          175
+# SteamPrice                                                         NaN
+# HotWaterPrice                                                      NaN
+# MunicipalSalesTax                                                  NaN
+# BoroughSalesTax                                                    NaN
+# TMYid                                                           702730
+# TMYname                                          ANCHORAGE INTL AP, AK
+# ElecUtilities        [(Anchorage ML&P - Residential, 2), (Anchorage...
+# GasPrice                                                          0.97
 
 # Utility Information: df_util
 # The index is the Utility ID, but also left as a column too.
