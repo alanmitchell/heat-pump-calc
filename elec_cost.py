@@ -66,7 +66,11 @@ class ElecCostCalc:
 
         # Make a new set of blocks that includes the PCE limit as a new block
         # and the set is only as long as it needs to be.
-        selected_blocks = self.utility.Blocks if isnan(blocks) else blocks
+        try:
+            iter(blocks)    # will error if blocks is not iterable
+            selected_blocks = blocks
+        except TypeError:
+            selected_blocks = self.utility.Blocks
         done = False
         temp_blocks = []
         for max_kwh, rate in selected_blocks:
