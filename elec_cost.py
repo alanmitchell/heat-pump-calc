@@ -41,9 +41,9 @@ class ElecCostCalc:
         # save some of the variables for use in other methods
         # add Sales Tax to any rate elements
         self.utility = library.util_from_id(util_id) if not isnan(util_id) else nan
-        self.demand_charge =  self.utility.DemandCharge if isnan(demand_charge) else demand_charge
+        self.demand_charge =  chg_nonnum(self.utility.DemandCharge if isnan(demand_charge) else demand_charge, 0.0)
         self.demand_charge *= (1. + sales_tax)
-        self.customer_charge =  self.utility.CustomerChg if isnan(customer_charge) else customer_charge
+        self.customer_charge =  chg_nonnum(self.utility.CustomerChg if isnan(customer_charge) else customer_charge, 0.0)
         self.customer_charge *= (1. + sales_tax)
 
         # Make a set of blocks that:
@@ -105,6 +105,26 @@ class ElecCostCalc:
             rate *= (1. + sales_tax)
             self.__blocks.append( (max_kwh - prev_upper, rate) )
             prev_upper = max_kwh
+
+    def monthly_cost(self, kwh_energy, kw_demand=0.0):
+        """Returns the total electric cost for a month, given energy usage of
+        'kwh_energy' and peak demand of 'kw_demand'.
+        """
+        # customer charge
+        cost = self.customer_charge
+
+        # demand charge
+        cost += kw_demand * self.demand_charge
+
+        remaining_kwh = kwh_energy
+        for b_kwh, b_rate in self.__blocks:
+            kwh_in_block = min(remaining_kwh, b_kwh)
+            cost += kwh_in_block * b_rate
+            remaining_kwh -= kwh_in_block
+            if remaining_kwh < 0.1:         # 0.1 kWh in case of rounding issues
+                break
+        
+        return cost
 
     def final_blocks(self):
         """Debug method to return underlying rate blocks
