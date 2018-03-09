@@ -214,7 +214,10 @@ for ix, city_ser in df_city.iterrows():
     # We need to add it to the Commercial rate structures becuase community
     # building may use those rates, and they potentially can get PCE.  So,
     # For each city, look at the utilities and find the PCE value.  Then
-    # use that for the rate structures that are missing a PCE value
+    # use that for the rate structures that are missing a PCE value.
+    # This code wouldn't work if there were multiple utilities serving a city
+    # with different PCE rates.  But that only occurs in the Anchorage area,
+    # and there is no PCE there.
     pce_val = elec_utils.PCE.max()
     if pce_val > 0.0:
         for ix, util in elec_utils.iterrows():
