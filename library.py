@@ -44,6 +44,14 @@ def fuel_price(fuel_id, city_id):
     fuel = df_fuel.loc[fuel_id]
     return city[fuel.price_col]
 
+def utilities():
+    """List of all (utility rate name, utility ID) for all utility rate
+    structures, sorted by utility rate name.
+    """
+    util_list =  list(zip(df_util.Name, df_util.index))
+    util_list.sort()
+    return util_list
+
 def util_from_id(util_id):
     """Returns a Pandas series containing all of the Utility information for
     the Utility identified by util_id.
@@ -201,7 +209,18 @@ for ix, city_ser in df_city.iterrows():
         # If there is no Electric Utility associated with this city,
         # assign the self-generation electric utility.
         utils.append([('Self Generation', SELF_GEN_ID)])
-        
+
+    # In AkWarm, there is only PCE data for the residential rate structures.
+    # We need to add it to the Commercial rate structures becuase community
+    # building may use those rates, and they potentially can get PCE.  So,
+    # For each city, look at the utilities and find the PCE value.  Then
+    # use that for the rate structures that are missing a PCE value
+    pce_val = elec_utils.PCE.max()
+    if pce_val > 0.0:
+        for ix, util in elec_utils.iterrows():
+            if math.isnan(util.PCE):
+                df_util.loc[ix, 'PCE'] = pce_val
+
     # if there is a gas utility, determine the marginal gas price
     # at a usage of 130 ccf/month, and assign that to the City.
     # This avoids the complication of working with the block rate
@@ -222,6 +241,7 @@ for ix, city_ser in df_city.iterrows():
                 break
 
     gas_prices.append(gas_price)
+
 
 # Put all the information determined above for the cities into the
 # City DataFrame as new columns.
