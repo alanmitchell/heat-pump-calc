@@ -1,0 +1,284 @@
+ARIS_cities,census_city,census_area,ancsa_region,railbelt,Hub
+Akutan,Akutan city,Aleutians East Borough,Aleut,Affordable Energy Strategy Area,0
+Cold Bay,Cold Bay city,Aleutians East Borough,Aleut,Affordable Energy Strategy Area,0
+False Pass,False Pass city,Aleutians East Borough,Aleut,Affordable Energy Strategy Area,0
+King Cove,King Cove city,Aleutians East Borough,Aleut,Affordable Energy Strategy Area,0
+Nelson Lagoon,Nelson Lagoon CDP,Aleutians East Borough,Aleut,Affordable Energy Strategy Area,0
+Sand Point,Sand Point city,Aleutians East Borough,Aleut,Affordable Energy Strategy Area,1
+Adak,Adak city,Aleutians West Census Area,Aleut,Affordable Energy Strategy Area,0
+Atka,Atka city,Aleutians West Census Area,Aleut,Affordable Energy Strategy Area,0
+Attu,Attu Station CDP,Aleutians West Census Area,Aleut,Affordable Energy Strategy Area,0
+Dutch Harbor,Unalaska city,Aleutians West Census Area,Aleut,Affordable Energy Strategy Area,1
+Nikolski,Nikolski CDP,Aleutians West Census Area,Aleut,Affordable Energy Strategy Area,0
+Saint George,St. George city,Aleutians West Census Area,Aleut,Affordable Energy Strategy Area,0
+Saint Paul,St. Paul city,Aleutians West Census Area,Aleut,Affordable Energy Strategy Area,0
+Unalaska,Unalaska city,Aleutians West Census Area,Aleut,Affordable Energy Strategy Area,1
+Anchorage,Anchorage municipality,Anchorage municipality,Cook Inlet Regional (CIRI),Railbelt,1
+BIRCHWOOD,Anchorage municipality,Anchorage municipality,Cook Inlet Regional (CIRI),Railbelt,0
+Bird Creek,Anchorage municipality,Anchorage municipality,Cook Inlet Regional (CIRI),Railbelt,0
+Chugiak,Anchorage municipality,Anchorage municipality,Cook Inlet Regional (CIRI),Railbelt,0
+Eagle River,Anchorage municipality,Anchorage municipality,Cook Inlet Regional (CIRI),Railbelt,0
+Eklutna,Anchorage municipality,Anchorage municipality,Cook Inlet Regional (CIRI),Railbelt,0
+Girdwood,Anchorage municipality,Anchorage municipality,Cook Inlet Regional (CIRI),Railbelt,0
+Indian,Anchorage municipality,Anchorage municipality,Cook Inlet Regional (CIRI),Railbelt,0
+Peters Creek,Anchorage municipality,Anchorage municipality,Cook Inlet Regional (CIRI),Railbelt,0
+Akiachak,Akiachak CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Akiak,Akiak city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Aniak,Aniak city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Atmautluak,Atmautluak CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Bethel,Bethel city,Bethel Census Area,Calista,Affordable Energy Strategy Area,1
+Chefornak,Chefornak city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Chuathbaluk,Chuathbaluk city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Crooked Creek,Crooked Creek CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Eek,Eek city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Goodnews Bay,Goodnews Bay city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Kasigluk,Kasigluk CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Kipnuk,Kipnuk CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Kongiganak,Kongiganak CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Kwethluk,Kwethluk city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Kwigillingok,Kwigillingok CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Lime Village,Lime Village CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Lower Kalskag,Lower Kalskag city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Mekoryok,Mekoryuk city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Napakiak,Napakiak city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Napaskiak,Napaskiak city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Newtok,Newtok CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Nightmute,Nightmute city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Nunapitchuk,Nunapitchuk city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Oscarville,Oscarville CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Platinum,Platinum city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Quinhagak,Quinhagak city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Red Devil,Red Devil CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Sleetmute,Sleetmute CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Stony River,Stony River CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Toksook Bay,Toksook Bay city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Tuluksak,Tuluksak CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Tuntutuliak,Tuntutuliak CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Tununak,Tununak CDP,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+Upper Kalskag,Upper Kalskag city,Bethel Census Area,Calista,Affordable Energy Strategy Area,0
+King Salmon,King Salmon CDP,Bristol Bay Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,1
+Naknek,Naknek CDP,Bristol Bay Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+South Naknek,South Naknek CDP,Bristol Bay Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Anderson,Anderson city,Denali Borough,Doyon,Railbelt,0
+Cantwell,Cantwell CDP,Denali Borough,Ahtna Inc,Railbelt,0
+Clear,Anderson city,Denali Borough,Doyon,Railbelt,0
+Denali Nat'l Park,Healy CDP,Denali Borough,Doyon,Railbelt,0
+Healy,Healy CDP,Denali Borough,Doyon,Railbelt,0
+Aleknagik,Aleknagik city,Dillingham Census Area,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Clark's Point,Clark's Point city,Dillingham Census Area,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Dillingham,Dillingham city,Dillingham Census Area,Bristol Bay Native Corporation,Affordable Energy Strategy Area,1
+Ekwok,Ekwok city,Dillingham Census Area,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Koliganek,Koliganek CDP,Dillingham Census Area,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Manokotak,Manokotak city,Dillingham Census Area,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+New Stuyahok,New Stuyahok city,Dillingham Census Area,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Togiak,Togiak city,Dillingham Census Area,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Twin Hills,Twin Hills CDP,Dillingham Census Area,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Ester,Ester CDP,Fairbanks North Star Borough,Doyon,Railbelt,0
+Fairbanks,Fairbanks city,Fairbanks North Star Borough,Doyon,Railbelt,1
+Fort Wainwright,Fairbanks city,Fairbanks North Star Borough,Doyon,Railbelt,0
+North Pole,North Pole city,Fairbanks North Star Borough,Doyon,Railbelt,0
+Salcha,Salcha CDP,Fairbanks North Star Borough,Doyon,Railbelt,0
+Two rivers,Fairbanks city,Fairbanks North Star Borough,Doyon,Railbelt,0
+Haines,Haines CDP,Haines Borough,Sealaska Corporation,Affordable Energy Strategy Area,1
+Angoon,Angoon city,Hoonah-Angoon Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Elfin Cove,Elfin Cove CDP,Hoonah-Angoon Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Gustavus,Gustavus city,Hoonah-Angoon Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Hoonah,Hoonah city,Hoonah-Angoon Census Area,Sealaska Corporation,Affordable Energy Strategy Area,1
+Klukwan,Klukwan CDP,Hoonah-Angoon Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Pelican,Pelican city,Hoonah-Angoon Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Tenakee Springs,Tenakee Springs city,Hoonah-Angoon Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Auke Bay,Juneau city and borough,Juneau City and Borough,Sealaska Corporation,Affordable Energy Strategy Area,0
+Douglas,Juneau city and borough,Juneau City and Borough,Sealaska Corporation,Affordable Energy Strategy Area,0
+Juneau,Juneau city and borough,Juneau City and Borough,Sealaska Corporation,Affordable Energy Strategy Area,1
+"Juneau, Airport",Juneau city and borough,Juneau City and Borough,Sealaska Corporation,Affordable Energy Strategy Area,0
+Anchor Point,Anchor Point CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Clam Gulch,Clam Gulch CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Cooper Landing,Cooper Landing CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+English Bay/Nanwal,Nanwalek CDP,Kenai Peninsula Borough,Chugach Alaska Corp,Railbelt,0
+Nanwalek,Nanwalek CDP,Kenai Peninsula Borough,Chugach Alaska Corp,Railbelt,0
+Halibut Cove,Halibut Cove CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Homer,Homer city,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,1
+Hope,Hope CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Kalifonsky,Kalifornsky CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Kasilof,Kasilof CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Kenai,Kenai city,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,1
+Moose Pass,Moose Pass CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Nikiski,Nikiski CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Nikolaevsk,Nikolaevsk CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Ninilchik,Ninilchik CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Port Graham,Port Graham CDP,Kenai Peninsula Borough,Chugach Alaska Corp,Railbelt,0
+Seldovia,Seldovia city,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Seward,Seward city,Kenai Peninsula Borough,Chugach Alaska Corp,Railbelt,1
+Soldotna,Soldotna city,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,1
+Sterling,Sterling CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Tyonek,Tyonek CDP,Kenai Peninsula Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Ketchikan,Ketchikan city,Ketchikan Gateway Borough,Sealaska Corporation,Affordable Energy Strategy Area,1
+Saxman,Saxman city,Ketchikan Gateway Borough,Sealaska Corporation,Affordable Energy Strategy Area,0
+Ward Cove,Ketchikan city,Ketchikan Gateway Borough,Sealaska Corporation,Affordable Energy Strategy Area,0
+Akhiok,Akhiok city,Kodiak Island Borough,Koniag,Affordable Energy Strategy Area,0
+Chiniak,Chiniak CDP,Kodiak Island Borough,Koniag,Affordable Energy Strategy Area,0
+Karluk,Karluk CDP,Kodiak Island Borough,Koniag,Affordable Energy Strategy Area,0
+Kodiak,Kodiak city,Kodiak Island Borough,Koniag,Affordable Energy Strategy Area,1
+Larsen Bay,Larsen Bay city,Kodiak Island Borough,Koniag,Affordable Energy Strategy Area,0
+Old Harbor,Old Harbor city,Kodiak Island Borough,Koniag,Affordable Energy Strategy Area,0
+Ouzinkie,Ouzinkie city,Kodiak Island Borough,Koniag,Affordable Energy Strategy Area,0
+Port Lions,Port Lions city,Kodiak Island Borough,Koniag,Affordable Energy Strategy Area,0
+Chignik,Chignik city,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Chignik Lake,Chignik Lake CDP,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Egegik,Egegik city,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Igiugig,Igiugig CDP,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Iliamna,Iliamna CDP,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Ivanof Bay,Ivanof Bay CDP,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Kokhanok,Kokhanok CDP,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Levelock,Levelock CDP,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Newhalen,Newhalen city,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Nondalton,Nondalton city,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Pedro Bay,Pedro Bay CDP,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Perryville,Perryville CDP,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Pilot Point,Pilot Point city,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Port Alsworth,Port Alsworth CDP,Lake and Peninsula Borough,Cook Inlet Regional (CIRI),Affordable Energy Strategy Area,0
+Port Heiden,Port Heiden city,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Ugashik,Ugashik CDP,Lake and Peninsula Borough,Bristol Bay Native Corporation,Affordable Energy Strategy Area,0
+Big Lake,Big Lake CDP,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Chickaloon,Chickaloon CDP,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Houston,Houston city,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Meadow Lakes,Meadow Lakes CDP,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Palmer,Palmer city,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,1
+Settelers Bay,Wasilla city,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Skwentna,Skwentna CDP,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Sutton,Sutton-Alpine CDP,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Talkeetna,Talkeetna CDP,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Trapper Creek,Trapper Creek CDP,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Wasilla,Wasilla city,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,1
+Willow,Willow CDP,Matanuska-Susitna Borough,Cook Inlet Regional (CIRI),Railbelt,0
+Brevig Mission,Brevig Mission city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Diomede,Diomede city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Elim,Elim city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Gambell,Gambell city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Golovin,Golovin city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Koyuk,Koyuk city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Nome,Nome city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,1
+Saint Michael,St. Michael city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Savoonga,Savoonga city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Shaktoolik,Shaktoolik city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Shishmaref,Shishmaref city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Stebbins,Stebbins city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Teller,Teller city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Unalakleet,Unalakleet city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Wales,Wales city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+White Mountain,White Mountain city,Nome Census Area,Bering Straits Native Corporation,Affordable Energy Strategy Area,0
+Anaktuvuk Pass,Anaktuvuk Pass city,North Slope Borough,Arctic Slope Regional Corporation,Affordable Energy Strategy Area,0
+Atqasuk,Atqasuk city,North Slope Borough,Arctic Slope Regional Corporation,Affordable Energy Strategy Area,0
+Barrow,Barrow city,North Slope Borough,Arctic Slope Regional Corporation,Affordable Energy Strategy Area,1
+Kaktovik,Kaktovik city,North Slope Borough,Arctic Slope Regional Corporation,Affordable Energy Strategy Area,0
+Nuiqsut,Nuiqsut city,North Slope Borough,Arctic Slope Regional Corporation,Affordable Energy Strategy Area,0
+Point Hope,Point Hope city,North Slope Borough,Arctic Slope Regional Corporation,Affordable Energy Strategy Area,0
+Point Lay,Point Lay CDP,North Slope Borough,Arctic Slope Regional Corporation,Affordable Energy Strategy Area,0
+Wainwright,Wainwright city,North Slope Borough,Arctic Slope Regional Corporation,Affordable Energy Strategy Area,0
+Ambler,Ambler city,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,0
+Buckland,Buckland city,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,0
+Deering,Deering city,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,0
+Kiana,Kiana city,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,0
+Kivalina,Kivalina city,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,0
+Kobuk,Kobuk city,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,0
+Kotzebue,Kotzebue city,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,1
+Noatak,Noatak CDP,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,0
+Noorvik,Noorvik city,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,0
+Selawik,Selawik city,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,0
+Shungnak,Shungnak city,Northwest Arctic Borough,Nana Regional Corporation,Affordable Energy Strategy Area,0
+Kake,Kake city,Petersburg Borough,Sealaska Corporation,Affordable Energy Strategy Area,0
+kupreanof,Kupreanof city,Petersburg Borough,Sealaska Corporation,Affordable Energy Strategy Area,0
+Petersburg,Petersburg city,Petersburg Borough,Sealaska Corporation,Affordable Energy Strategy Area,1
+Port Alexander,Port Alexander city,Petersburg Borough,Sealaska Corporation,Affordable Energy Strategy Area,0
+Coffman Cove,Coffman Cove city,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Craig,Craig city,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,1
+Hollis,Hollis CDP,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Hydaburg,Hydaburg city,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Hyder,Hyder CDP,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Kasaan,Kasaan city,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Klawock,Klawock city,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Metlakatla,Metlakatla CDP,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,1
+Naukati,Naukati Bay CDP,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Point Baker,Point Baker CDP,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Port Protection,Port Protection CDP,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Thorne Bay,Thorne Bay city,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Whale Pass,Whale Pass CDP,Prince of Wales-Hyder Census Area,Sealaska Corporation,Affordable Energy Strategy Area,0
+Sitka,Sitka city and borough,Sitka City and Borough,Sealaska Corporation,Affordable Energy Strategy Area,1
+Skagway,Skagway CDP,Skagway Municipality,Sealaska Corporation,Affordable Energy Strategy Area,1
+Chicken,Chicken CDP,Southeast Fairbanks Census Area,Doyon,Affordable Energy Strategy Area,0
+Delta Junction,Delta Junction city,Southeast Fairbanks Census Area,Doyon,Affordable Energy Strategy Area,0
+Dot Lake,Dot Lake CDP,Southeast Fairbanks Census Area,Doyon,Affordable Energy Strategy Area,0
+Dry Creek,Dry Creek CDP,Southeast Fairbanks Census Area,Doyon,Affordable Energy Strategy Area,0
+Eagle,Eagle city,Southeast Fairbanks Census Area,Doyon,Affordable Energy Strategy Area,0
+Northway,Northway CDP,Southeast Fairbanks Census Area,Doyon,Affordable Energy Strategy Area,0
+Tanacross,Tanacross CDP,Southeast Fairbanks Census Area,Doyon,Affordable Energy Strategy Area,0
+Tetlin,Tetlin CDP,Southeast Fairbanks Census Area,Doyon,Affordable Energy Strategy Area,0
+Tok,Tok CDP,Southeast Fairbanks Census Area,Doyon,Affordable Energy Strategy Area,1
+Chenega,Chenega CDP,Valdez-Cordova Census Area,Chugach Alaska Corp,Affordable Energy Strategy Area,0
+Chistochina,Chistochina CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Chitina,Chitina CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Copper Center,Copper Center CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Cordova,Cordova city,Valdez-Cordova Census Area,Chugach Alaska Corp,Affordable Energy Strategy Area,1
+Gakona,Gakona CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Glennallen,Glennallen CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Gulkana,Gulkana CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Kenny Lake,Kenny Lake CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+McCarthy,McCarthy CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Mentasta Lake,Mentasta Lake CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Paxson,Paxson CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Slana,Slana CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Tatitlek,Tatitlek CDP,Valdez-Cordova Census Area,Chugach Alaska Corp,Affordable Energy Strategy Area,0
+Tazlina,Tazlina CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Tonsina,Tonsina CDP,Valdez-Cordova Census Area,Ahtna Inc,Affordable Energy Strategy Area,0
+Valdez,Valdez city,Valdez-Cordova Census Area,Chugach Alaska Corp,Affordable Energy Strategy Area,1
+Whittier,Whittier city,Valdez-Cordova Census Area,Chugach Alaska Corp,Affordable Energy Strategy Area,0
+Alakanuk,Alakanuk city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Chevak,Chevak city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Emmonak,Emmonak city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Hooper Bay,Hooper Bay city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,1
+Kotlik,Kotlik city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Marshall,Marshall city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Mountain Village,Mountain Village city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Nunum Iqua,Nunam Iqua city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Pilot Station,Pilot Station city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Pitkas Point,Pitkas Point CDP,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Russian Mission,Russian Mission city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Saint Mary's,St. Mary's city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Scammon Bay,Scammon Bay city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Sheldon Point,Nunam Iqua city,Wade Hampton Census Area,Calista,Affordable Energy Strategy Area,0
+Wrangell,Wrangell city and borough,Wrangell City and Borough,Sealaska Corporation,Affordable Energy Strategy Area,1
+Yakutat,Yakutat CDP,Yakutat City and Borough,Sealaska Corporation,Affordable Energy Strategy Area,1
+Alatna,Alatna CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Allakaket,Allakaket city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Anvik,Anvik city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Arctic Village,Arctic Village CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Beaver,Beaver CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Bettles,Bettles city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Birch Creek,Birch Creek CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Central,Central CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Chalkyitsik,Chalkyitsik CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Circle,Circle CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Coldfoot,Coldfoot CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Evansville,Evansville CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Fort Yukon,Fort Yukon city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Galena,Galena city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,1
+Grayling,Grayling city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Holy Cross,Holy Cross city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Hughes,Hughes city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Huslia,Huslia city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Kaltag,Kaltag city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Koyukuk,Koyukuk city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Manley Hot Springs,Manley Hot Springs CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+McGrath,McGrath city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,1
+Minto,Minto CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Nenana,Nenana city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Nikolai,Nikolai city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Nulato,Nulato city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Rampart,Rampart CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Ruby,Ruby city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Shageluk,Shageluk city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Stevens Village,Stevens Village CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Takotna,Takotna CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Tanana,Tanana city,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Venetie,Venetie CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
+Wiseman,Wiseman CDP,Yukon-Koyukuk Census Area,Doyon,Affordable Energy Strategy Area,0
