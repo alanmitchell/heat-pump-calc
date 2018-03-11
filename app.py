@@ -8,18 +8,16 @@ server = app.server
 
 app.css.append_css({"external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"})
 
+# make the city dropdown, to be inserted into the Layout later.
+dd_city = dcc.Dropdown(
+            id='dropdown',
+            options=[{'label': i, 'value': i} for i in ['Anchorage', 'Fairbanks', 'Juneau', 'Bethel']],
+            value = 'Anchorage'
+          )
+
 app.layout = html.Div([
     html.H2('Heat Pump Calculator: Under Construction'),
-    html.Div(
-        [
-            dcc.Dropdown(
-                id='dropdown',
-                options=[{'label': i, 'value': i} for i in ['Anchorage', 'Fairbanks', 'Juneau', 'Bethel']],
-                value = 'Anchorage'
-            ),
-        ],
-        style={'width': '250px', 'display': 'inline-block'}
-    ),
+    html.Div([dd_city], style={'width': '250px', 'display': 'inline-block'}),
     html.Div(id='display-value')
 ])
 
