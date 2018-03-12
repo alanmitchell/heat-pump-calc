@@ -2,8 +2,8 @@
 given a block rate structure, possibly including PCE. 
 """
 from math import nan, isnan, inf
-import library
-from utils import chg_nonnum
+from . import library as lib
+from .utils import chg_nonnum
 
 class ElecCostCalc:
     """Class to calculate monthly electric cost given a block rate structure possibly including
@@ -40,7 +40,7 @@ class ElecCostCalc:
         """
         # save some of the variables for use in other methods
         # add Sales Tax to any rate elements
-        self.utility = library.util_from_id(util_id) if not isnan(util_id) else nan
+        self.utility = lib.util_from_id(util_id) if not isnan(util_id) else nan
         self.demand_charge =  chg_nonnum(self.utility.DemandCharge if isnan(demand_charge) else demand_charge, 0.0)
         self.demand_charge *= (1. + sales_tax)
         self.customer_charge =  chg_nonnum(self.utility.CustomerChg if isnan(customer_charge) else customer_charge, 0.0)
