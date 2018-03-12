@@ -3,6 +3,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import os
 
+import library
+
 app = dash.Dash(__name__)
 server = app.server
 
@@ -11,8 +13,8 @@ app.css.append_css({"external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"
 # make the city dropdown, to be inserted into the Layout later.
 dd_city = dcc.Dropdown(
             id='dropdown',
-            options=[{'label': i, 'value': i} for i in ['Anchorage', 'Fairbanks', 'Juneau', 'Bethel']],
-            value = 'Anchorage'
+            options=[{'label': lbl, 'value': i} for lbl, i in library.cities()],
+            value = 51,
           )
 
 app.layout = html.Div([
@@ -24,7 +26,8 @@ app.layout = html.Div([
 @app.callback(dash.dependencies.Output('display-value', 'children'),
               [dash.dependencies.Input('dropdown', 'value')])
 def display_value(value):
-    return 'You have selected "{}"'.format(value)
+    cty = library.city_from_id(value)
+    return html.Pre(str(cty))
 
 if __name__ == '__main__':
     app.run_server(debug=True)
