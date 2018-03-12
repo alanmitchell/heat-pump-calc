@@ -7,6 +7,7 @@ import library
 
 app = dash.Dash(__name__)
 server = app.server
+server.debug = True
 
 app.css.append_css({"external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"})
 
@@ -18,7 +19,7 @@ dd_city = dcc.Dropdown(
           )
 
 app.layout = html.Div([
-    html.H2('Heat Pump Calculator: Under Construction'),
+    html.H2('Heat Pump Calculator: Under Construction'), 
     html.Div([dd_city], style={'width': '250px', 'display': 'inline-block'}),
     html.Div(id='display-value')
 ])
