@@ -56,9 +56,13 @@ def display_value(value):
 
 md_results = '''### Results
 
-Some Key Inputs:
+#### Key Input Information
 
-Space Heating Fuel Type ID:  {}
+Space Heating Fuel Type Info:
+
+```
+{}
+```
 
 #### Monthly Results
 
@@ -88,8 +92,9 @@ heat pump and various financial measures.
               [dash.dependencies.Input('dropdown', 'value')])
 def display_results(value):
     calc = hp_model.HP_model()
+    fuel = lib.fuel_from_id(calc.fuel_type)
     return md_results.format(
-        calc.fuel_type,
+        fuel,
         calc.monthly_results().loc[9],
         calc.annual_results()
     )
