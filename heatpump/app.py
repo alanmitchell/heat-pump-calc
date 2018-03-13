@@ -5,6 +5,7 @@ from os.path import dirname, join, realpath
 import logging, logging.handlers
 
 from . import library as lib
+from . import hp_model
 
 app = dash.Dash(__name__)       # this is the Dash app
 server = app.server             # this is the underlying Flask app
@@ -42,7 +43,8 @@ dd_city = dcc.Dropdown(
 app.layout = html.Div([
     html.H2('Heat Pump Calculator: Under Construction'), 
     html.Div([dd_city], style={'width': '250px', 'display': 'inline-block'}),
-    html.Div(id='display-value')
+    html.Div(id='display-value'),
+    dcc.Markdown(id='results')
 ])
 
 @app.callback(dash.dependencies.Output('display-value', 'children'),
@@ -50,3 +52,45 @@ app.layout = html.Div([
 def display_value(value):
     cty = lib.city_from_id(value)
     return html.Pre('Information for selected city:\n\n{}'.format(cty))
+
+
+md_results = '''### Results
+
+Some Key Inputs:
+
+Space Heating Fuel Type ID:  {}
+
+#### Monthly Results
+
+The monthly results are a full Pandas DataFrame, but here are the
+results for September:
+
+```
+{}
+```
+
+#### Annual Results
+
+This is a Pandas Series of Annual Results:
+
+```
+{}
+```
+
+#### Other Results
+
+More results are forthcoming, including cash flow across the life of the
+heat pump and various financial measures.
+'''
+
+
+@app.callback(dash.dependencies.Output('results', 'children'),
+              [dash.dependencies.Input('dropdown', 'value')])
+def display_results(value):
+    calc = hp_model.HP_model()
+    return md_results.format(
+        calc.fuel_type,
+        calc.monthly_results().loc[9],
+        calc.annual_results()
+    )
+    
