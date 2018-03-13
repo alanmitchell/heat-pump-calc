@@ -9,7 +9,7 @@ from . import library as lib
 app = dash.Dash(__name__)       # this is the Dash app
 server = app.server             # this is the underlying Flask app
 
-# path to tis directory
+# path to this directory
 APP_PATH = dirname(realpath(__file__))
 
 # ----- Add a file logger to application
