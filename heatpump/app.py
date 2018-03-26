@@ -5,6 +5,7 @@ from os.path import dirname, join, realpath
 import logging, logging.handlers
 import pandas as pd
 from datetime import datetime as dt
+import numpy as np
 
 from dash.dependencies import Input, Output, State
 
@@ -118,9 +119,9 @@ app.layout = html.Div([
     html.Div([
     html.H2('Heat Pump Characteristics'),
     html.Label('Select your heat pump manufacturer'),
-	dcc.Dropdown(id='manufacturer'),
-	html.Label('Select your heat pump model'),
-	dcc.Dropdown(id='model'),
+    dcc.Dropdown(id='manufacturer'),
+    html.Label('Select your heat pump model'),
+    dcc.Dropdown(id='model'),
     html.Label('How many heads'),
     dcc.Input(id='heads', type='number'),
     html.Br(),
@@ -199,29 +200,29 @@ app.layout = html.Div([
     ),
     ], id='ht_system', style={'width': '500px'}),
     html.Br(),
-	html.Div([
-	html.H2('Economic Factors'),
+    html.Div([
+    html.H2('Economic Factors'),
     html.Label('Sales tax:'),
     dcc.Input(id='sales_tx', type='text'),
-	html.Br(),
-	html.Label('General Inflation Rate %:'),
-	dcc.Input(id='inf_rate', type='text', value='2'),
-	html.Br(),
-	html.Label('Heating Fuel Price Inflation Rate %:'),
-	dcc.Input(id='fuel_inf_rate', type='text', value='4'),
-	html.Br(),
-	html.Label('Electricity Price Inflation Rate %:'),
-	dcc.Input(id='elec_inf_rate', type='text', value='4'),
-	html.Br(),
-	html.Label('Discount Rate %:'),
-	dcc.Input(id='disc_rate', type='text', value='5'),
+    html.Br(),
+    html.Label('General Inflation Rate %:'),
+    dcc.Input(id='inf_rate', type='text', value='2'),
+    html.Br(),
+    html.Label('Heating Fuel Price Inflation Rate %:'),
+    dcc.Input(id='fuel_inf_rate', type='text', value='4'),
+    html.Br(),
+    html.Label('Electricity Price Inflation Rate %:'),
+    dcc.Input(id='elec_inf_rate', type='text', value='4'),
+    html.Br(),
+    html.Label('Discount Rate %:'),
+    dcc.Input(id='disc_rate', type='text', value='5'),
     ], id='economics', style={'width': '500px'}),
-	html.Div(id='display-value'),
+    html.Div(id='display-value'),
     dcc.Markdown(id='results'),
 
 ])
-#
-##alan's city series
+
+#alan's city series
 @app.callback(Output('display-value', 'children'),
     [Input('city', 'value')])
 def display_value(value):
@@ -258,26 +259,28 @@ def find_util(fuel, city):
 def find_tax(city):
     city_ent = lib.city_from_id(city)
     muni_tax = city_ent['MunicipalSalesTax']
+    muni_tax = np.nan_to_num(city_ent['MunicipalSalesTax'])
     boro_tax = city_ent['BoroughSalesTax']
-    sales_tax = muni_tax + boro_tax
+    boro_tax = np.nan_to_num(city_ent['BoroughSalesTax'])
+    sales_tx = muni_tax + boro_tax
     
-    return sales_tax 
+    return sales_tx
  
-@app.callback(Output('ht_eff','value'), [Input('fuel','value')])
-def fuel_eff(fuel):
-    fuels2 = lib.fuel_from_id(fuel)
-    ht_eff = fuels2['effic'] 
-    
-    return ht_eff
-    
-@app.callback(Output('hidden','children'), [Input('utility','value')])
-def haspce(utility):
-    utl = lib.util_from_id(utility)
-    utl_pce = utl['PCE']
-    utl_commercial = utl['IsCommercial']
-    return utl_pce
-
-    
+#@app.callback(Output('ht_eff','value'), [Input('fuel','value')])
+#def fuel_eff(fuel):
+#    fuels2 = lib.fuel_from_id(fuel)
+#    ht_eff = fuels2['effic'] 
+#    
+#    return ht_eff
+#    
+#@app.callback(Output('hidden','children'), [Input('utility','value')])
+#def haspce(utility):
+#    utl = lib.util_from_id(utility)
+#    utl_pce = utl['PCE']
+#    utl_commercial = utl['IsCommercial']
+#    return utl_pce
+#
+#    
 @app.callback(
     Output('elec-div', 'children'), [Input('elec_input','value'), Input('city','value')])
 def electricalinputs(elec_input, city):
@@ -288,7 +291,7 @@ def electricalinputs(elec_input, city):
         html.Table(
                 [
                     html.Tr( [html.Label('Enter Electric Rate $ / kWh'), html.Td(dcc.Input(id='man_elec_rate',type='text'))] ),
-                    html.Tr( [html.Td(html.Label('Enter PCE Rate in $ / kWh')), html.Td(dcc.Input(id='man_elec_pce', type='text'))] ),					
+                    html.Tr( [html.Td(html.Label('Enter PCE Rate in $ / kWh')), html.Td(dcc.Input(id='man_elec_pce', type='text'))] ),                    
                 ]
             ),
         html.Label('Select building type:'),
@@ -316,11 +319,11 @@ def electricalinputs(elec_input, city):
                     html.Tr( [html.Td(dcc.Input(id='block_0', type='text')), html.Td(dcc.Input(id='block_k2', type='text')), html.Td(dcc.Input(id='block_r2', type='text'))] ),
                     html.Tr( [html.Td(dcc.Input(id='block_1', type='text')), html.Td(dcc.Input(id='block_k3', type='text')), html.Td(dcc.Input(id='block_r3', type='text'))] ),
                     html.Tr( [html.Td(dcc.Input(id='block_2', type='text')), html.Td(dcc.Input(id='block_k4', type='text')), html.Td(dcc.Input(id='block_r4', type='text'))] ),
-					html.Tr( [html.Td(html.Hr(), colSpan='3')] ),
-					html.Tr( [html.Td('Demand Charge in $ / kWh', colSpan='2'), html.Td(dcc.Input(id='demand_charge', type='text'))] ),
-					html.Tr( [html.Td('Customer Charge in $', colSpan='2'), html.Td(dcc.Input(id='customer_charge',type='text'))] ),
-					html.Tr( [html.Td('PCE in $ / kWh', colSpan='2'), html.Td(dcc.Input(id='man_elec_pce2',type='text'))] ),
-					
+                    html.Tr( [html.Td(html.Hr(), colSpan='3')] ),
+                    html.Tr( [html.Td('Demand Charge in $ / kWh', colSpan='2'), html.Td(dcc.Input(id='demand_charge', type='text'))] ),
+                    html.Tr( [html.Td('Customer Charge in $', colSpan='2'), html.Td(dcc.Input(id='customer_charge',type='text'))] ),
+                    html.Tr( [html.Td('PCE in $ / kWh', colSpan='2'), html.Td(dcc.Input(id='man_elec_pce2',type='text'))] ),
+                    
                 ]
             ),
         html.Label('Select building type:'),
