@@ -249,10 +249,16 @@ def find_util(fuel, city):
     lookup_id = fuels['price_col']
     
     lookup = lib.city_from_id(city)
-    price = lookup[lookup_id]
+    price = np.nan_to_num(lookup[lookup_id])
     
     return price  
- 
+
+@app.callback(
+    Output('fuel', 'value'),
+    [Input('fuel', 'options')])
+def set_fuel_value(available_options):
+    return available_options[2]['value']
+	
 #sales tax
 @app.callback(Output('sales_tx', 'value'),
     [Input('city','value')])
@@ -266,13 +272,13 @@ def find_tax(city):
     
     return sales_tx
  
-#@app.callback(Output('ht_eff','value'), [Input('fuel','value')])
-#def fuel_eff(fuel):
-#    fuels2 = lib.fuel_from_id(fuel)
-#    ht_eff = fuels2['effic'] 
-#    
-#    return ht_eff
-#    
+@app.callback(Output('ht_eff','value'), [Input('fuel','value')])
+def fuel_eff(fuel):
+    fuels2 = lib.fuel_from_id(fuel)
+    ht_eff = fuels2['effic'] 
+    
+    return ht_eff
+    
 #@app.callback(Output('hidden','children'), [Input('utility','value')])
 #def haspce(utility):
 #    utl = lib.util_from_id(utility)
