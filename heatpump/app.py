@@ -56,7 +56,7 @@ bldg_types = ['Residential', 'Community Building', 'Commercial Building']
 comm_pce = ['Yes','No']
           
 app.layout = html.Div([
-    html.H2('Heat Pump Calculator: Under Construction'),
+    html.H1('Heat Pump Calculator: Under Construction'),
     html.Label('Please select your city:'),
     html.Div([dd_city], style={'width': '250px', 'display': 'inline-block'}),
     html.Div([
@@ -220,7 +220,7 @@ app.layout = html.Div([
     html.Div(id='display-value'),
     dcc.Markdown(id='results'),
 
-])
+], id='main')
 
 #alan's city series
 @app.callback(Output('display-value', 'children'),
