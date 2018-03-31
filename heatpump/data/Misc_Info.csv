@@ -1,2 +1,0 @@
-"ID","LibVersion","DiscountRate","RegSurcharge","RegSurchargeElectric","PCEkWhLimit","PCEFundingPct","MiscNotes"
-1,2/27/2018 0:00:00,0.03,3.2e-03,9.0e-04,500,1.00,"Inflation factors and discount rate from 2011 FEMP;  Regulatory surcharge is now correctly modeled as a % for gas utilities and a $/kWh surcharge for electric utilities.  PCE 100% funding in effect July 2012. Jan 2018 gas RCC is .32% of total bill - fuel costs use price before taxes added as program now does the math"

@@ -122,22 +122,15 @@ data_dir = os.path.join(this_dir, 'data')
 # read in the DataFrame that describes the available TMY3 climate files.
 df_tmy_meta = pd.read_pickle(os.path.join(data_dir, 'climate/tmy3_meta.pkl'))
 
-# Read in the other City and Utility CSV files.
-# The Utility.csv had non-ASCII characters in it.  You can either read with 
-# "engine='python' " in the 'read_csv()' command, or you can clean up the
-# file with:  tr -cd '\11\12\15\40-\176' < file-with-binary-chars > clean-file
-# I did both.
-# The problem with Line 467 in the Utility.csv file in the Notes field.  That
-# field started with a non-ASCII character.
-df_city = pd.read_csv(os.path.join(data_dir, 'City.csv'), engine='python')
+# Read in the other City and Utility Excel files.
+df_city = pd.read_excel(os.path.join(data_dir, 'City.xlsx'))
 
-df_city_util_link = pd.read_csv(os.path.join(data_dir, 'City_Utility_Links.csv'), engine='python')
+df_city_util_link = pd.read_excel(os.path.join(data_dir, 'City Utility Links.xlsx'))
 
 # Retrieve the Miscellaneous Information and store into a Pandas Series.
-misc_info = pd.read_csv(os.path.join(data_dir, 'Misc_Info.csv'), engine='python').iloc[0]
+misc_info = pd.read_excel(os.path.join(data_dir, 'Misc Info.xlsx')).iloc[0]
 
-df_util = pd.read_csv(os.path.join(data_dir, 'Utility.csv'), engine='python') 
-df_util.ID = df_util.ID.astype(int)
+df_util = pd.read_excel(os.path.join(data_dir, 'Utility.xlsx')) 
 df_util.drop(['SiteSourceMultiplierOverride', 'BuybackRate', 'Notes'], axis=1, inplace=True)
 df_util.index = df_util.ID
 df_util['NameShort'] = df_util['Name'].str[:6]
