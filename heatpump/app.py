@@ -68,14 +68,23 @@ app.layout = html.Div([
         ], value = 'Select Utility Rate Schedule',
     ),
     html.Div([
-    html.Div([dcc.Dropdown(id='utility')],id='elec_util'),
-        html.Div([dcc.RadioItems(id='bldg_type',
+    html.Div([dcc.Dropdown(id='utility')],id='elec_util'), html.Div([html.Label('PCE:'), dcc.Input(id='pce_val', type='number')],id='costequal'), html.Br(),
+    html.Div([dcc.RadioItems(id='bldg_type',
         options=[
              {'label': i, 'value': i} for i in bldg_types
         ], value = 'Select Utility Rate Schedule',
     ),],id='building_type', style={'width': '250px', 'display': 'none'}),
         ]
         ,id='elec-div'),
+    html.Div([
+    html.Label('Select building type:'),
+            dcc.RadioItems(id='bldg_type',
+                options=[
+             {'label': i, 'value': i} for i in bldg_types
+        ]),
+        ],id='bld_type'),
+    html.Br(),
+    html.Div(id='comrescomm'),
     html.Div([html.Label('Pounds of CO2 per kWh of incremental electricity generation'),
     html.Br(),
     dcc.Slider(
@@ -90,7 +99,7 @@ app.layout = html.Div([
         100: 'Hydro/Wind',
         120: 'Coal'}
     ),
-    ], id='c02', style={'width': '500px'}),
+    ], id='c02', style={'width': '650px'}),
     ], id='elec-inputs'),
     html.Br(),
     html.Div(id='hidden', style={'display': 'none'}),
@@ -99,13 +108,13 @@ app.layout = html.Div([
     html.Label('Heated Floor Area'),
     dcc.Input(id='ht_floor_area', type='number'),
     html.Br(),
-    html.Label('Average indoor temperature'),
+    html.Label('Average indoor temperature'),html.Abbr(" &nbsp; ", title="Please choose the average set-point of the thermostat for the home. This should take into account any indoor temperature setbacks that are scheduled."),
     html.Br(),
     dcc.Slider(
         id='ind_temp',
         min=60,
         max=80,
-        step=5,
+        step=1,
         value=71,
         marks={
         60: '60',
@@ -114,7 +123,7 @@ app.layout = html.Div([
         75: '75',
         80: '80'}
     ),
-    ],id='bldg_info', style={'width': '500px'}),
+    ],id='bldg_info', style={'width': '650px'}),
     html.Br(),
     html.Div([
     html.H2('Heat Pump Characteristics'),
@@ -123,7 +132,7 @@ app.layout = html.Div([
     html.Label('Select your heat pump model'),
     dcc.Dropdown(id='model'),
     html.Label('How many heads'),
-    dcc.Input(id='heads', type='number'),
+    dcc.Input(id='heads', type='number'), html.Abbr(" &nbsp; ", title="Enter the number of different indoor “heads” or heat distribution units that are installed inside the home."),
     html.Br(),
     html.Label('Indoor units are mounted more than 6\' high on wall'),
     dcc.Checklist(
@@ -132,12 +141,12 @@ app.layout = html.Div([
         {'label': 'Yes', 'value': 'y'},
     ],
     values=['y']
-    ),
+    ), html.Abbr(" &nbsp; ", title="Check this box if the indoor “heads” are mounted higher on the wall; this will affect how well the heat is distributed throughout the home."),
     html.Br(),
     html.Label('Minimum Operation Outdoor Temperature'),
-    dcc.Input(id='min_op_temp', type='number'),
+    dcc.Input(id='min_op_temp', type='number'), html.Abbr(" &nbsp; ", title="Please enter the lowest temperature at which the heat pump will continue to operate. This should be available in the unit’s documentation."),
     html.Br(),
-    html.Label('Please enter your early winter shut down date and late winter turn on date'),
+    html.Label('Please enter your early winter shut down date and late winter turn on date'),html.Abbr(" &nbsp; ", title="If you turn off your heat pump during the coldest part of winter because it no longer operates efficiently, enter the shut-down and restart dates here. If it operates all year round, leave this section blank."),
     dcc.DatePickerRange(
     id='date-picker-range',
     start_date=dt(2018, 1, 1),
@@ -145,14 +154,14 @@ app.layout = html.Div([
     ),
     html.Br(),
     html.Label('Installed cost of heat pump'),
-    dcc.Input(id='inst_cost', type='text'),
+    dcc.Input(id='inst_cost', type='text'),html.Abbr(" &nbsp; ", title="Please enter the entire cost of the heat pump, including equipment, labor, and incidental costs."),
     html.Br(),
     html.Label('Life of heat pump'),
-    dcc.Input(id='hp_life', type='number', value='14'),
+    dcc.Input(id='hp_life', type='number', value='14'),html.Abbr(" &nbsp; ", title="This should be set to 14 unless there is evidence that a particular model will last shorter or longer than most heat pumps."),
     html.Br(),
     html.Label('Annual increase in heating system O&M Cost ($/year)'),
-    dcc.Input(id='annl_om', type='text'),
-    ],id='hp_chars', style={'width': '500px'}),
+    dcc.Input(id='annl_om', type='text'), html.Abbr(" &nbsp; ", title="Enter a positive value if the cost of maintaining the heating systems with the heat pump is higher than the cost of maintaining the previous system."),
+    ],id='hp_chars', style={'width': '650px'}),
     html.Br(),
     html.Div([
     html.H2('Existing heating system information'),
@@ -165,9 +174,9 @@ app.layout = html.Div([
     dcc.Input(id='ppu', type='text'),
     html.Br(),
     html.Label('Annual Heating Efficiency'),
-    dcc.Input(id='ht_eff', type='text'),
+    dcc.Input(id='ht_eff', type='text'), html.Abbr(" &nbsp; ", title="Enter the heating system efficiency here. This is often listed as the AFUE on the label."),
     html.Br(),
-    html.Label('Auxiliary electricity use from existing heating system:'),
+    html.Label('Auxiliary electricity use from existing heating system:'),html.Abbr(" &nbsp; ", title="Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system."),
     dcc.Dropdown(
         id='aux_elec',
         options=[{'label': i, 'value': i} for i in dd_aux_elec],
@@ -184,7 +193,7 @@ app.layout = html.Div([
     values=[]
     ),
     html.Br(),
-    html.Label('% heating load accessible or servable to heat pump'),
+    html.Label('% heating load accessible or servable to heat pump'),html.Abbr(" &nbsp; ", title="This value describes how much of the house can be heated by the heat pump system. The default value is estimated based on the size of the building and the number of heads."),
     html.Br(),
     dcc.Slider(
         id='pct_load',
@@ -198,7 +207,7 @@ app.layout = html.Div([
         75: '75',
         100: '100'}
     ),
-    ], id='ht_system', style={'width': '500px'}),
+    ], id='ht_system', style={'width': '650px'}),
     html.Br(),
     html.Div([
     html.H2('Economic Factors'),
@@ -206,17 +215,17 @@ app.layout = html.Div([
     dcc.Input(id='sales_tx', type='text'),
     html.Br(),
     html.Label('General Inflation Rate %:'),
-    dcc.Input(id='inf_rate', type='text', value='2'),
+    dcc.Input(id='inf_rate', type='text', value='2'),html.Abbr(" &nbsp; ", title="The default is the inflation rate used by the U.S. Department of Energy. Change this only in special circumstances."),
     html.Br(),
     html.Label('Heating Fuel Price Inflation Rate %:'),
-    dcc.Input(id='fuel_inf_rate', type='text', value='4'),
+    dcc.Input(id='fuel_inf_rate', type='text', value='4'),html.Abbr(" &nbsp; ", title="This is the predicted annual increase in the price of the chosen heating fuel, based on U.S. Department of Energy estimates."),
     html.Br(),
     html.Label('Electricity Price Inflation Rate %:'),
-    dcc.Input(id='elec_inf_rate', type='text', value='4'),
+    dcc.Input(id='elec_inf_rate', type='text', value='4'),html.Abbr(" &nbsp; ", title="This is the predicted annual increase in the price of electricity in this location, based on U.S. Department of Energy estimates."),
     html.Br(),
     html.Label('Discount Rate %:'),
-    dcc.Input(id='disc_rate', type='text', value='5'),
-    ], id='economics', style={'width': '500px'}),
+    dcc.Input(id='disc_rate', type='text', value='5'),html.Abbr(" &nbsp; ", title="This is the rate used to account for the time value of money.  Here are two ways to think of this: 1) the cost of borrowing capital, or 2) the rate of return that you could get if you invested your money in a safe alternative.  The default discount rate of 5% is based on the U.S. Department of Energy’s estimate."),
+    ], id='economics', style={'width': '650px'}),
     html.Div(id='display-value'),
     dcc.Markdown(id='results'),
 
@@ -241,6 +250,22 @@ def find_util(city):
     
     return [{'label' : util_menu.get_value(index, 'Utility'), 'value' : util_menu.get_value(index, 'ID')} for index, row in util_menu.iterrows()]  
 
+#fills pce box
+@app.callback(Output('pce_val', 'value'), [Input('utility','value')])
+def haspce(utility):
+    utl = lib.util_from_id(utility)
+    pce_val = np.nan_to_num(utl['PCE'])
+    #utl_commercial = utl['IsCommercial']
+    return pce_val
+
+#assumes residential
+#@app.callback(Output('bldg_type', 'value'), [Input('utility','value')])
+#def iscommercial(utility):
+#    chk = lib.util_from_id(utility)
+#    is_commercial = chk['IsCommercial']
+#    return would like to set the value of bldg type to residential....
+
+	
 # fuel
 @app.callback(Output('ppu', 'value'),
     [Input('fuel', 'value'), Input('city','value')])
@@ -250,6 +275,7 @@ def find_util(fuel, city):
     
     lookup = lib.city_from_id(city)
     price = np.nan_to_num(lookup[lookup_id])
+    price = np.round(price,2)
     
     return price  
 
@@ -258,7 +284,7 @@ def find_util(fuel, city):
     [Input('fuel', 'options')])
 def set_fuel_value(available_options):
     return available_options[2]['value']
-	
+    
 #sales tax
 @app.callback(Output('sales_tx', 'value'),
     [Input('city','value')])
@@ -286,31 +312,36 @@ def fuel_eff(fuel):
 #    utl_commercial = utl['IsCommercial']
 #    return utl_pce
 #
-#    
+#
+
+@app.callback(Output('comrescomm','children'), [Input('bldg_type','value')])
+def pce_use(bldg_type):
+    if bldg_type == 'Community Building':
+        show = html.Div([        
+        html.Label('Has all available Community Building PCE been used in this community?'),
+            dcc.RadioItems(id='community_pce',
+                options=[{'label': i, 'value': i} for i in comm_pce
+                ]),
+        html.Br(),]),
+    elif bldg_type == 'Residential':
+        show = ' '
+    elif bldg_type =='Commercial Building':
+        show = ' '
+    return show
+    
 @app.callback(
     Output('elec-div', 'children'), [Input('elec_input','value'), Input('city','value')])
 def electricalinputs(elec_input, city):
     if elec_input == 'Select Utility Rate Schedule':
-        disp = html.Div([dcc.Dropdown(id='utility')],id='elec_util', style={'width': '400px'})
+        disp = html.Div([dcc.Dropdown(id='utility')],id='elec_util'), html.Div([html.Label('PCE:'), dcc.Input(id='pce_val', type='number')],id='costequal'), html.Br(),
     elif elec_input == 'Manual Entry':
         disp = html.Div([
         html.Table(
                 [
-                    html.Tr( [html.Label('Enter Electric Rate $ / kWh'), html.Td(dcc.Input(id='man_elec_rate',type='text'))] ),
-                    html.Tr( [html.Td(html.Label('Enter PCE Rate in $ / kWh')), html.Td(dcc.Input(id='man_elec_pce', type='text'))] ),                    
+                    html.Tr( [html.Label('Enter Electric Rate $/kWh'), html.Td(dcc.Input(id='man_elec_rate',type='text'))] ),
+                    html.Tr( [html.Td(html.Label('Enter PCE Rate in $/kWh')), html.Td(dcc.Input(id='man_elec_pce', type='text'))] ),                    
                 ]
             ),
-        html.Label('Select building type:'),
-            dcc.RadioItems(id='bldg_type',
-                options=[
-             {'label': i, 'value': i} for i in bldg_types
-        ]),
-        html.Br(),
-        html.Label('If Community Building, has all available Community Building PCE been used in this community?'),
-            dcc.RadioItems(id='community_pce',
-                options=[{'label': i, 'value': i} for i in comm_pce
-                ]),
-        html.Br(),
     ])
     elif elec_input == 'Manual Entry (Advanced)':
         disp = html.Div([
@@ -326,22 +357,12 @@ def electricalinputs(elec_input, city):
                     html.Tr( [html.Td(dcc.Input(id='block_1', type='text')), html.Td(dcc.Input(id='block_k3', type='text')), html.Td(dcc.Input(id='block_r3', type='text'))] ),
                     html.Tr( [html.Td(dcc.Input(id='block_2', type='text')), html.Td(dcc.Input(id='block_k4', type='text')), html.Td(dcc.Input(id='block_r4', type='text'))] ),
                     html.Tr( [html.Td(html.Hr(), colSpan='3')] ),
-                    html.Tr( [html.Td('Demand Charge in $ / kWh', colSpan='2'), html.Td(dcc.Input(id='demand_charge', type='text'))] ),
+                    html.Tr( [html.Td('Demand Charge in $/kWh', colSpan='2'), html.Td(dcc.Input(id='demand_charge', type='text'))] ),
                     html.Tr( [html.Td('Customer Charge in $', colSpan='2'), html.Td(dcc.Input(id='customer_charge',type='text'))] ),
-                    html.Tr( [html.Td('PCE in $ / kWh', colSpan='2'), html.Td(dcc.Input(id='man_elec_pce2',type='text'))] ),
+                    html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(dcc.Input(id='man_elec_pce2',type='text'))] ),
                     
                 ]
             ),
-        html.Label('Select building type:'),
-            dcc.RadioItems(id='bldg_type',
-                options=[
-             {'label': i, 'value': i} for i in bldg_types
-        ]),
-        html.Br(),
-        html.Label('If Community Building, has all available Community Building PCE been used in this community?'),
-            dcc.RadioItems(id='community_pce',
-                options=[{'label': i, 'value': i} for i in comm_pce
-                ]),
         html.Br(),
         ]),
     return disp
