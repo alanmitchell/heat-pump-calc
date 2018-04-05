@@ -144,8 +144,8 @@ app.layout = html.Div([
     ), html.Abbr(" &nbsp; ", title="Check this box if the indoor “heads” are mounted higher on the wall; this will affect the temperature of the air entering the head."),
     html.Br(),
     html.Label('Minimum Operation Outdoor Temperature'),html.Abbr(" &nbsp; ", title="Please enter the lowest outdoor temperature at which the heat pump will continue to operate. This should be available in the unit’s documentation."),
-	html.Br(),
-	dcc.Slider(
+    html.Br(),
+    dcc.Slider(
         id='min_op_temp',
         min= -20,
         max=15,
@@ -157,9 +157,9 @@ app.layout = html.Div([
         -10: '-10',
         -5: '-5',
         0: '0',
-		5: '5',
-		10: '10',
-		15: '15'}
+        5: '5',
+        10: '10',
+        15: '15'}
     ),
     html.Br(),
     html.Label('Please enter your early winter shut down date and late winter turn on date'),html.Abbr(" &nbsp; ", title="If you turn off your heat pump during the coldest part of winter because it no longer operates efficiently, enter the shut-down and restart dates here. If it operates all year round, leave this section blank."),
@@ -173,8 +173,8 @@ app.layout = html.Div([
     dcc.Input(id='inst_cost', type='text'),html.Abbr(" &nbsp; ", title="Please enter the entire cost of the heat pump, including equipment, labor, and incidental costs."),
     html.Br(),
     html.Label('Life of heat pump'), html.Abbr(" &nbsp; ", title="This should be set to 14 years unless there is evidence that a particular model will last shorter or longer than most heat pumps."),
-	html.Br(),
-	dcc.Slider(
+    html.Br(),
+    dcc.Slider(
         id='hp_life',
         min=5,
         max=30,
@@ -186,7 +186,7 @@ app.layout = html.Div([
         14: '14',
         20: '20',
         25: '25',
-		30: '30'}
+        30: '30'}
     ),
     html.Br(),
     html.Label('Annual increase in heating system O&M Cost ($/year)'),
@@ -245,8 +245,8 @@ app.layout = html.Div([
     dcc.Input(id='sales_tx', type='text'),
     html.Br(),
     html.Label('General Inflation Rate %:') ,html.Abbr(" &nbsp; ", title="The default is the inflation rate used by the U.S. Department of Energy. Change this only in special circumstances."),
-	html.Br(),
-	dcc.Slider(
+    html.Br(),
+    dcc.Slider(
         id='inf_rate',
         min=0,
         max=10,
@@ -258,12 +258,12 @@ app.layout = html.Div([
         4: '4',
         6: '6',
         8: '8',
-		10: '10'}
+        10: '10'}
     ),
     html.Br(),
     html.Label('Heating Fuel Price Inflation Rate %:'),html.Abbr(" &nbsp; ", title="This is the predicted annual increase in the price of the chosen heating fuel, based on U.S. Department of Energy estimates."),
-	html.Br(),
-	dcc.Slider(
+    html.Br(),
+    dcc.Slider(
         id='fuel_inf_rate',
         min=0,
         max=10,
@@ -275,12 +275,12 @@ app.layout = html.Div([
         4: '4',
         6: '6',
         8: '8',
-		10: '10'}
+        10: '10'}
     ),
     html.Br(),
     html.Label('Electricity Price Inflation Rate %:') ,html.Abbr(" &nbsp; ", title="This is the predicted annual increase in the price of electricity in this location, based on U.S. Department of Energy estimates."),
-	html.Br(),
-	dcc.Slider(
+    html.Br(),
+    dcc.Slider(
         id='elec_inf_rate',
         min=0,
         max=10,
@@ -292,12 +292,12 @@ app.layout = html.Div([
         4: '4',
         6: '6',
         8: '8',
-		10: '10'}
+        10: '10'}
     ),
     html.Br(),
     html.Label('Discount Rate %:'),html.Abbr(" &nbsp; ", title="This is the rate used to account for the time value of money.  Here are two ways to think of this: 1) the cost of borrowing capital, or 2) the rate of return that you could get if you invested your money in an alternative investment with similar financial risk to a heat pump.  The default discount rate of 5% is based on the U.S. Department of Energy’s estimate."),
-	html.Br(),
-	dcc.Slider(
+    html.Br(),
+    dcc.Slider(
         id='disc_rate',
         min=0,
         max=10,
@@ -309,9 +309,9 @@ app.layout = html.Div([
         4: '4',
         6: '6',
         8: '8',
-		10: '10'}
+        10: '10'}
     ),
-	html.Br(),
+    html.Br(),
     ], id='economics', style={'width': '650px'}),
     html.Div(id='display-value'),
     dcc.Markdown(id='results'),
@@ -352,7 +352,7 @@ def haspce(utility):
 #    is_commercial = chk['IsCommercial']
 #    return would like to set the value of bldg type to residential....
 
-	
+    
 # fuel
 @app.callback(Output('ppu', 'value'),
     [Input('fuel', 'value'), Input('city','value')])
