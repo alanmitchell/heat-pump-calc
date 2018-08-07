@@ -1,0 +1,22 @@
+abbr {
+	position: relative !important;
+}
+
+abbr[title] {
+
+    background-image: url("http://cchrc.org/sites/all/themes/CCHRC/css/info16.png");
+    background-repeat: no-repeat;
+    height: 36px !important;
+    cursor: help;
+    color: transparent;
+    position: absolute !important;
+    background-position-y: center;
+}
+
+.section-title {
+    font-size: 2.0rem; font-weight: 600; letter-spacing: 0.1rem; margin-bottom: 1.5rem; margin-top: 0;
+}
+
+.labeled-comp {
+    margin-bottom: 2rem;
+}
