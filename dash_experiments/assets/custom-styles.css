@@ -13,6 +13,11 @@ abbr[title] {
     background-position-y: center;
 }
 
+i {
+    margin-left: 0.5rem;
+    margin-right: 1.3rem;
+}
+
 .section-title {
     font-size: 2.0rem; font-weight: 600; letter-spacing: 0.1rem; margin-bottom: 1.5rem; margin-top: 0;
 }

@@ -1,8 +1,10 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+from components import LabeledInput, LabeledSlider, LabeledSection
 
 app = dash.Dash()
+app.config.supress_callback_exceptions = True
 
 app.index_string = '''
 <!DOCTYPE html>
@@ -25,45 +27,33 @@ app.index_string = '''
 </html>
 '''
 
-def labeled_input(label, id, help_text='', input_type='number'):
-    
-    label_items = [label + ' ']
-    if len(help_text.strip()):
-        label_items.append(html.I(className="fas fa-question-circle", title=help_text))
-        
-    return html.Div(className='labeled-comp', children=[
-                html.P(children=label_items),
-                dcc.Input(id=id, type=input_type),
-            ])
-
-def input_section(label, children):
-    return [
-        html.Hr(),
-        html.Div(className='row', children=[
-            html.P(label, className='three columns section-title'),
-
-            html.Div(className='nine columns', children=children)
-        ])
-    ]
-
 app.layout = html.Div(className='container', children=[
     
     html.H1(children='Heat Pump Calculator'),
 
-    *input_section('Location Info', [
+    LabeledSection('Location Info', [
 
-        labeled_input('Number of Indoor Units:', 
-                      'indoor-units',
-                      'Enter the number of Heat Pump Indoor Units (heads).'),
+        LabeledInput('Number of Indoor Units:', 
+                     'indoor-units',
+                     'Enter the number of Heat Pump Indoor Units (heads).'),
 
-        labeled_input('Floor Area of Building:', 
-                      'floor-area'),
+        LabeledInput('Floor Area of Building, square feet:', 
+                     'floor-area'),
 
-        labeled_input('Number of Building Occupants:', 
-                      'occupants',
-                      'Enter the number of people living in the building.'),            
+        LabeledInput('Number of Building Occupants:', 
+                     'occupants',
+                     'Enter the number of people living in the building.'),
+        
+        LabeledSlider('Indoor Temperature, °F:',
+                        'indoor-temp',
+                        app,
+                        'Enter the Average Indoor Temperature for the Spaces heated by the Heat Pump.',
+                        min=60, max=80, step=1, value=71, mark_gap=5),
+
+
     ])
 ])
+
 
 if __name__ == '__main__':
     # app.run_server(debug=True)   # use on Windows computer
