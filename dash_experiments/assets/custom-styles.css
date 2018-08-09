@@ -1,21 +1,10 @@
-abbr {
-	position: relative !important;
-}
+/* Custom Styles for the Heat Pump Calculator App */
 
-abbr[title] {
-
-    background-image: url("http://cchrc.org/sites/all/themes/CCHRC/css/info16.png");
-    background-repeat: no-repeat;
-    height: 36px !important;
-    cursor: help;
-    color: transparent;
-    position: absolute !important;
-    background-position-y: center;
-}
-
+/* This is the element that holds an icon. */
 i {
     margin-left: 0.5rem;
     margin-right: 1.3rem;
+    color: #349ccc
 }
 
 .section-title {

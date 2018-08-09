@@ -44,14 +44,37 @@ app.layout = html.Div(className='container', children=[
                      'occupants',
                      'Enter the number of people living in the building.'),
         
-        LabeledSlider('Indoor Temperature, °F:',
-                        'indoor-temp',
-                        app,
-                        'Enter the Average Indoor Temperature for the Spaces heated by the Heat Pump.',
-                        min=60, max=80, step=1, value=71, mark_gap=5),
+        LabeledSlider('Indoor Temperature:',
+                      'indoor-temp',
+                      app,
+                      '°F',
+                      'Enter the Average Indoor Temperature for the Spaces heated by the Heat Pump.',
+                      min=60, max=80, step=1, value=71, mark_gap=5),
+    ]),
 
+    LabeledSection('Economic Inputs', [
 
-    ])
+        html.Details([
+            html.Summary('Click Here to see Advanced Economic Inputs'),
+            html.Div(style={'marginTop': '3rem'}, children=[
+                LabeledSlider('Discount Rate:',
+                            'discount-rate',
+                            app,
+                            '%',
+                            'Enter the Economic Discount Rate, i.e the threshhold rate-of-return for this type of investment.  This rate is a nominal rate *not* adjusted for inflation.',
+                            min=3, max=10, step=0.5, value=5, mark_gap=1),
+
+                LabeledInput('Floor Area of Building, square feet:', 
+                            'floor-area'),
+            ])
+        ])
+
+    ]),
+
+    LabeledSection('Results', [
+        html.P('Results go Here!')
+    ]),
+
 ])
 
 

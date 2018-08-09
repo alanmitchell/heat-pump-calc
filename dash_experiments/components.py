@@ -88,7 +88,7 @@ def LabeledInput(label, id, help_text='', inputmode='numeric', type='number', **
             ])
 
 def LabeledSlider(
-    label, id, app, help_text='', max_width=500, mark_gap=None, marks={},
+    label, id, app, units, help_text='', max_width=500, mark_gap=None, marks={},
     **kwargs):
 
     # Make the Mark dictionary
@@ -107,9 +107,8 @@ def LabeledSlider(
         label_items.append(html.I(className="fas fa-question-circle"))
     label_items.append(html.Span('', id=f'cur-val-{id}'))
 
-    component = html.Div(className='labeled-comp', 
-                         id=f'div-{id}', 
-                         style={'maxWidth': max_width},
+    component = html.Div(id=f'div-{id}', 
+                         style={'maxWidth': max_width, 'marginBottom': '4rem'},
                          children=[
                              html.P(children=label_items, title=help_text),
                              dcc.Slider(id=id,
@@ -119,7 +118,7 @@ def LabeledSlider(
     
     @app.callback(Output(f'cur-val-{id}', 'children'), [Input(id, 'value')])
     def set_cur_val(val):
-        return f'Value = {val}'
+        return f'Value = {val} {units}'
     
     return component
 
