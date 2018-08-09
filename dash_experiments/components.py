@@ -75,21 +75,28 @@ def NamedRadioItems(name, **kwargs):
         ]
     )
 
-def LabeledInput(label, id, help_text='', inputmode='numeric', type='number', **kwargs):
-    
-    label_items = [label + ' ']
+def make_label(label, help_text, trailing_item=None):
+    label_items = [label]
     if len(help_text.strip()):
         label_items.append(html.I(className="fas fa-question-circle"))
-        
+    if trailing_item:
+        label_items.append(trailing_item)
+    return html.P(children=label_items, title=help_text)   
+
+def LabeledInput(label, id, units='', help_text='', inputmode='numeric', type='number', **kwargs):
+            
     return html.Div(className='labeled-comp', id=f'div-{id}',children=[
-                html.P(children=label_items, title=help_text),
-                dcc.Input(id=id, inputmode=inputmode, type=type, 
-                    **_omit(['help_text', 'inputmode', 'type'], kwargs)),
+                make_label(label, help_text),
+                html.P([
+                    dcc.Input(id=id, inputmode=inputmode, type=type, 
+                              style={'maxWidth': 100},
+                              **_omit(['help_text', 'inputmode', 'type'], kwargs)),
+                    html.Span(units, className='label-units')
+                ])
             ])
 
-def LabeledSlider(
-    label, id, app, units, help_text='', max_width=500, mark_gap=None, marks={},
-    **kwargs):
+def LabeledSlider(label, id, app, units='', help_text='', max_width=500, 
+                  mark_gap=None, marks={}, **kwargs):
 
     # Make the Mark dictionary
     if mark_gap:
@@ -102,15 +109,10 @@ def LabeledSlider(
     else:
         final_marks = marks
 
-    label_items = [label + ' ']
-    if len(help_text.strip()):
-        label_items.append(html.I(className="fas fa-question-circle"))
-    label_items.append(html.Span('', id=f'cur-val-{id}'))
-
     component = html.Div(id=f'div-{id}', 
                          style={'maxWidth': max_width, 'marginBottom': '4rem'},
                          children=[
-                             html.P(children=label_items, title=help_text),
+                             make_label(label, help_text, html.Span('', id=f'cur-val-{id}')),
                              dcc.Slider(id=id,
                                         marks=final_marks,
                                         **_omit(['help_text', 'max_width', 'mark_gap', 'marks'], kwargs)),
@@ -122,13 +124,23 @@ def LabeledSlider(
     
     return component
 
+def LabeledDropdown(label, id, help_text='', **kwargs):
+        
+    return html.Div(id=f'div-{id}',
+        style={'margin': '10px 0px'},
+        children=[
+            make_label(label, help_text),
+            dcc.Dropdown(id=id, **kwargs)
+        ]
+    )
+
 
 def LabeledSection(label, children):
     return html.Div(children=[
         html.Hr(),
         html.Div(className='row', children=[
-            html.P(label, className='three columns section-title'),
+            html.P(label, className='two columns section-title'),
 
-            html.Div(className='nine columns', children=children)
+            html.Div(className='ten columns', children=children)
         ])
     ])

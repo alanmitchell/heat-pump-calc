@@ -8,9 +8,13 @@ i {
 }
 
 .section-title {
-    font-size: 2.0rem; font-weight: 600; letter-spacing: 0.1rem; margin-bottom: 1.5rem; margin-top: 0;
+    font-size: 1.8rem; font-weight: 600; letter-spacing: 0.1rem; margin-bottom: 1.5rem; margin-top: 0;
 }
 
 .labeled-comp {
     margin-bottom: 2rem;
+}
+
+.label-units {
+    margin-left: 0.5rem;
 }

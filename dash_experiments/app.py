@@ -35,13 +35,16 @@ app.layout = html.Div(className='container', children=[
 
         LabeledInput('Number of Indoor Units:', 
                      'indoor-units',
+                     'units',
                      'Enter the number of Heat Pump Indoor Units (heads).'),
 
-        LabeledInput('Floor Area of Building, square feet:', 
-                     'floor-area'),
+        LabeledInput('Floor Area of Building:', 
+                     'floor-area',
+                     'square feet'),
 
         LabeledInput('Number of Building Occupants:', 
                      'occupants',
+                     'people',
                      'Enter the number of people living in the building.'),
         
         LabeledSlider('Indoor Temperature:',
@@ -64,8 +67,9 @@ app.layout = html.Div(className='container', children=[
                             'Enter the Economic Discount Rate, i.e the threshhold rate-of-return for this type of investment.  This rate is a nominal rate *not* adjusted for inflation.',
                             min=3, max=10, step=0.5, value=5, mark_gap=1),
 
-                LabeledInput('Floor Area of Building, square feet:', 
-                            'floor-area'),
+                LabeledInput('Floor Area of Building:', 
+                            'floor-area',
+                            'square feet'),
             ])
         ])
 
