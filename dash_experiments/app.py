@@ -1,7 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from components import LabeledInput, LabeledSlider, LabeledSection
+from components import LabeledInput, LabeledSlider, LabeledSection, LabeledTextInput
 
 app = dash.Dash()
 app.config.supress_callback_exceptions = True
@@ -11,7 +11,7 @@ app.index_string = '''
 <html>
     <head>
         {%metas%}
-        <title>Experiments</title>
+        <title>Heat Pump Calculator</title>
         {%favicon%}
         {%css%}
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
@@ -29,8 +29,14 @@ app.index_string = '''
 
 app.layout = html.Div(className='container', children=[
     
-    html.H1(children='Heat Pump Calculator'),
+    html.H1('Heat Pump Calculator'),
 
+    LabeledSection('General', [
+        LabeledTextInput('Building Name', 'bldg-name', size=50),
+        html.P('Enter in any Notes you want to be shown when you print this page.'),
+        html.Textarea(cols=65),
+    ]),
+    
     LabeledSection('Location Info', [
 
         LabeledInput('Number of Indoor Units:', 
@@ -57,7 +63,7 @@ app.layout = html.Div(className='container', children=[
 
     LabeledSection('Economic Inputs', [
 
-        html.Details([
+        html.Details(style={'maxWidth': 400}, children=[
             html.Summary('Click Here to see Advanced Economic Inputs'),
             html.Div(style={'marginTop': '3rem'}, children=[
                 LabeledSlider('Discount Rate:',

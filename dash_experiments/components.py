@@ -84,16 +84,23 @@ def make_label(label, help_text, trailing_item=None):
     return html.P(children=label_items, title=help_text)   
 
 def LabeledInput(label, id, units='', help_text='', inputmode='numeric', type='number', **kwargs):
+
+    # make the paragraph element holding the label, help icon, and units suffix.
+    para = make_label(label, help_text, html.Span(units, className='label-units'))
+
+    # now insert the actual input control into the correct spot in the children list
+    para.children.insert(2, 
+        dcc.Input(id=id, inputmode=inputmode, type=type, 
+                  style={'maxWidth': 100, 'marginLeft': 10},
+                  **kwargs))
             
-    return html.Div(className='labeled-comp', id=f'div-{id}',children=[
-                make_label(label, help_text),
-                html.P([
-                    dcc.Input(id=id, inputmode=inputmode, type=type, 
-                              style={'maxWidth': 100},
-                              **_omit(['help_text', 'inputmode', 'type'], kwargs)),
-                    html.Span(units, className='label-units')
-                ])
-            ])
+    return html.Div(className='labeled-comp', id=f'div-{id}', children=para)
+
+def LabeledTextInput(label, id, help_text='', type='text', **kwargs):
+    return html.Div(className='labeled-comp', id=f'div-{id}', children=[
+                    make_label(label, help_text),
+                    dcc.Input(id=id, type=type, **kwargs)
+                    ])
 
 def LabeledSlider(label, id, app, units='', help_text='', max_width=500, 
                   mark_gap=None, marks={}, **kwargs):
@@ -112,10 +119,10 @@ def LabeledSlider(label, id, app, units='', help_text='', max_width=500,
     component = html.Div(id=f'div-{id}', 
                          style={'maxWidth': max_width, 'marginBottom': '4rem'},
                          children=[
-                             make_label(label, help_text, html.Span('', id=f'cur-val-{id}')),
+                             make_label(label, help_text, html.Span('', id=f'cur-val-{id}', style={'marginLeft': 5})),
                              dcc.Slider(id=id,
                                         marks=final_marks,
-                                        **_omit(['help_text', 'max_width', 'mark_gap', 'marks'], kwargs)),
+                                        **kwargs)
                          ])
     
     @app.callback(Output(f'cur-val-{id}', 'children'), [Input(id, 'value')])
