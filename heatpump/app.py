@@ -330,12 +330,8 @@ def display_value(value):
 @app.callback(Output('utility', 'options'),
     [Input('city', 'value')])
 def find_util(city):
-    series = lib.city_from_id(city)
-    menu = series['ElecUtilities']
-    util_menu = pd.DataFrame(menu)
-    util_menu.columns = ['Utility','ID']
-    
-    return [{'label' : util_menu.get_value(index, 'Utility'), 'value' : util_menu.get_value(index, 'ID')} for index, row in util_menu.iterrows()]  
+    utils = lib.city_from_id(city).ElecUtilities
+    return [{'label': util_name, 'value': util_id} for util_name, util_id in utils]
 
 #fills pce box
 @app.callback(Output('pce_val', 'value'), [Input('utility','value')])
