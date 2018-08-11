@@ -79,6 +79,37 @@ def fuels():
     fuel_list = list(zip(df_fuel.desc, df_fuel.index))
     return fuel_list
 
+def heat_pump_manufacturers(popular_only=False):
+    """Returns the list of heat pump manufacturers, sorted alphabetically.
+    Returns only the manufacturers of popular models if 'popular_only' is True.
+    """
+    if popular_only:
+        return list(df_heatpumps.query('popular == True').brand.unique())
+    else:
+        return list(df_heatpumps.brand.unique())
+
+def heat_pump_models(manufacturer, zones, popular_only=False):
+    """Returns a list of heat pump models (two-tuple: description, id) that
+    are from 'manufacturer' and have the zonal type of 'zones' (which has values
+    of either 'Single' or 'Multi'.  If popular_only is True, only popular models are
+    returned.
+    """
+    q_str = 'brand == @manufacturer and zones == @zones'
+    if popular_only:
+        q_str += ' and popular == True'
+    model_list = []
+    df_models = df_heatpumps.query(q_str).sort_values('capacity_5F_max')
+    for ix, r in df_models.iterrows():
+        lbl = f'Outdoor: {r.outdoor_model} Indoor: {r.indoor_model}, Max at 5 °F = {r.capacity_5F_max:,.0f} Btu/hr, HSPF = {r.hspf}'
+        model_list.append((lbl, ix))
+    return model_list
+
+def heat_pump_from_id(hp_id):
+    """Returns a Pandas series containing information about the heat pump identified by
+    the ID of 'hp_id'.
+    """
+    return df_heatpumps.loc[hp_id]
+
 def fuel_from_id(fuel_id):
     """Returns a Pandas Series of fuel information for the fuel with
     and ID of 'fuel_id'
@@ -110,7 +141,11 @@ df_city = get_df('city-util/proc/city.pkl')
 # Retrieve the Miscellaneous Information and store into a Pandas Series.
 misc_info = get_df('city-util/proc/misc_info.pkl')
 
+# Retrive the list of utilities
 df_util = get_df('city-util/proc/utility.pkl')
+
+# Retrive list of Heat Pumps
+df_heatpumps = get_df('heat-pump/proc/hp_specs.pkl')
 
 # Retrieve the Fuel information and store in a DataFrame
 df_fuel = pd.read_excel(os.path.join(data_dir, 'Fuel.xlsx'), index_col='id')
