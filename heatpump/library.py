@@ -73,12 +73,6 @@ def miscellaneous_info():
     """
     return misc_info
 
-def fuels():
-    """Returns a list of (fuel name, fuel ID) for all fuels.
-    """
-    fuel_list = list(zip(df_fuel.desc, df_fuel.index))
-    return fuel_list
-
 def heat_pump_manufacturers(popular_only=False):
     """Returns the list of heat pump manufacturers, sorted alphabetically.
     Returns only the manufacturers of popular models if 'popular_only' is True.
@@ -109,6 +103,12 @@ def heat_pump_from_id(hp_id):
     the ID of 'hp_id'.
     """
     return df_heatpumps.loc[hp_id]
+
+def fuels():
+    """Returns a list of (fuel name, fuel ID) for all fuels.
+    """
+    fuel_list = list(zip(df_fuel.desc, df_fuel.index))
+    return fuel_list
 
 def fuel_from_id(fuel_id):
     """Returns a Pandas Series of fuel information for the fuel with

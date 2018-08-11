@@ -6,7 +6,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from components import LabeledInput, LabeledSlider, LabeledSection, LabeledTextInput, \
-    LabeledDropdown
+    LabeledDropdown, LabeledRadioItems, LabeledChecklist
 
 app = dash.Dash()
 app.config.supress_callback_exceptions = True
@@ -48,6 +48,20 @@ app.layout = html.Div(className='container', children=[
                         options=[{'label': 'Anchorage', 'value': 1}, {'label': 'Fairbanks', 'value': 2}],
                         placeholder='Select City'),
 
+        LabeledRadioItems('Type of Heat Pump: Single- or Multi-zone:',
+                          'zones',
+                          'Select the number of Indoor Units present on the Heat Pump.',
+                          options= [
+                              {'label': 'Single Zone', 'value': 1},
+                              {'label': 'Multi Zone: 2 zones', 'value': 2},
+                              {'label': 'Multi Zone: 3 zones', 'value': 3}],
+                          value=1),
+        
+        LabeledChecklist('Check the Box if Indoor Units are mounted 6 feet or higher on wall:',
+                         'indoor-unit-height',
+                         options=[{'label': "Indoor Unit mounted 6' or higher", 'value': 'in_ht_6'}],
+                         values=[]),
+
         LabeledInput('Number of Indoor Units:', 
                      'indoor-units',
                      'units',
@@ -56,12 +70,7 @@ app.layout = html.Div(className='container', children=[
         LabeledInput('Floor Area of Building:', 
                      'floor-area',
                      'square feet'),
-
-        LabeledInput('Number of Building Occupants:', 
-                     'occupants',
-                     'people',
-                     'Enter the number of people living in the building.'),
-        
+       
         LabeledSlider('Indoor Temperature:',
                       'indoor-temp',
                       app,
