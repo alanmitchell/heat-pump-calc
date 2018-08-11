@@ -5,7 +5,7 @@ Requires version 0.23 or later of Dash.
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from components import LabeledInput, LabeledSlider, LabeledSection, LabeledTextInput, \
+from .components import LabeledInput, LabeledSlider, LabeledSection, LabeledTextInput, \
     LabeledDropdown, LabeledRadioItems, LabeledChecklist
 
 app = dash.Dash()
