@@ -1,7 +1,12 @@
+"""
+Heat Pump Calculator Dash Application.
+Requires version 0.23 or later of Dash.
+"""
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from components import LabeledInput, LabeledSlider, LabeledSection, LabeledTextInput
+from components import LabeledInput, LabeledSlider, LabeledSection, LabeledTextInput, \
+    LabeledDropdown
 
 app = dash.Dash()
 app.config.supress_callback_exceptions = True
@@ -29,15 +34,19 @@ app.index_string = '''
 
 app.layout = html.Div(className='container', children=[
     
-    html.H1('Heat Pump Calculator'),
+    html.H1('Mini-Split Heat Pump Calculator'),
 
     LabeledSection('General', [
         LabeledTextInput('Building Name', 'bldg-name', size=50),
         html.P('Enter in any Notes you want to be shown when you print this page.'),
-        html.Textarea(cols=65),
+        html.Textarea(style={'width': '100%'}),
     ]),
     
     LabeledSection('Location Info', [
+
+        LabeledDropdown('City where Building is Located:', 'city',
+                        options=[{'label': 'Anchorage', 'value': 1}, {'label': 'Fairbanks', 'value': 2}],
+                        placeholder='Select City'),
 
         LabeledInput('Number of Indoor Units:', 
                      'indoor-units',
@@ -63,7 +72,7 @@ app.layout = html.Div(className='container', children=[
 
     LabeledSection('Economic Inputs', [
 
-        html.Details(style={'maxWidth': 400}, children=[
+        html.Details(style={'maxWidth': 550}, children=[
             html.Summary('Click Here to see Advanced Economic Inputs'),
             html.Div(style={'marginTop': '3rem'}, children=[
                 LabeledSlider('Discount Rate:',

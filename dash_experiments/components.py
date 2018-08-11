@@ -131,15 +131,13 @@ def LabeledSlider(label, id, app, units='', help_text='', max_width=500,
     
     return component
 
-def LabeledDropdown(label, id, help_text='', **kwargs):
+def LabeledDropdown(label, id, help_text='', max_width=500, **kwargs):
         
-    return html.Div(id=f'div-{id}',
-        style={'margin': '10px 0px'},
-        children=[
-            make_label(label, help_text),
-            dcc.Dropdown(id=id, **kwargs)
-        ]
-    )
+    return html.Div(className='labeled-comp', id=f'div-{id}', style={'maxWidth': max_width},
+                    children=[
+                        make_label(label, help_text),
+                        dcc.Dropdown(id=id, **kwargs)
+                    ])
 
 
 def LabeledSection(label, children):

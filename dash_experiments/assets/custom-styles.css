@@ -1,5 +1,7 @@
 /* Custom Styles for the Heat Pump Calculator App */
 
+h1 { font-size: 4.0 rem }
+
 /* This is the element that holds an icon. */
 i {
     margin-left: 0.5rem;
