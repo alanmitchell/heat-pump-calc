@@ -73,14 +73,14 @@ def miscellaneous_info():
     """
     return misc_info
 
-def heat_pump_manufacturers(popular_only=False):
+def heat_pump_manufacturers(zones, popular_only=False):
     """Returns the list of heat pump manufacturers, sorted alphabetically.
     Returns only the manufacturers of popular models if 'popular_only' is True.
     """
     if popular_only:
-        return list(df_heatpumps.query('popular == True').brand.unique())
+        return list(df_heatpumps.query('zones == @zones and popular == True').brand.unique())
     else:
-        return list(df_heatpumps.brand.unique())
+        return list(df_heatpumps.query('zones == @zones').brand.unique())
 
 def heat_pump_models(manufacturer, zones, popular_only=False):
     """Returns a list of heat pump models (two-tuple: description, id) that
@@ -94,7 +94,7 @@ def heat_pump_models(manufacturer, zones, popular_only=False):
     model_list = []
     df_models = df_heatpumps.query(q_str).sort_values('capacity_5F_max')
     for ix, r in df_models.iterrows():
-        lbl = f'Outdoor: {r.outdoor_model} Indoor: {r.indoor_model}, Max at 5 °F = {r.capacity_5F_max:,.0f} Btu/hr, HSPF = {r.hspf}'
+        lbl = f'Outdoor: {r.outdoor_model} In: {r.indoor_model}, 5°F Max {r.capacity_5F_max:,.0f} Btu/hr, HSPF {r.hspf}'
         model_list.append((lbl, ix))
     return model_list
 

@@ -69,7 +69,7 @@ def LabeledSlider(label, id, app, units='', help_text='', max_width=500,
     
     return component
 
-def LabeledDropdown(label, id, help_text='', max_width=500, **kwargs):
+def LabeledDropdown(label, id, help_text='', max_width=400, **kwargs):
         
     return html.Div(className='labeled-comp', id=f'div-{id}', style={'maxWidth': max_width},
                     children=[
@@ -77,17 +77,17 @@ def LabeledDropdown(label, id, help_text='', max_width=500, **kwargs):
                         dcc.Dropdown(id=id, **kwargs)
                     ])
 
-def LabeledRadioItems(label, id, help_text='', **kwargs):
+def LabeledRadioItems(label, id, help_text='', max_width=400, **kwargs):
         
-    return html.Div(className='labeled-comp', id=f'div-{id}',
+    return html.Div(className='labeled-comp', id=f'div-{id}', style={'maxWidth': max_width},
                     children=[
                         make_label(label, help_text),
                         dcc.RadioItems(id=id, **kwargs)
                     ])
 
-def LabeledChecklist(label, id, help_text='', **kwargs):
+def LabeledChecklist(label, id, help_text='', max_width=400, **kwargs):
         
-    return html.Div(className='labeled-comp', id=f'div-{id}',
+    return html.Div(className='labeled-comp', id=f'div-{id}', style={'maxWidth': max_width},
                     children=[
                         make_label(label, help_text),
                         dcc.Checklist(id=id, **kwargs)
