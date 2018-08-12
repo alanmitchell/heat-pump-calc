@@ -70,9 +70,9 @@ app.layout = html.Div(className='container', children=[
                               {'label': 'Multi Zone: 3 zones', 'value': 3}],
                           value=1),
         
-        LabeledChecklist('Show Popular, Efficient Units Only?', 'popular-only',
-                         options=[{'label': 'Popular/Efficient Only', 'value': 'popular'}],
-                         values=['popular']),
+        LabeledChecklist('Show Most Efficient Units Only?', 'efficient-only',
+                         options=[{'label': 'Efficient Only', 'value': 'efficient'}],
+                         values=['efficient']),
 
         LabeledDropdown('Heat Pump Manufacturer:', 'hp-manuf',
                         options=[],
@@ -120,17 +120,17 @@ app.layout = html.Div(className='container', children=[
 ])
 
 
-@app.callback(Output('hp-manuf', 'options'), [Input('zones', 'value'), Input('popular-only', 'values')])
-def hp_brands(zones, pop_check_list):
+@app.callback(Output('hp-manuf', 'options'), [Input('zones', 'value'), Input('efficient-only', 'values')])
+def hp_brands(zones, effic_check_list):
     zone_type = 'Single' if zones==1 else 'Multi'
-    manuf_list = lib.heat_pump_manufacturers(zone_type, 'popular' in pop_check_list)
+    manuf_list = lib.heat_pump_manufacturers(zone_type, 'efficient' in effic_check_list)
     return [{'label': brand, 'value': brand} for brand in manuf_list]
 
 @app.callback(Output('hp-model', 'options'), 
-              [Input('hp-manuf', 'value'), Input('zones', 'value'), Input('popular-only', 'values')])
-def hp_models(manuf, zones, pop_check_list):
+              [Input('hp-manuf', 'value'), Input('zones', 'value'), Input('efficient-only', 'values')])
+def hp_models(manuf, zones, effic_check_list):
     zone_type = 'Single' if zones==1 else 'Multi'
-    model_list = lib.heat_pump_models(manuf, zone_type, 'popular' in pop_check_list)
+    model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
     return [{'label': lbl, 'value': id} for lbl, id in model_list]
 
 

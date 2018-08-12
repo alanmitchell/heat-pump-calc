@@ -73,24 +73,33 @@ def miscellaneous_info():
     """
     return misc_info
 
-def heat_pump_manufacturers(zones, popular_only=False):
-    """Returns the list of heat pump manufacturers, sorted alphabetically.
-    Returns only the manufacturers of popular models if 'popular_only' is True.
+def effic_cutoff(zone_type):
+    """Returns the HSPF cutoff for determinig whether a heat pump is qualified
+    as efficient or not. 'zone_type' is 'Single' for 'Multi', which affects the
+    cutoff.
     """
-    if popular_only:
-        return list(df_heatpumps.query('zones == @zones and popular == True').brand.unique())
+    return 12.0 if zone_type=='Single' else 11.0
+
+def heat_pump_manufacturers(zones, efficient_only=False):
+    """Returns the list of heat pump manufacturers, sorted alphabetically.
+    Returns only the manufacturers of efficient models if 'efficient_only' is True.
+    """
+    if efficient_only:
+        hspf_cutoff = effic_cutoff(zones)
+        return list(df_heatpumps.query('zones == @zones and hspf >= @hspf_cutoff').brand.unique())
     else:
         return list(df_heatpumps.query('zones == @zones').brand.unique())
 
-def heat_pump_models(manufacturer, zones, popular_only=False):
+def heat_pump_models(manufacturer, zones, efficient_only=False):
     """Returns a list of heat pump models (two-tuple: description, id) that
     are from 'manufacturer' and have the zonal type of 'zones' (which has values
-    of either 'Single' or 'Multi'.  If popular_only is True, only popular models are
+    of either 'Single' or 'Multi'.  If 'efficient_only' is True, only efficient models are
     returned.
     """
     q_str = 'brand == @manufacturer and zones == @zones'
-    if popular_only:
-        q_str += ' and popular == True'
+    if efficient_only:
+        hspf_cutoff = effic_cutoff(zones)
+        q_str += ' and hspf >= @hspf_cutoff'
     model_list = []
     df_models = df_heatpumps.query(q_str).sort_values('capacity_5F_max')
     for ix, r in df_models.iterrows():
