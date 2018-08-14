@@ -84,12 +84,13 @@ def heat_pump_manufacturers(zones, efficient_only=False):
     """Returns the list of heat pump manufacturers, sorted alphabetically.
     Returns only the manufacturers of efficient models if 'efficient_only' is True.
     """
+    q_str = 'zones == @zones'
     if efficient_only:
         hspf_cutoff = effic_cutoff(zones)
-        return list(df_heatpumps.query('zones == @zones and hspf >= @hspf_cutoff').brand.unique())
-    else:
-        return list(df_heatpumps.query('zones == @zones').brand.unique())
-
+        q_str += ' and hspf >= @hspf_cutoff'
+    brands = df_heatpumps.query(q_str).brand.unique()
+    return sorted(brands)
+    
 def heat_pump_models(manufacturer, zones, efficient_only=False):
     """Returns a list of heat pump models (two-tuple: description, id) that
     are from 'manufacturer' and have the zonal type of 'zones' (which has values
@@ -101,9 +102,9 @@ def heat_pump_models(manufacturer, zones, efficient_only=False):
         hspf_cutoff = effic_cutoff(zones)
         q_str += ' and hspf >= @hspf_cutoff'
     model_list = []
-    df_models = df_heatpumps.query(q_str).sort_values('capacity_5F_max')
+    df_models = df_heatpumps.query(q_str).sort_values(['capacity_5F_max', 'hspf'], ascending=[True, False])
     for ix, r in df_models.iterrows():
-        lbl = f'Outdoor: {r.outdoor_model} In: {r.indoor_model}, 5°F Max {r.capacity_5F_max:,.0f} Btu/hr, HSPF {r.hspf}'
+        lbl = f'{r.capacity_5F_max:,.0f} Btu/hr Max at 5°F | HSPF {r.hspf} | Out: {r.outdoor_model} | In: {r.indoor_model}'
         model_list.append((lbl, ix))
     return model_list
 

@@ -113,12 +113,26 @@ app.layout = html.Div(className='container', children=[
 
     ]),
 
+    LabeledSection('Test Div Show/Hide', [
+        LabeledRadioItems('Select Div to Show:', 'div-selector',
+                          options= [
+                              {'label': 'Div1', 'value': 1},
+                              {'label': 'Div2', 'value': 2}],
+                          value=1),
+        html.Div(id='div1', children=[
+                            'This is Div1',
+                            LabeledDropdown('Heat Pump Model:', 'hp-model2',
+                                            options=[],
+                                            max_width=1000)   # wide as possible
+                            ]),
+        html.Div(id='div2', children='This is Div2')
+    ]),
+
     LabeledSection('Results', [
         html.P('Results go Here!')
     ]),
 
 ])
-
 
 @app.callback(Output('hp-manuf', 'options'), [Input('zones', 'value'), Input('efficient-only', 'values')])
 def hp_brands(zones, effic_check_list):
@@ -133,8 +147,27 @@ def hp_models(manuf, zones, effic_check_list):
     model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
     return [{'label': lbl, 'value': id} for lbl, id in model_list]
 
+@app.callback(Output('div1', 'style'), [Input('div-selector', 'value')])
+def toggle_container1(selector_value):
+    if selector_value == 1:
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+@app.callback(Output('div2', 'style'), [Input('div-selector', 'value')])
+def toggle_container2(selector_value):
+    if selector_value == 2:
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+@app.callback(Output('hp-model2', 'options'), 
+              [Input('hp-manuf', 'value'), Input('zones', 'value'), Input('efficient-only', 'values')])
+def hp_models2(manuf, zones, effic_check_list):
+    zone_type = 'Single' if zones==1 else 'Multi'
+    model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
+    return [{'label': lbl, 'value': id} for lbl, id in model_list]
 
 if __name__ == '__main__':
-    # app.run_server(debug=True)   # use on Windows computer
-    app.run_server(debug=True, host='0.0.0.0')   # use on Pixelbook
+    app.run_server(debug=True)   # use on Windows computer
     
