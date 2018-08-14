@@ -53,21 +53,20 @@ app.layout = html.Div(className='container', children=[
         LabeledInput('Floor Area of Building:', 'floor-area',
                      'square feet'),
        
-        LabeledSlider('Indoor Temperature:', 'indoor-temp',
-                      app,
-                      '°F',
+        LabeledSlider(app, 'Indoor Temperature:', 'indoor-temp',
+                      60, 80, '°F',
                       'Enter the Average Indoor Temperature for the Spaces heated by the Heat Pump.',
-                      min=60, max=80, step=1, value=71, mark_gap=5),
+                      mark_gap=5, step=1, value=71),
     ]),
     
     LabeledSection('Heat Pump Info', [
         
         LabeledRadioItems('Type of Heat Pump: Single- or Multi-zone:', 'zones',
-                          'Select the number of Indoor Units present on the Heat Pump.',
+                          'Select the number of Indoor Units (heads) installed on the Heat Pump.',
                           options= [
                               {'label': 'Single Zone', 'value': 1},
-                              {'label': 'Multi Zone: 2 zones', 'value': 2},
-                              {'label': 'Multi Zone: 3 zones', 'value': 3}],
+                              {'label': 'Multi Zone: 2 zones installed', 'value': 2},
+                              {'label': 'Multi Zone: 3 zones installed', 'value': 3}],
                           value=1),
         
         LabeledChecklist('Show Most Efficient Units Only?', 'efficient-only',
@@ -98,12 +97,10 @@ app.layout = html.Div(className='container', children=[
         html.Details(style={'maxWidth': 550}, children=[
             html.Summary('Click Here to see Advanced Economic Inputs'),
             html.Div(style={'marginTop': '3rem'}, children=[
-                LabeledSlider('Discount Rate:',
-                            'discount-rate',
-                            app,
-                            '%',
+                LabeledSlider(app, 'Discount Rate:', 'discount-rate',
+                            3, 10, '%',
                             'Enter the Economic Discount Rate, i.e the threshhold rate-of-return for this type of investment.  This rate is a nominal rate *not* adjusted for inflation.',
-                            min=3, max=10, step=0.5, value=5, mark_gap=1),
+                            mark_gap=1, step=0.5, value=5),
 
                 LabeledInput('Floor Area of Building:', 
                             'floor-area',
