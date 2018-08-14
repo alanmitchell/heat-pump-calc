@@ -21,6 +21,11 @@ import requests
 # The base URL to the site where the remote files are located
 base_url = 'http://ak-energy-data.analysisnorth.com/'
 
+# They also can be pulled from the GitHub repo using the rawgit.com service.
+# The advantage is that you point to a particular commit, so the files and their
+# structure will never change.
+#base_url = 'https://cdn.rawgit.com/alanmitchell/ak-energy-admin/75db23ba/data/'
+
 def get_df(file_path):
     """Returns a Pandas DataFrame that is found at the 'file_path'
     below the Base URL for accessing data.  The 'file_path' should end
@@ -137,6 +142,8 @@ def tmy_from_id(tmy_id):
 # -----------------------------------------------------------------
 # Key datasets are read in here and are available as module-level
 # variables for use in the functions above.
+import time
+st = time.time()
 
 # Determine the directory where the local data files are located
 this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -175,3 +182,4 @@ df_fuel['btus'] = df_fuel.btus.astype(float)
 # effic                0.8
 # price_col       GasPrice
 
+print(time.time() - st)
