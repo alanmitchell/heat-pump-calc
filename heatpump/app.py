@@ -12,7 +12,7 @@ from .components import LabeledInput, LabeledSlider, LabeledSection, LabeledText
     LabeledDropdown, LabeledRadioItems, LabeledChecklist
 from . import library as lib
 
-app = dash.Dash()
+app = dash.Dash(__name__)
 app.config.supress_callback_exceptions = True
 server = app.server             # this is the underlying Flask app
 
