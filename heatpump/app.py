@@ -48,7 +48,7 @@ app.layout = html.Div(className='container', children=[
     
     html.H1('Alaska Mini-Split Heat Pump Calculator'),
 
-    html.P('Explanation here of what the Calculator does.'),
+    html.P('Explanation here of what the Calculator does. Credits and logos of sponsoring organizations.'),
 
     LabeledSection('General', [
         LabeledTextInput('Building Name', 'bldg-name', size=50),
@@ -206,6 +206,10 @@ app.layout = html.Div(className='container', children=[
     LabeledSection('Results', [
         html.P('Results go Here!')
     ]),
+
+    html.Hr(),
+
+    html.P('Some sort of Footer goes here.'),
 
 ])
 
