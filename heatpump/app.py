@@ -14,6 +14,7 @@ from . import library as lib
 
 app = dash.Dash()
 app.config.supress_callback_exceptions = True
+server = app.server             # this is the underlying Flask app
 
 app.index_string = '''
 <!DOCTYPE html>
