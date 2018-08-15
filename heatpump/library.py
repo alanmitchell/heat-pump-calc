@@ -8,6 +8,7 @@ See the bottom is file for documentation of those datasets.
 """
 import os
 import io
+import math
 import functools
 import urllib
 
@@ -57,7 +58,11 @@ def fuel_price(fuel_id, city_id):
     """
     city = df_city.loc[city_id]
     fuel = df_fuel.loc[fuel_id]
-    return city[fuel.price_col]
+    if type(fuel.price_col) == str:
+        return city[fuel.price_col]
+    else:
+        # Price column is a NaN and not present for electricity
+        return math.nan
 
 def utilities():
     """List of all (utility rate name, utility ID) for all utility rate
@@ -142,8 +147,9 @@ def tmy_from_id(tmy_id):
 # -----------------------------------------------------------------
 # Key datasets are read in here and are available as module-level
 # variables for use in the functions above.
-import time
-st = time.time()
+
+# import time
+# st = time.time()
 
 # Determine the directory where the local data files are located
 this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -168,6 +174,10 @@ df_heatpumps = get_df('heat-pump/proc/hp_specs.pkl')
 df_fuel = pd.read_excel(os.path.join(data_dir, 'Fuel.xlsx'), index_col='id')
 df_fuel['btus'] = df_fuel.btus.astype(float)
 
+# Change the Efficiency choices column into a Python list (it is a string
+# right now.)
+df_fuel['effic_choices'] = df_fuel.effic_choices.apply(eval)
+
 # -------------------------------------------------------------------------------------
 # For documentation of the remotely acquired DataFrames, see:
 # http://ak-energy-data.analysisnorth.com/
@@ -175,11 +185,11 @@ df_fuel['btus'] = df_fuel.btus.astype(float)
 # For the df_fuel DataFrame, here is a sample row:
 # The Index is the 'id' of fuel
 #
-# desc         Natural Gas
-# unit                 ccf
-# btus              103700
-# co2                  117
-# effic                0.8
-# price_col       GasPrice
+# desc                                                   Natural Gas
+# unit                                                           ccf
+# btus                                                        103700
+# co2                                                            117
+# price_col                                                 GasPrice
+# effic_choices    [(Standard, 80), (High Efficiency Condensing, ...
 
-print(time.time() - st)
+# print(time.time() - st)

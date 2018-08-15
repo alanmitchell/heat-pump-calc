@@ -51,7 +51,7 @@ def LabeledInput(label, id, units='', help_text='', inputmode='numeric', type='n
     para = make_label(label, help_text, html.Span(units, className='label-units'))
 
     # now insert the actual input control into the correct spot in the children list
-    para.children.insert(2, 
+    para.children.insert(-1, 
         dcc.Input(id=id, inputmode=inputmode, type=type, 
                   style={'maxWidth': 100, 'marginLeft': 10},
                   **kwargs))
