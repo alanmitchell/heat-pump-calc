@@ -13,9 +13,14 @@ from .components import LabeledInput, LabeledSlider, LabeledSection, LabeledText
 from . import library as lib
 
 app = dash.Dash(__name__)
-app.config.supress_callback_exceptions = True
 server = app.server             # this is the underlying Flask app
 
+# This is needed to assign callbacks prior to layout being loaded, which
+# is done in the LabeledSlider() component.
+app.config.supress_callback_exceptions = True
+
+# Overriding the index template allows you to change the title of the
+# application and load external resources.
 app.index_string = '''
 <!DOCTYPE html>
 <html>
@@ -36,6 +41,8 @@ app.index_string = '''
     </body>
 </html>
 '''
+
+# -------------------------------------- LAYOUT ---------------------------------------------
 
 app.layout = html.Div(className='container', children=[
     
@@ -202,6 +209,8 @@ app.layout = html.Div(className='container', children=[
 
 ])
 
+# -------------------------------------- CALLBACKS ---------------------------------------------
+
 @app.callback(Output('hp-manuf', 'options'), [Input('zones', 'value'), Input('efficient-only', 'values')])
 def hp_brands(zones, effic_check_list):
     zone_type = 'Single' if zones==1 else 'Multi'
@@ -236,6 +245,7 @@ def hp_models2(manuf, zones, effic_check_list):
     model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
     return [{'label': lbl, 'value': id} for lbl, id in model_list]
 
+# -------------------------------------- MAIN ---------------------------------------------
+
 if __name__ == '__main__':
     app.run_server(debug=True)   # use on Windows computer
-    
