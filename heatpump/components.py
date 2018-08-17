@@ -43,12 +43,14 @@ def LabeledSection(label, children):
 # function are passed to the main Dash component wrapped by the function call.
 
 def LabeledInput(label, id, units='', help_text='', inputmode='numeric', type='number', **kwargs):
-    """ 'inputmode' and 'type' are arguments to the dcc.Input component but are
+    """ This component is meant for Numeric input.  Use the "LabeledTexInput" component for
+    text input.  
+    'inputmode' and 'type' are arguments to the dcc.Input component but are
     called out explicitly in the argument list in order to change their default values.
     """
 
     # make the paragraph element holding the label, help icon, and units suffix.
-    para = make_label(label, help_text, html.Span(units, className='label-units'))
+    para = make_label(label, help_text, html.Span(units, id=f'units-{id}', className='label-units'))
 
     # now insert the actual input control into the correct spot in the children list
     para.children.insert(-1, 
@@ -59,7 +61,9 @@ def LabeledInput(label, id, units='', help_text='', inputmode='numeric', type='n
     return html.Div(className='labeled-comp', id=f'div-{id}', children=para)
 
 def LabeledTextInput(label, id, help_text='', type='text', **kwargs):
-    """ 'type' is an argument to the dcc.Input component but is called out 
+    """ This is meant for text input.  Use the "LabeledInput" for numeric
+    input.
+    'type' is an argument to the dcc.Input component but is called out 
     explicitly in the argument list in order to change its default values.
     """
     return html.Div(className='labeled-comp', id=f'div-{id}', children=[
