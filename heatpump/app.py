@@ -10,6 +10,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 from .components import LabeledInput, LabeledSlider, LabeledSection, LabeledTextInput, \
     LabeledDropdown, LabeledRadioItems, LabeledChecklist
+import numpy as np	
 from . import library as lib
 
 app = dash.Dash(__name__)
@@ -42,6 +43,17 @@ app.index_string = '''
 </html>
 '''
 
+# -------------------------------------- DEFINITIONS -------------------------------------- 
+rd_elec_inputs = ['Select Utility Rate Schedule','Manual Entry','Manual Entry (Advanced)']
+
+rd_bldg_types = ['Residential', 'Community Building', 'Commercial Building']
+
+rd_comm_pce = ['Yes','No']
+
+rd_aux_elec = ['No Fans/Pumps (e.g. wood stove)', 'Hydronic (boiler)', 'Fan-assisted Space Heater (e.g. Toyostove)','Forced Air Furnace']  
+
+rd_units = ['Gal', 'CCF', 'Other']
+
 # -------------------------------------- LAYOUT ---------------------------------------------
 
 app.layout = html.Div(className='container', children=[
@@ -59,44 +71,67 @@ app.layout = html.Div(className='container', children=[
     LabeledSection('Location Info', [
 
         LabeledDropdown('City where Building is Located:', 'city',
-                        options=[{'label': 'Anchorage', 'value': 1}, {'label': 'Fairbanks', 'value': 2}],
+                        options=[{'label': 'Anchorage', 'value': 1}, {'label': 'Fairbanks', 'value': 293}], #Alan, you originally had 2 for the fbx value which was pulling Adak, I went in and entered the correct id for fbx
                         placeholder='Select City'),
+        
+        LabeledRadioItems('Input method:', 'elec_input',
+                          'Choose Select Utility Rate Schedule if you would like to select a utility based on your location. Select Manual Entry if you would like to manually enter utility and PCE rates. Finally, select Manual Entry (Advanced) if you would like to enter block rates. * A copy of your utility bill will be necessary for both manual entry options.',
+                          options=[{'label': i, 'value': i} for i in rd_elec_inputs], 
+                          value = [],),
+    html.Div([                  
+        LabeledDropdown('Select your utility','utility', options=[],placeholder='Select Utility Company'),
+        LabeledTextInput('PCE:','pce_val',type='number'),
+        ],id='div-schedule',style={'display': 'none'}),
 
-        dcc.Markdown(dedent("""\
-            Inputs to Add:
-
-            * All the Electric Utility inputs from before.  Use style={'display': 'none'} to hide a Div,
-            and style={'display': 'block'} to show a Div.  This will retain the options present in a
-            Dropdown and will preserve the current value of an Inputbox.
-            * For the CO2 Slider input, the range should go from 0 pounds/kWh to 4 pounds/kWh, and
-            the marks are:  Renewables/Wood = 0, Natural Gas = 1.1, Large Diesel = 1.6, 
-            Small Diesel = 1.9, Coal = 3.2
-            """)),
+    html.Div([html.Table(
+        [
+            html.Tr( [html.Label('Enter Electric Rate $/kWh'), html.Td(dcc.Input(id='man_elec_rate',type='text'))] ),
+            html.Tr( [html.Td(html.Label('Enter PCE Rate in $/kWh')), html.Td(dcc.Input(id='man_elec_pce', type='text'))] ),                    
+        ]
+    ),],id='div-man-ez', style={'display': 'none'}),
+    
+    html.Div([html.Label('Enter block rates:'),
+        html.Table(
+            [
+                html.Tr( [html.Th("kWh range"), html.Th("Block kWh"), html.Th("Block rate")] )
+            ] +
+            [
+                html.Tr( [html.Td("0 -  "), html.Td(dcc.Input(id='block_k', type='text')), html.Td(dcc.Input(id='block_r', type='text'))] ),
+                html.Tr( [html.Td(dcc.Input(id='block_0', type='text')), html.Td(dcc.Input(id='block_k2', type='text')), html.Td(dcc.Input(id='block_r2', type='text'))] ),
+                html.Tr( [html.Td(dcc.Input(id='block_1', type='text')), html.Td(dcc.Input(id='block_k3', type='text')), html.Td(dcc.Input(id='block_r3', type='text'))] ),
+                html.Tr( [html.Td(dcc.Input(id='block_2', type='text')), html.Td(dcc.Input(id='block_k4', type='text')), html.Td(dcc.Input(id='block_r4', type='text'))] ),
+                html.Tr( [html.Td('Demand Charge in $/kWh', colSpan='2'), html.Td(dcc.Input(id='demand_charge', type='text'))] ),
+                html.Tr( [html.Td('Customer Charge in $', colSpan='2'), html.Td(dcc.Input(id='customer_charge',type='text'))] ),
+                html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(dcc.Input(id='man_elec_pce2',type='text'))] ),
+                
+            ]
+        ),],id='div-man-adv', style={'display': 'none'}),
+        
+        LabeledSlider(app, 'Pounds of CO2 per kWh of incremental electricity generation:', 'elec-co2', 
+            0, 4, 'pounds/kWh',
+            max_width = 800,
+            marks = {0: 'Renewables/Wood', 1.1: 'Natural Gas', 1.6: 'Lg Diesel', 1.9: 'Sm Diesel', 3.2: 'Coal' },
+            step=0.1, value= 1.6,
+            ),
     ]),
 
     LabeledSection('Building Characteristics', [
-        dcc.Markdown(dedent("""\
-            Inputs to Add:
-
-            * Floor area of Building, excluding Garage, square feet.
-            * Year Built Input box.
-            * Wall Construction RadioItems: 2x4, 2x6, better than 2x6
-            * Fuel Type of Existing Space Heating System (Dropdown).
-            * Efficiency of Existing Heating System. RadioItems: call the `fuel_from_id(fuel_id)` function,
-            and then create radio items from the list found in the `effic_choices` property of that Series.
-            * Type of Heating System for determining Auxiliary Electric use (i.e. fans, pumps, controls).
-            RadioItems:  No Fans/Pumps (e.g. wood stove), Hydronic (boiler), Fan-assisted Space Heater (e.g. Toyostove),
-            Forced Air Furnace
-            * Annual Space Heating Fuel Use in physical units (gallons, CCF, etc.).  But make it clear
-            this is an optional input and can be left blank.  If left blank, size, year built, and 
-            construction will be used to estimate existing fuel use.
-            * Whole Building Electricity Use (without heat pump) in January, kWh.  Default to the value found in the
-            `avg_elec_usage` property for this City.  Caution against changing the default if they
-            don't have their actual utility bills.
-            * Whole Building Electricity Use (without heat pump) in May, kWh.  Default to the value found in the
-            `avg_elec_usage` property for this City.
-            """)),
-
+        LabeledTextInput('Building Floor Area, excluding garage (ft/sq)', 'ht_floor_area', type='number', size=6),
+        LabeledTextInput('Year built', 'yr_blt', type='number', size=4),
+        LabeledRadioItems('Wall Construction:', 'wall_const', options=[{'label': '2x4', 'value': 1}, {'label': '2x6', 'value': 2},{'label': 'better than 2x6', 'value': 3}],
+                       value = [],),
+        LabeledDropdown('Select existing heating fuel type', 'fuel',
+                options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()],
+                ),
+        LabeledTextInput('Price Per Unit:', 'ppu', type='number'),     
+        LabeledDropdown('Efficiency of Existing Heating System','ht_eff', options=[],placeholder='NOT WORKING :('),		
+        LabeledRadioItems('Auxiliary electricity use from existing heating system:', 'aux_elec', options=[{'label': i, 'value': i} for i in rd_aux_elec],
+        value = 'Fan-assisted Space Heater (e.g. Toyostove)',help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system.'),
+        LabeledTextInput('(Optional) Annual space heating fuel cost for building in physical units','sp_ht_cost', help_text='This value is optional and may be left blank. If left blank, size, year built, and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.', type='number'),
+        LabeledRadioItems('Units:', 'sp_ht_unit', options=[{'label': i, 'value': i} for i in rd_units]),
+        LabeledTextInput('Whole Building Electricity Use (without heat pump) in January (kWh):', 'jan_elec', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.', type='number'),
+        LabeledTextInput('Whole Building Electricity Use (without heat pump) in May (kWh):', 'may_elec', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.', type='number'),
+        html.Br(),
         LabeledSlider(app, 'Indoor Temperature where Heat Pump is Located:', 'indoor-temp',
                       60, 80, '°F',
                       mark_gap=5, step=1, value=71),
@@ -150,16 +185,7 @@ app.layout = html.Div(className='container', children=[
                          max_width=700,
                          options=[{'label': "Heat Pump serves the entire Building when Operating.", 'value': 'serves_all'}],
                          values=[]),
-
-        dcc.Markdown(dedent("""\
-            Inputs to Add:
-
-            * Minimum Operation Temperature of the Heat Pump:  Slider from -20 F to 20 F. Default to 5 F.
-            Explain that turn off of the heat pump can either be due to technical limits of the heat pump, 
-            or due to the homeowner choosing to not run the heat pump in cold temperatures due to poor efficiency.
-            * Let's eliminate the Early Winter shut-off date and Late Winter Turn On date.  I'll just use the
-            temperature cutoff to model.
-            """)),
+        LabeledSlider(app, 'Minimum Operating Temperature of Heat Pump:', 'min_op_temp', -20, 20, '°F', help_text='Please enter the lowest outdoor temperature at which the heat pump will continue to operate. This should be available in the unit’s documentation. The turn off of the heat pump can either be due to technical limits of the heat pump, or due to the homeowner choosing to not run the heat pump in cold temperatures due to poor efficiency.', mark_gap=5, step=1, value=5),
     ]),
 
     LabeledSection('Economic Inputs', [
@@ -167,40 +193,34 @@ app.layout = html.Div(className='container', children=[
         html.Details(style={'maxWidth': 550}, children=[
             html.Summary('Click Here to see Advanced Economic Inputs'),
             html.Div(style={'marginTop': '3rem'}, children=[
-
-                dcc.Markdown(dedent("""\
-                    Inputs to Add:
-
-                    * The fuel and general inflation rates and discount rate from before.
-                    * Sales Tax Rate, default 0.
-                    * Heat Pump Life in Years, default 14 years.
-                    * Extra O&M cost associated with the Heat Pump, default 0.
-                    """)),
-
+                LabeledSlider(app, 'General Inflation Rate:', 'inf-rate',
+                            0, 10, '%',
+                            'The default is the inflation rate used by the U.S. Department of Energy. Change this only in special circumstances.',
+                            mark_gap=1, step=0.5, value=2),
+                LabeledSlider(app, 'Heating Fuel Price Inflation Rate:', 'fuel-inf-rate',
+                            0, 10, '%',
+                            'This is the predicted annual increase in the price of the chosen heating fuel, based on U.S. Department of Energy estimates.',
+                            mark_gap=1, step=0.5, value=4),	
+                LabeledSlider(app, 'Electricity Price Inflation Rate:', 'elec-inf-rate',
+                            0, 10, '%',
+                            'This is the predicted annual increase in the price of electricity in this location, based on U.S. Department of Energy estimates.',
+                            mark_gap=1, step=0.5, value=4),		
                 LabeledSlider(app, 'Discount Rate:', 'discount-rate',
                             3, 10, '%',
                             'Enter the Economic Discount Rate, i.e the threshhold rate-of-return for this type of investment.  This rate is a nominal rate *not* adjusted for inflation.',
                             mark_gap=1, step=0.5, value=5),
-
+                LabeledSlider(app, 'Sales Tax:', 'sales-tax',
+                            0, 10, '%',
+                            'Enter your city/state sales tax.',
+                            mark_gap=1, step=0.5, value=0),							
+                LabeledSlider(app, 'Life of Heat Pump:', 'hp-life',
+                            5, 30, 'years',
+                            'This should be set to 14 years unless there is evidence that a particular model will last shorter or longer than most heat pumps.',
+                            mark_gap=2, step=1, value=14),	
+                LabeledInput('Annual increase in heating system O&M Cost:', 'annl-om', '$/year', 'Enter a positive value if the cost of maintaining the heating systems with the heat pump is higher than the cost of maintaining the previous system.', inputmode='numeric', type='number', value='0'),							
             ])
         ])
 
-    ]),
-
-    LabeledSection('Test Div Show/Hide', [
-        LabeledRadioItems('Select Div to Show:', 'div-selector',
-                          options= [
-                              {'label': 'Div1', 'value': 1},
-                              {'label': 'Div2', 'value': 2}],
-                          value=1),
-        html.Div(id='div1', children=[
-                            'This is Div1',
-                            LabeledDropdown('Heat Pump Model:', 'hp-model2',
-                                            options=[],
-                                            max_width=1000),   # wide as possible
-                            LabeledInput('Test Input', 'test-input', 'pounds/kWh')
-                            ]),
-        html.Div(id='div2', children='This is Div2')
     ]),
 
     LabeledSection('Results', [
@@ -215,6 +235,74 @@ app.layout = html.Div(className='container', children=[
 
 # -------------------------------------- CALLBACKS ---------------------------------------------
 
+@app.callback(Output('utility', 'options'),
+    [Input('city', 'value')])
+def find_util(city):
+    utils = lib.city_from_id(city).ElecUtilities
+    return [{'label': util_name, 'value': util_id} for util_name, util_id in utils]
+
+@app.callback(Output('pce_val', 'value'), [Input('utility','value')])
+def haspce(utility):
+    utl = lib.util_from_id(utility)
+    pce_val = np.nan_to_num(utl['PCE'])
+    #utl_commercial = utl['IsCommercial']
+    return pce_val    
+    
+@app.callback(
+    Output('div-schedule', 'style'), [Input('elec_input','value'), Input('city','value')])
+def electricalinputs(elec_input, city):
+    if elec_input == 'Select Utility Rate Schedule':
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+    
+@app.callback(
+    Output('div-man-ez', 'style'), [Input('elec_input','value'), Input('city','value')])
+def electricalinputs(elec_input, city):
+    if elec_input == 'Manual Entry':
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+@app.callback(
+    Output('div-man-adv', 'style'), [Input('elec_input','value'), Input('city','value')])
+def electricalinputs(elec_input, city):
+    if elec_input == 'Manual Entry (Advanced)':
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}   
+
+@app.callback(Output('ppu', 'value'),
+    [Input('fuel', 'value'), Input('city','value')])
+def find_util(fuel, city):
+    fuels = lib.fuel_from_id(fuel)
+    lookup_id = fuels['price_col']
+    
+    lookup = lib.city_from_id(city)
+    price = np.nan_to_num(lookup[lookup_id])
+    price = np.round(price,2)
+    
+    return price 
+
+#doesn't work
+@app.callback(Output('heat_eff', 'options'),[Input('fuel', 'value')])
+def find_eff(fuel):
+    heat_eff = lib.fuel_from_id(fuel).effic_choices
+    return [{'label': option, 'value': val} for option, val in heat_eff]
+
+@app.callback(Output('jan_elec','value'),[Input('city','value')])
+def whole_bldg_jan(city):
+    jan_elec = lib.city_from_id(city).avg_elec_usage[0]
+    jan_elec = np.round(jan_elec,2)
+    return jan_elec
+    
+@app.callback(Output('may_elec','value'),[Input('city','value')])
+def whole_bldg_jan(city):
+    may_elec = lib.city_from_id(city).avg_elec_usage[4]
+    may_elec = np.round(may_elec,2)
+    return may_elec
+
+        
 @app.callback(Output('hp-manuf', 'options'), [Input('zones', 'value'), Input('efficient-only', 'values')])
 def hp_brands(zones, effic_check_list):
     zone_type = 'Single' if zones==1 else 'Multi'
