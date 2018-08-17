@@ -76,7 +76,7 @@ app.layout = html.Div(className='container', children=[
         
         LabeledRadioItems('Input method:', 'elec_input',
                           'Choose Select Utility Rate Schedule if you would like to select a utility based on your location. Select Manual Entry if you would like to manually enter utility and PCE rates. Finally, select Manual Entry (Advanced) if you would like to enter block rates. * A copy of your utility bill will be necessary for both manual entry options.',
-                          options=[{'label': i, 'value': i} for i in rd_elec_inputs], 
+                          options=[{'label': i, 'value': i} for i in rd_elec_inputs], labelStyle={'display': 'inline-block'},
                           value = [],),
     html.Div([                  
         LabeledDropdown('Select your utility','utility', options=[],placeholder='Select Utility Company'),
@@ -118,17 +118,16 @@ app.layout = html.Div(className='container', children=[
     LabeledSection('Building Characteristics', [
         LabeledTextInput('Building Floor Area, excluding garage (ft/sq)', 'ht_floor_area', type='number', size=6),
         LabeledTextInput('Year built', 'yr_blt', type='number', size=4),
-        LabeledRadioItems('Wall Construction:', 'wall_const', options=[{'label': '2x4', 'value': 1}, {'label': '2x6', 'value': 2},{'label': 'better than 2x6', 'value': 3}],
-                       value = [],),
+        LabeledRadioItems('Wall Construction:', 'wall_const', options=[{'label': '2x4', 'value': 1}, {'label': '2x6', 'value': 2},{'label': 'better than 2x6', 'value': 3}],labelStyle={'display': 'inline-block'},value = [],),
         LabeledDropdown('Select existing heating fuel type', 'fuel',
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()],
                 ),
         LabeledTextInput('Price Per Unit:', 'ppu', type='number'),     
-        LabeledDropdown('Efficiency of Existing Heating System','ht_eff', options=[],placeholder='NOT WORKING :('),		
+        LabeledRadioItems('Efficiency of Existing Heating System','ht_eff', options=[],labelStyle={'display': 'inline-block'}),		
         LabeledRadioItems('Auxiliary electricity use from existing heating system:', 'aux_elec', options=[{'label': i, 'value': i} for i in rd_aux_elec],
         value = 'Fan-assisted Space Heater (e.g. Toyostove)',help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system.'),
         LabeledTextInput('(Optional) Annual space heating fuel cost for building in physical units','sp_ht_cost', help_text='This value is optional and may be left blank. If left blank, size, year built, and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.', type='number'),
-        LabeledRadioItems('Units:', 'sp_ht_unit', options=[{'label': i, 'value': i} for i in rd_units]),
+        LabeledRadioItems('Units:', 'sp_ht_unit', options=[{'label': i, 'value': i} for i in rd_units], labelStyle={'display': 'inline-block'}),
         LabeledTextInput('Whole Building Electricity Use (without heat pump) in January (kWh):', 'jan_elec', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.', type='number'),
         LabeledTextInput('Whole Building Electricity Use (without heat pump) in May (kWh):', 'may_elec', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.', type='number'),
         html.Br(),
@@ -144,7 +143,7 @@ app.layout = html.Div(className='container', children=[
                           options= [
                               {'label': 'Single Zone', 'value': 1},
                               {'label': 'Multi Zone: 2 zones installed', 'value': 2},
-                              {'label': 'Multi Zone: 3 zones installed', 'value': 3}],
+                              {'label': 'Multi Zone: 3 zones installed', 'value': 3}], labelStyle={'display': 'inline-block'},
                           value=1),
         
         LabeledChecklist('Show Most Efficient Units Only?', 'efficient-only',
@@ -161,7 +160,7 @@ app.layout = html.Div(className='container', children=[
                         max_width=1000,   # wide as possible
                         placeholder='Select Heat Pump Model'),
 
-        LabeledInput('Installed Cost of Heat Pump:', 'hp-cost', 'dollars', 
+        LabeledInput('Installed Cost of Heat Pump:', 'hp-cost', '$', 
                      'Include all equipment and labor costs.', value=4500),
 
         LabeledSlider(app, '% of Heat Pump Purchase Financed with a Loan:', 'pct-financed', 
@@ -284,11 +283,10 @@ def find_util(fuel, city):
     
     return price 
 
-#doesn't work
-@app.callback(Output('heat_eff', 'options'),[Input('fuel', 'value')])
-def find_eff(fuel):
-    heat_eff = lib.fuel_from_id(fuel).effic_choices
-    return [{'label': option, 'value': val} for option, val in heat_eff]
+@app.callback(Output('ht_eff','options'), [Input('fuel', 'value')])
+def effic_choices(fuel_id):
+    fu = lib.fuel_from_id(fuel_id)
+    return [{'label': lbl, 'value': val} for lbl, val in fu.effic_choices]
 
 @app.callback(Output('jan_elec','value'),[Input('city','value')])
 def whole_bldg_jan(city):
