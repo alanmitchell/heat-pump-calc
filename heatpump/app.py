@@ -69,12 +69,12 @@ app.layout = html.Div(className='container', children=[
     LabeledSection('Location Info', [
 
         LabeledDropdown('City where Building is Located:', 'city',
-                        options=[{'label': 'Anchorage', 'value': 1}, {'label': 'Fairbanks', 'value': 293}], #Alan, you originally had 2 for the fbx value which was pulling Adak, I went in and entered the correct id for fbx
-                        placeholder='Select City'),
+		options=[{'label': lbl, 'value': i} for lbl, i in lib.cities()],
+            value = 'Select City'),
         
         LabeledRadioItems('Input method:', 'elec_input',
                           'Choose Select Utility Rate Schedule if you would like to select a utility based on your location. Select Manual Entry if you would like to manually enter utility and PCE rates. Finally, select Manual Entry (Advanced) if you would like to enter block rates. * A copy of your utility bill will be necessary for both manual entry options.',
-                          options=[{'label': i, 'value': i} for i in rd_elec_inputs], labelStyle={'display': 'inline-block'},
+                          options=[{'label': i, 'value': i} for i in rd_elec_inputs],
                           value = [],),
     html.Div([                  
         LabeledDropdown('Select your utility','utility', options=[],placeholder='Select Utility Company'),
@@ -141,7 +141,7 @@ app.layout = html.Div(className='container', children=[
                           options= [
                               {'label': 'Single Zone', 'value': 1},
                               {'label': 'Multi Zone: 2 zones installed', 'value': 2},
-                              {'label': 'Multi Zone: 3 zones installed', 'value': 3}], labelStyle={'display': 'inline-block'},
+                              {'label': 'Multi Zone: 3 zones installed', 'value': 3}],
                           value=1),
         
         LabeledChecklist('Show Most Efficient Units Only?', 'efficient-only',
