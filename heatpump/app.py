@@ -125,7 +125,7 @@ app.layout = html.Div(className='container', children=[
         LabeledRadioItems('Auxiliary electricity use from existing heating system:', 'aux_elec', options=[{'label': i, 'value': i} for i in rd_aux_elec],
         value = 'Fan-assisted Space Heater (e.g. Toyostove)',help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system.'),
         #the item below needs to be labeledinput and assigned a number type once we figure out how to get the units tag to go where it's supposed to
-		LabeledTextInput('(Optional) Annual space heating fuel cost for building in physical units','sp_ht_use', help_text='This value is optional and may be left blank. If left blank, size, year built, and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.', type='text'),
+		LabeledInput('(Optional) Annual space heating Fuel Use for building in physical units','sp_ht_use', help_text='This value is optional and may be left blank. If left blank, size, year built, and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
         LabeledInput('Whole Building Electricity Use (without heat pump) in January:', 'jan_elec', 'kWh', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.', type='number'),
         LabeledInput('Whole Building Electricity Use (without heat pump) in May:', 'may_elec', 'kWh', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.', type='number'),
         html.Br(),
@@ -306,7 +306,7 @@ def options(ht_eff):
     return ht_eff[0]['value']
 
 #I've directed this to write into the sp_ht_use box so I can make sure it works, nothing I've tried gets it to update the units label
-@app.callback(Output('sp_ht_use','value'),[Input('fuel','value')])
+@app.callback(Output('units-sp_ht_use', 'children'),[Input('fuel','value')])
 def updateunits(fuel_id):
      fu2 = lib.fuel_from_id(fuel_id)
      return fu2.unit  

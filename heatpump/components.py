@@ -47,6 +47,10 @@ def LabeledInput(label, id, units='', help_text='', inputmode='numeric', type='n
     text input.  
     'inputmode' and 'type' are arguments to the dcc.Input component but are
     called out explicitly in the argument list in order to change their default values.
+    This control puts a units label after the Input control to hold strings like
+    'kWh' or 'gallons'.  Pass the Units text to the 'units' parameter.  Also, this
+    label (an HTML Span element) has an id of 'units-{id}' so it can be accessed
+    through callbacks.
     """
 
     # make the paragraph element holding the label, help icon, and units suffix.
