@@ -221,7 +221,8 @@ app.layout = html.Div(className='container', children=[
     ]),
 
     LabeledSection('Results', [
-        html.P('Results go Here!')
+        html.H3('Results go Here!'), 
+        dcc.Markdown('Key Inputs.', id='key-inputs')
     ]),
 
     html.Hr(),
@@ -287,6 +288,8 @@ def setblockkwh(block_k3):
 @app.callback(Output('ppu', 'value'),
     [Input('fuel', 'value'), Input('city','value')])
 def find_util(fuel, city):
+    if fuel is None or city is None:
+        return None
     fuels = lib.fuel_from_id(fuel)
     lookup_id = fuels['price_col']
     
@@ -357,6 +360,24 @@ def hp_models2(manuf, zones, effic_check_list):
     zone_type = 'Single' if zones==1 else 'Multi'
     model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
     return [{'label': lbl, 'value': id} for lbl, id in model_list]
+
+@app.callback(Output('key-inputs', 'children'), 
+    [
+        Input('city', 'value'),
+        Input('utility', 'value'),
+        Input('fuel', 'value'),
+        Input('hp-model', 'value'),
+    ])
+def show_key_inputs(city, utility, fuel, hp_model):
+    return dedent(f"""
+        ```
+        City:  {city}
+        Utility: {utility}
+        Fuel: {fuel}
+        Heat Pump Model: {hp_model}
+        ```
+        """)
+
 
 # -------------------------------------- MAIN ---------------------------------------------
 
