@@ -13,6 +13,7 @@ import functools
 import urllib
 
 import pandas as pd
+import numpy as np
 import requests
 
 # Most of the data files are located remotely and are retrieved via
@@ -143,6 +144,40 @@ def tmy_from_id(tmy_id):
     """
     df = get_df(f'wx/tmy3/proc/{tmy_id}.pkl')
     return df
+
+# Piecewise linear COP vs. outdoor temperature.
+COP_vs_TEMP = (
+    (-20.0, 1.1),
+    (0.0, 2.0),
+    (10.0, 2.2),
+    (15.0, 2.3),
+    (20.0, 2.5),
+    (25.0, 2.7),
+    (30.0, 2.8),
+    (40.0, 3.0),
+    (50.0, 3.2)
+)
+
+# convert to separate lists of temperatures and COPs
+temps, cops = tuple(zip(*COP_vs_TEMP))
+
+# The HSPF value that this curve is associated with
+BASE_HSPF = 13.3
+
+def cop_from_temp_out(out_temp, hspf):
+    """Returns a COP value(s) for a given outdoor dry bulb temperature(s).  'out_temp'
+    the outdoor temperature or list of temperatures, and 'hspf' is the HSPF of the
+    heat pump unit.  If 'out_temp' is a single value, the return is a single COP value.
+    If 'out_temp' is an iterable, the return is a NumPy array of COPs associated with
+    the supplied outdoor temperatures.
+    If values in 'out_temp' are below or above the temperature values present in the
+    'temps' array (defined directly above this function), the end COP values are
+    returned, i.e. no linear extrapolation is done.
+    The base COP_vs_TEMP COP curve is scaled up or down according to the ratio of
+    'hspf' to the BASE_HSPF that is associated with the curve
+    """
+    cop_interp = np.interp(out_temp, temps, cops)
+    return cop_interp * hspf / BASE_HSPF
 
 # -----------------------------------------------------------------
 # Key datasets are read in here and are available as module-level
