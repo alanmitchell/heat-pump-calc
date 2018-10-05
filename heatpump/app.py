@@ -113,7 +113,7 @@ app.layout = html.Div(className='container', children=[
             ),
     ]),
 
-    LabeledSection('Building Characteristics', [
+    LabeledSection('Building Info', [
         LabeledInput('Building Floor Area, excluding garage (ft/sq)', 'ht_floor_area', size=6),
         LabeledInput('Year built', 'yr_blt', size=4),
         LabeledRadioItems('Wall Construction:', 'wall_const', options=[{'label': '2x4', 'value': 1}, {'label': '2x6', 'value': 2},{'label': 'better than 2x6', 'value': 3}],labelStyle={'display': 'inline-block'},value = [],),
