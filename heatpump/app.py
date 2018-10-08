@@ -106,10 +106,10 @@ app.layout = html.Div(className='container', children=[
         ),],id='div-man-adv', style={'display': 'none'}),
         
         LabeledSlider(app, 'Pounds of CO2 per kWh of incremental electricity generation:', 'elec-co2', 
-            0, 4, 'pounds/kWh',
+            0, 3.3, 'pounds/kWh',
             max_width = 800,
-            marks = {0: 'Renewables/Wood', 1.1: 'Natural Gas', 1.6: 'Lg Diesel', 1.9: 'Sm Diesel', 3.2: 'Coal' },
-            step=0.1, value= 1.6,
+            marks = {0: 'Renewables/Wood', 1.1: 'Natural Gas', 1.7: 'Lg Diesel', 2: 'Sm Diesel', 2.9: 'Coal' },
+            step=0.1, value= 1.7,
             ),
     ]),
 
@@ -121,7 +121,7 @@ app.layout = html.Div(className='container', children=[
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()],
                 ),
         LabeledInput('Price Per Unit:', 'ppu', '$'),     
-        LabeledRadioItems('Efficiency of Existing Heating System','ht_eff',labelStyle={'display': 'inline-block'}),		
+        LabeledRadioItems('Efficiency of Existing Heating System','ht_eff',max_width=500, labelStyle={'display': 'inline-block'}),		
         LabeledRadioItems('Auxiliary electricity use from existing heating system:', 'aux_elec', options=[{'label': i, 'value': i} for i in rd_aux_elec],
         value = 'Fan-assisted Space Heater (e.g. Toyostove)',help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system.'),
         #the item below needs to be labeledinput and assigned a number type once we figure out how to get the units tag to go where it's supposed to
