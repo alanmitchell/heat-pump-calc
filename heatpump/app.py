@@ -58,6 +58,7 @@ rd_aux_elec = ['No Fans/Pumps (e.g. wood stove)', 'Hydronic (boiler)', 'Fan-assi
 app.layout = html.Div(className='container', children=[
     
     html.H1('Alaska Mini-Split Heat Pump Calculator'),
+    html.H2('------- UNDER CONSTRUCTION - Not Usable -------'),
 
     html.P('Explanation here of what the Calculator does. Credits and logos of sponsoring organizations.'),
 
