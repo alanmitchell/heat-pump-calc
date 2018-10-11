@@ -108,7 +108,7 @@ class HP_model:
 
         # holds summary measures for the heat pump project (e.g. seasonal COP,
         # internal rate of return).  Fill out first item: secondary fuel info.
-        s.summary = {'fuel': fuel}
+        s.summary = {'fuel_unit': fuel.unit, 'fuel_desc': fuel.desc}
         
         # Create the home energy simulation object
         sim = HomeEnergyModel(
