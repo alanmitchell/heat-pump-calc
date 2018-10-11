@@ -1,3 +1,6 @@
+# don't include the update script
+update
+
 # Visual Studio settings
 .vscode
 
