@@ -4,7 +4,7 @@ import numpy as np
 
 from . import library as lib
 
-class HomeEnergyModel(object):
+class HomeHeatModel(object):
     
     def __init__(self,
                  city_id,
@@ -109,9 +109,9 @@ class HomeEnergyModel(object):
         # Determine a heat pump COP for each hour
         # ** NEED TO ADJUST FOR INDOOR SETPOINT and MOUNTING LOCATION OF INDOOR UNITS 
         cop_interp = np.interp(dfh.db_temp, 
-                               HomeEnergyModel.TEMPS_FIT, 
-                               HomeEnergyModel.COPS_FIT)
-        dfh['cop'] = cop_interp * self.hp_model.hspf / HomeEnergyModel.BASE_HSPF
+                               HomeHeatModel.TEMPS_FIT, 
+                               HomeHeatModel.COPS_FIT)
+        dfh['cop'] = cop_interp * self.hp_model.hspf / HomeHeatModel.BASE_HSPF
 
         # adjustment to UA for insulation level.  My estimate, accounting
         # for better insulation *and* air-tightness as you move up the 
@@ -142,7 +142,7 @@ class HomeEnergyModel(object):
         htg_effect = np.array([10., 10., 10.]) / ua_insul_adj_arr
         balance_point_home = s.indoor_heat_setpoint - htg_effect[s.insul_level - 1]
         htg_effect = np.array([5.0, 5.0, 5.0]) / ua_insul_adj_arr  # fewer internal/solar in garage
-        balance_point_garage = HomeEnergyModel.GARAGE_HEATING_SETPT - htg_effect[s.insul_level - 1]
+        balance_point_garage = HomeHeatModel.GARAGE_HEATING_SETPT - htg_effect[s.insul_level - 1]
 
         # BTU loads in the hour for the heat pump and for the secondary system.
         hp_load = []
@@ -236,7 +236,7 @@ class HomeEnergyModel(object):
         # get the 1% outdoor temperature
         design_temp = self.df_hourly.db_temp.quantile(0.01)
         design_load = self.ua_home * (self.indoor_heat_setpoint - design_temp) + \
-                      self.ua_garage * (HomeEnergyModel.GARAGE_HEATING_SETPT - design_temp)
+                      self.ua_garage * (HomeHeatModel.GARAGE_HEATING_SETPT - design_temp)
         return design_load, design_temp
     
     def hp_max_capacity_5F(self):
@@ -244,6 +244,6 @@ class HomeEnergyModel(object):
         COP curve unless the manufacturer's spec is lower.
         Returns is Btu/hour.
         """
-        cop_5F = np.interp(5.0, HomeEnergyModel.TEMPS_FIT, HomeEnergyModel.COPS_FIT)
+        cop_5F = np.interp(5.0, HomeHeatModel.TEMPS_FIT, HomeHeatModel.COPS_FIT)
         max_from_curve = cop_5F * self.hp_model.in_pwr_5F_max * 3412.
         return min(max_from_curve, self.hp_model.capacity_5F_max)

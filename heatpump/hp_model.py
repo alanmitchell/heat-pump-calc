@@ -7,7 +7,7 @@ import numpy as np
 
 from . import library as lib
 from . import elec_cost
-from .home_energy_model import HomeEnergyModel
+from .home_heat_model import HomeHeatModel
 from .elec_cost import ElecCostCalc
 
 def make_pattern(esc, life):
@@ -111,7 +111,7 @@ class HP_model:
         s.summary = {'fuel_unit': fuel.unit, 'fuel_desc': fuel.desc}
         
         # Create the home energy simulation object
-        sim = HomeEnergyModel(
+        sim = HomeHeatModel(
             city_id=s.city_id,
             hp_model_id=s.hp_model_id,
             exist_heat_fuel_id=s.exist_heat_fuel_id,
