@@ -249,7 +249,7 @@ def electricalinputs(elec_input, city):
     
 @app.callback(
     Output('div-man-ez', 'style'), [Input('elec_input','value'), Input('city','value')])
-def electricalinputs(elec_input, city):
+def electricalinputs_ez(elec_input, city):
     if elec_input == 'Manual Entry':
         return {'display': 'block'}
     else:
@@ -257,7 +257,7 @@ def electricalinputs(elec_input, city):
 
 @app.callback(
     Output('div-man-adv', 'style'), [Input('elec_input','value'), Input('city','value')])
-def electricalinputs(elec_input, city):
+def electricalinputs_adv(elec_input, city):
     if elec_input == 'Manual Entry (Advanced)':
         return {'display': 'block'}
     else:
