@@ -102,7 +102,7 @@ app.layout = html.Div(className='container', children=[
                           options=make_options(ELEC_INPUT_METHOD), value='util'),
         html.Div([                  
             LabeledDropdown('Select your Utility and Rate Schedule','utility_id', options=[],placeholder='Select Utility Company'),
-            ],id='div-schedule',style={'display': 'none'}),
+            ],id='div-schedule', style={'display': 'none'}),
 
         html.Div([html.Table(
             [
@@ -116,16 +116,15 @@ app.layout = html.Div(className='container', children=[
                 html.Label('Enter block rates:'),
                 html.Table([
                     html.Tr( [html.Th("Start kWh"), html.Th("End kWh"), html.Th("Rate, $/kWh")] ),
-                    html.Tr( [html.Td(html.P("1 -")), html.Td([dcc.Input(id='blk0_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk0_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                    html.Tr( [html.Td(html.P('',id='blk1_min')), html.Td([dcc.Input(id='blk1_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk1_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                    html.Tr( [html.Td(html.P('',id='blk2_min')), html.Td([dcc.Input(id='blk2_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk2_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                    html.Tr( [html.Td(html.P('',id='blk3_min')), html.Td([dcc.Input(id='blk3_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk3_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                    html.Tr( [html.Td('Demand Charge:', colSpan='2'), html.Td(['$ ', dcc.Input(id='demand_chg_adv', type='number', style={'maxWidth': 100}), ' /kW/mo'])] ),
-                    html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv',type='number', style={'maxWidth': 100}), ' /kWh'])] ),              
-                    html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv',type='number', style={'maxWidth': 100}), ' /mo'])] ),
+                    html.Tr( [html.Td(html.P("1 -")), html.Td([dcc.Input(id='blk0_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk0_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P('',id='blk1_min')), html.Td([dcc.Input(id='blk1_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk1_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P('',id='blk2_min')), html.Td([dcc.Input(id='blk2_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk2_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P('',id='blk3_min')), html.Td([dcc.Input(id='blk3_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk3_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td('Demand Charge:', colSpan='2'), html.Td(['$ ', dcc.Input(id='demand_chg_adv', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kW/mo'])] ),
+                    html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),              
+                    html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /mo'])] ),
                     ])
             ], id='div-man-adv', style={'display': 'none'}),
-
             html.P('.'),
             
             LabeledSlider(app, 'Pounds of CO2 per kWh of incremental electricity generation:', 'elec-co2', 
@@ -380,33 +379,19 @@ def hp_models(manuf, zones, effic_check_list):
     model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
     return [{'label': lbl, 'value': id} for lbl, id in model_list]
 
-@app.callback(Output('div1', 'style'), [Input('div-selector', 'value')])
-def toggle_container1(selector_value):
-    if selector_value == 1:
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
+# @app.callback(Output('key-inputs', 'children'), 
+#     ui_helper.calc_input_objects())
+# def show_key_inputs(*args):
+#     vars, extra_vars = ui_helper.inputs_to_vars(args)
+#     return dedent(f'''
+#     ```
+#     Variables:
+#     {pformat(vars)}
 
-@app.callback(Output('div2', 'style'), [Input('div-selector', 'value')])
-def toggle_container2(selector_value):
-    if selector_value == 2:
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
-
-@app.callback(Output('key-inputs', 'children'), 
-    ui_helper.calc_input_objects())
-def show_key_inputs(*args):
-    vars, extra_vars = ui_helper.inputs_to_vars(args)
-    return dedent(f'''
-    ```
-    Variables:
-    {pformat(vars)}
-
-    Extra Variables:
-    {pformat(extra_vars)}
-    ```
-    ''')
+#     Extra Variables:
+#     {pformat(extra_vars)}
+#     ```
+#     ''')
 
 # -------------------------------------- MAIN ---------------------------------------------
 
