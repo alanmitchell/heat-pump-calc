@@ -373,8 +373,16 @@ def hp_models2(manuf, zones, effic_check_list):
 @app.callback(Output('key-inputs', 'children'), 
     ui_helper.calc_input_objects())
 def show_key_inputs(*args):
-    return str(args)
+    vars, extra_vars = ui_helper.inputs_to_vars(args)
+    return dedent(f'''
+    Variables:
 
+    {vars}
+
+    Extra Variables:
+
+    {extra_vars}
+    ''')
 
 # -------------------------------------- MAIN ---------------------------------------------
 

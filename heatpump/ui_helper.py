@@ -44,4 +44,10 @@ def inputs_to_vars(input_vals):
     vars = {}
     extra_vars = {}
     for info, val in zip(input_info, input_vals):
-        pass
+        if len(info) > 1 and info[1] is not None:
+            var_name = info[1]
+        else:
+            var_name = info[0]
+        vars[var_name] = val
+    
+    return vars, extra_vars
