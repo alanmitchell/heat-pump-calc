@@ -12,7 +12,7 @@ from .components import LabeledInput, LabeledSlider, LabeledSection, LabeledText
     LabeledDropdown, LabeledRadioItems, LabeledChecklist
 import numpy as np	
 from . import library as lib
-
+from . import ui_helper
 
 app = dash.Dash(__name__)
 server = app.server             # this is the underlying Flask app
@@ -70,13 +70,11 @@ app.layout = html.Div(className='container', children=[
     LabeledSection('Location Info', [
 
         LabeledDropdown('City where Building is Located:', 'city',
-		options=[{'label': lbl, 'value': i} for lbl, i in lib.cities()],
-            value = 'Select City'),
+		options=[{'label': lbl, 'value': i} for lbl, i in lib.cities()]),
         
         LabeledRadioItems('Input method:', 'elec_input',
-                          'Choose Select Utility Rate Schedule if you would like to select a utility based on your location. Select Manual Entry if you would like to manually enter utility and PCE rates. Finally, select Manual Entry (Advanced) if you would like to enter block rates. * A copy of your utility bill will be necessary for both manual entry options.',
-                          options=[{'label': i, 'value': i} for i in rd_elec_inputs],
-                          value = 'Select Utility Rate Schedule',),
+                          'Choose "Select Utility Rate Schedule" if you would like to select a utility based on your location. Select "Manual Entry" if you would like to manually enter utility and PCE rates. Finally, select "Manual Entry (Advanced)" if you would like to enter block rates. * A copy of your utility bill will be necessary for both manual entry options.',
+                          options=[{'label': i, 'value': i} for i in rd_elec_inputs]),
     html.Div([                  
         LabeledDropdown('Select your Utility and Rate Schedule','utility', options=[],placeholder='Select Utility Company'),
         ],id='div-schedule',style={'display': 'none'}),
@@ -114,28 +112,28 @@ app.layout = html.Div(className='container', children=[
     ]),
 
     LabeledSection('Building Info', [
-        LabeledInput('Building Floor Area, excluding garage (ft/sq)', 'ht_floor_area', size=6),
-        LabeledRadioItems('Wall Construction:', 'wall_const', options=[{'label': '2x4', 'value': 1}, {'label': '2x6', 'value': 2},{'label': 'better than 2x6', 'value': 3}],labelStyle={'display': 'inline-block'},value = [],),
+        LabeledInput('Building Floor Area, excluding garage (square feet)', 'ht_floor_area', size=6),
+        LabeledRadioItems('Wall Construction', 'wall_const', options=[{'label': '2x4', 'value': 1}, {'label': '2x6', 'value': 2},{'label': 'better than 2x6', 'value': 3}],labelStyle={'display': 'inline-block'},value = [],),
         LabeledDropdown('Select existing heating fuel type', 'fuel',
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()],
                 ),
-        LabeledInput('Price Per Unit:', 'ppu', '$'),     
+        LabeledInput('Fuel Price Per Unit', 'fuel_price', '$'),     
         LabeledRadioItems('Efficiency of Existing Heating System','ht_eff',max_width=500, labelStyle={'display': 'inline-block'}),		
-        LabeledRadioItems('Auxiliary electricity use from existing heating system:', 'aux_elec', options=[{'label': i, 'value': i} for i in rd_aux_elec],
+        LabeledRadioItems('Auxiliary electricity use from existing heating system', 'aux_elec', options=[{'label': i, 'value': i} for i in rd_aux_elec],
         value = 'Fan-assisted Space Heater (e.g. Toyostove)',help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system.'),
         #the item below needs to be labeledinput and assigned a number type once we figure out how to get the units tag to go where it's supposed to
 		LabeledInput('(Optional) Annual space heating Fuel Use for building in physical units','sp_ht_use', help_text='This value is optional and may be left blank. If left blank, size, year built, and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
-        LabeledInput('Whole Building Electricity Use (without heat pump) in January:', 'jan_elec', 'kWh', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
-        LabeledInput('Whole Building Electricity Use (without heat pump) in May:', 'may_elec', 'kWh', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
+        LabeledInput('Whole Building Electricity Use (without heat pump) in January', 'jan_elec', 'kWh', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
+        LabeledInput('Whole Building Electricity Use (without heat pump) in May', 'may_elec', 'kWh', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
         html.Br(),
-        LabeledSlider(app, 'Indoor Temperature where Heat Pump is Located:', 'indoor-temp',
+        LabeledSlider(app, 'Indoor Temperature where Heat Pump is Located', 'indoor-temp',
                       60, 80, '°F',
                       mark_gap=5, step=1, value=71),
     ]),
 
     LabeledSection('Heat Pump Info', [
         
-        LabeledRadioItems('Type of Heat Pump: Single- or Multi-zone:', 'zones',
+        LabeledRadioItems('Type of Heat Pump: Single- or Multi-zone', 'zones',
                           'Select the number of Indoor Units (heads) installed on the Heat Pump.',
                           options= [
                               {'label': 'Single Zone', 'value': 1},
@@ -147,21 +145,21 @@ app.layout = html.Div(className='container', children=[
                          options=[{'label': 'Efficient Only', 'value': 'efficient'}],
                          values=['efficient']),
 
-        LabeledDropdown('Heat Pump Manufacturer:', 'hp-manuf',
+        LabeledDropdown('Heat Pump Manufacturer', 'hp-manuf',
                         options=[],
                         max_width=300,
                         placeholder='Select Heat Pump Manufacturer'),   
 
-        LabeledDropdown('Heat Pump Model:', 'hp-model',
+        LabeledDropdown('Heat Pump Model', 'hp-model',
                         options=[],
                         max_width=1000,   # wide as possible
                         placeholder='Select Heat Pump Model',
                         style={'fontSize': 14}),
 
-        LabeledInput('Installed Cost of Heat Pump:', 'hp-cost', '$', 
+        LabeledInput('Installed Cost of Heat Pump', 'hp-cost', '$', 
                      'Include all equipment and labor costs.', value=4500),
 
-        LabeledSlider(app, '% of Heat Pump Purchase Financed with a Loan:', 'pct-financed', 
+        LabeledSlider(app, '% of Heat Pump Purchase Financed with a Loan', 'pct-financed', 
                       0, 100, '%', 
                       'Select 0 if the purchased is not financed.',
                       mark_gap=10, max_width=700,
@@ -169,7 +167,7 @@ app.layout = html.Div(className='container', children=[
         LabeledInput('Term of Loan', 'loan-term', 'years',
                      'Numbers of Years to pay off Loan.', value=10),
 
-        LabeledChecklist('Check the Box if Indoor Units are mounted 6 feet or higher on wall:',
+        LabeledChecklist('Check the Box if Indoor Units are mounted 6 feet or higher on wall',
                          'indoor-unit-height',
                          'If most or all of the heat-delivering Indoor Units are mounted high on the wall, check this box.  High mounting of Indoor Units slightly decreases the efficiency of the heat pump.',
                          max_width=500,
@@ -182,7 +180,7 @@ app.layout = html.Div(className='container', children=[
                          max_width=700,
                          options=[{'label': "Heat Pump serves the entire Building when Operating.", 'value': 'serves_all'}],
                          values=[]),
-        LabeledSlider(app, 'Minimum Operating Temperature of Heat Pump:', 'min_op_temp', -20, 20, '°F', help_text='Please enter the lowest outdoor temperature at which the heat pump will continue to operate. This should be available in the unit’s documentation. The turn off of the heat pump can either be due to technical limits of the heat pump, or due to the homeowner choosing to not run the heat pump in cold temperatures due to poor efficiency.', mark_gap=5, step=1, value=5),
+        LabeledSlider(app, 'Minimum Operating Temperature of Heat Pump', 'min_op_temp', -20, 20, '°F', help_text='Please enter the lowest outdoor temperature at which the heat pump will continue to operate. This should be available in the unit’s documentation. The turn off of the heat pump can either be due to technical limits of the heat pump, or due to the homeowner choosing to not run the heat pump in cold temperatures due to poor efficiency.', mark_gap=5, step=1, value=5),
     ]),
 
     LabeledSection('Economic Inputs', [
@@ -236,15 +234,10 @@ app.layout = html.Div(className='container', children=[
 @app.callback(Output('utility', 'options'),
     [Input('city', 'value')])
 def find_util(city):
+    if city is None:
+        return []
     utils = lib.city_from_id(city).ElecUtilities
     return [{'label': util_name, 'value': util_id} for util_name, util_id in utils]
-
-@app.callback(Output('pce_val', 'value'), [Input('utility','value')])
-def haspce(utility):
-    utl = lib.util_from_id(utility)
-    pce_val = np.nan_to_num(utl['PCE'])
-    #utl_commercial = utl['IsCommercial']
-    return pce_val    
     
 @app.callback(
     Output('div-schedule', 'style'), [Input('elec_input','value'), Input('city','value')])
@@ -271,67 +264,77 @@ def electricalinputs(elec_input, city):
         return {'display': 'none'}   
         
 @app.callback(Output('blk1_min','children'), [Input('blk0_kwh','value')])
-def setblockkwh(blk0_kwh):
+def setblockkwh1(blk0_kwh):
     try:
         return f'{int(blk0_kwh) + 1} -'
     except:
         return None
 
 @app.callback(Output('blk2_min','children'), [Input('blk1_kwh','value')])
-def setblockkwh(blk1_kwh):
+def setblockkwh2(blk1_kwh):
     try:
         return f'{int(blk1_kwh) + 1} -'
     except:
         return None
 
 @app.callback(Output('blk3_min','children'), [Input('blk2_kwh','value')])
-def setblockkwh(blk2_kwh):
+def setblockkwh3(blk2_kwh):
     try:
         return f'{int(blk2_kwh) + 1} -'
     except:
         return None
 
-@app.callback(Output('ppu', 'value'),
+@app.callback(Output('fuel_price', 'value'),
     [Input('fuel', 'value'), Input('city','value')])
-def find_util(fuel, city):
+def find_fuel_price(fuel, city):
     if fuel is None or city is None:
         return None
-    fuels = lib.fuel_from_id(fuel)
-    lookup_id = fuels['price_col']
+    the_fuel = lib.fuel_from_id(fuel)
+    price_col = the_fuel['price_col']
     
-    lookup = lib.city_from_id(city)
-    price = np.nan_to_num(lookup[lookup_id])
-    price = np.round(price,2)
+    the_city = lib.city_from_id(city)
+    price = np.nan_to_num(the_city[price_col])
+    price = np.round(price, 2)
     
     return price 
 
 @app.callback(Output('ht_eff','options'), [Input('fuel', 'value')])
 def effic_choices(fuel_id):
+    if fuel_id is None:
+        return []
     fu = lib.fuel_from_id(fuel_id)
     return [{'label': lbl, 'value': val} for lbl, val in fu.effic_choices]
 
 @app.callback(Output('ht_eff','value'), [Input('ht_eff','options')])
 def options(ht_eff):
-    return ht_eff[0]['value']
+    if len(ht_eff):
+        return ht_eff[0]['value']
+    else:
+        return None
 
 #I've directed this to write into the sp_ht_use box so I can make sure it works, nothing I've tried gets it to update the units label
 @app.callback(Output('units-sp_ht_use', 'children'),[Input('fuel','value')])
 def updateunits(fuel_id):
-     fu2 = lib.fuel_from_id(fuel_id)
-     return fu2.unit  
+    if fuel_id is None:
+        return None
+    fu2 = lib.fuel_from_id(fuel_id)
+    return fu2.unit  
     
 @app.callback(Output('jan_elec','value'),[Input('city','value')])
 def whole_bldg_jan(city):
+    if city is None:
+        return None
     jan_elec = lib.city_from_id(city).avg_elec_usage[0]
     jan_elec = np.round(jan_elec,2)
     return jan_elec
     
 @app.callback(Output('may_elec','value'),[Input('city','value')])
-def whole_bldg_jan(city):
+def whole_bldg_may(city):
+    if city is None:
+        return None
     may_elec = lib.city_from_id(city).avg_elec_usage[4]
     may_elec = np.round(may_elec,2)
     return may_elec
-
         
 @app.callback(Output('hp-manuf', 'options'), [Input('zones', 'value'), Input('efficient-only', 'values')])
 def hp_brands(zones, effic_check_list):
@@ -367,12 +370,10 @@ def hp_models2(manuf, zones, effic_check_list):
     model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
     return [{'label': lbl, 'value': id} for lbl, id in model_list]
 
-
-calc_inputs = ('city', 'utility', 'fuel', 'hp-model')
 @app.callback(Output('key-inputs', 'children'), 
-    [Input(nm, 'value') for nm in calc_inputs])
+    ui_helper.calc_input_objects())
 def show_key_inputs(*args):
-    return str(dict(zip(calc_inputs, args)))
+    return str(args)
 
 
 # -------------------------------------- MAIN ---------------------------------------------
