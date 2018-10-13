@@ -3,6 +3,7 @@ Heat Pump Calculator Dash Application.
 Requires version 0.23 or later of Dash.
 """
 from textwrap import dedent
+from pprint import pformat
 
 import dash
 import dash_core_components as dcc
@@ -90,7 +91,7 @@ app.layout = html.Div(className='container', children=[
         html.P('Enter in any Notes you want to be shown when you print this page.'),
         html.Textarea(style={'width': '100%'}),
     ]),
-   
+
     LabeledSection('Location Info', [
 
         LabeledDropdown('City where Building is Located:', 'city_id',
@@ -111,9 +112,9 @@ app.layout = html.Div(className='container', children=[
             ]
         ),],id='div-man-ez', style={'display': 'none'}),
         
-        html.Div([html.Label('Enter block rates:'),
-            html.Table(
-                [
+        html.Div([
+                html.Label('Enter block rates:'),
+                html.Table([
                     html.Tr( [html.Th("Start kWh"), html.Th("End kWh"), html.Th("Rate, $/kWh")] ),
                     html.Tr( [html.Td(html.P("1 -")), html.Td([dcc.Input(id='blk0_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk0_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
                     html.Tr( [html.Td(html.P('',id='blk1_min')), html.Td([dcc.Input(id='blk1_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk1_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
@@ -122,8 +123,8 @@ app.layout = html.Div(className='container', children=[
                     html.Tr( [html.Td('Demand Charge:', colSpan='2'), html.Td(['$ ', dcc.Input(id='demand_chg_adv', type='number', style={'maxWidth': 100}), ' /kW/mo'])] ),
                     html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv',type='number', style={'maxWidth': 100}), ' /kWh'])] ),              
                     html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv',type='number', style={'maxWidth': 100}), ' /mo'])] ),
-                ]
-            ),],id='div-man-adv', style={'display': 'none'}),
+                    ])
+            ], id='div-man-adv', style={'display': 'none'}),
 
             html.P('.'),
             
@@ -141,22 +142,25 @@ app.layout = html.Div(className='container', children=[
                 options=make_options(WALL_TYPE), value = '2x6'),
         LabeledDropdown('Select existing heating fuel type', 'fuel',
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()]),
-        LabeledInput('Fuel Price Per Unit', 'fuel_price', '$'),     
+        LabeledInput('Fuel Price Per Unit', 'fuel_price'),     
         LabeledRadioItems('Efficiency of Existing Heating System','ht_eff', max_width=500),
         LabeledRadioItems('Auxiliary electricity use from existing heating system', 'aux_elec', 
-                options=AUX_ELEC_TYPE, value='toyo',
+                options=make_options(AUX_ELEC_TYPE), value='toyo',
                 help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system.',
                 ),
-        #the item below needs to be labeledinput and assigned a number type once we figure out how to get the units tag to go where it's supposed to
-		LabeledInput('(Optional) Annual space heating Fuel Use for building in physical units','sp_ht_use', help_text='This value is optional and may be left blank. If left blank, size, year built, and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
-        LabeledInput('Whole Building Electricity Use (without heat pump) in January', 'jan_elec', 'kWh', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
-        LabeledInput('Whole Building Electricity Use (without heat pump) in May', 'may_elec', 'kWh', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
+        # the item below needs to be labeledinput and assigned a number type 
+        # once we figure out how to get the units tag to go where it's supposed to
+		LabeledInput('(Optional) Annual space heating Fuel Use for building in physical units','sp_ht_use', 
+                help_text='This value is optional and may be left blank. If left blank, size, year built, and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
+        LabeledInput('Whole Building Electricity Use (without heat pump) in January', 'jan_elec', 'kWh', 
+                help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
+        LabeledInput('Whole Building Electricity Use (without heat pump) in May', 'may_elec', 'kWh', 
+                help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
         html.Br(),
         LabeledSlider(app, 'Indoor Temperature where Heat Pump is Located', 'indoor-temp',
                       60, 80, '°F',
                       mark_gap=5, step=1, value=71),
     ]),
-
     LabeledSection('Heat Pump Info', [
         
         LabeledRadioItems('Type of Heat Pump: Single- or Multi-zone', 'zones',
@@ -259,7 +263,7 @@ app.layout = html.Div(className='container', children=[
 
 @app.callback(Output('utility_id', 'options'),
     [Input('city_id', 'value')])
-def find_util(city):
+def find_util(city_id):
     if city_id is None:
         return []
     utils = lib.city_from_id(city_id).ElecUtilities
@@ -267,7 +271,7 @@ def find_util(city):
     
 @app.callback(Output('div-schedule', 'style'), 
     [Input('elec_input','value')])
-def electricalinputs(elec_input, city):
+def electricalinputs(elec_input):
     if elec_input == 'util':
         return {'display': 'block'}
     else:
@@ -275,7 +279,7 @@ def electricalinputs(elec_input, city):
     
 @app.callback(Output('div-man-ez', 'style'), 
     [Input('elec_input','value')])
-def electricalinputs_ez(elec_input, city):
+def electricalinputs_ez(elec_input):
     if elec_input == 'ez':
         return {'display': 'block'}
     else:
@@ -283,7 +287,7 @@ def electricalinputs_ez(elec_input, city):
 
 @app.callback(Output('div-man-adv', 'style'), 
     [Input('elec_input','value')])
-def electricalinputs_adv(elec_input, city):
+def electricalinputs_adv(elec_input):
     if elec_input == 'adv':
         return {'display': 'block'}
     else:
@@ -311,14 +315,13 @@ def setblockkwh3(blk2_kwh):
         return None
 
 @app.callback(Output('fuel_price', 'value'),
-    [Input('fuel', 'value'), Input('city','value')])
-def find_fuel_price(fuel, city):
-    if fuel is None or city is None:
+    [Input('fuel', 'value'), Input('city_id','value')])
+def find_fuel_price(fuel, city_id):
+    if fuel is None or city_id is None:
         return None
     the_fuel = lib.fuel_from_id(fuel)
     price_col = the_fuel['price_col']
-    
-    the_city = lib.city_from_id(city)
+    the_city = lib.city_from_id(city_id)
     price = np.nan_to_num(the_city[price_col])
     price = np.round(price, 2)
     
@@ -391,13 +394,6 @@ def toggle_container2(selector_value):
     else:
         return {'display': 'none'}
 
-@app.callback(Output('hp-model2', 'options'), 
-              [Input('hp-manuf', 'value'), Input('zones', 'value'), Input('efficient-only', 'values')])
-def hp_models2(manuf, zones, effic_check_list):
-    zone_type = 'Single' if zones==1 else 'Multi'
-    model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
-    return [{'label': lbl, 'value': id} for lbl, id in model_list]
-
 @app.callback(Output('key-inputs', 'children'), 
     ui_helper.calc_input_objects())
 def show_key_inputs(*args):
@@ -405,10 +401,10 @@ def show_key_inputs(*args):
     return dedent(f'''
     ```
     Variables:
-    {vars}
+    {pformat(vars)}
 
     Extra Variables:
-    {extra_vars}
+    {pformat(extra_vars)}
     ```
     ''')
 

@@ -9,9 +9,9 @@ from dash.dependencies import Input
 na = None
 
 input_info = [
-    ('city', 'city_id'),
+    ('city_id', ),
     ('elec_input',),
-    ('utility', 'utility_id'),
+    ('utility_id',),
     ('elec_rate_ez',),
     ('pce_ez', ),
     ('customer_chg_ez', ),
