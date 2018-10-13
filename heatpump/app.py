@@ -59,7 +59,6 @@ app.layout = html.Div(className='container', children=[
     
     html.H1('Alaska Mini-Split Heat Pump Calculator'),
     html.H2('------- UNDER CONSTRUCTION - Not Usable -------'),
-
     html.P('Explanation here of what the Calculator does. Credits and logos of sponsoring organizations.'),
 
     LabeledSection('General', [
@@ -79,32 +78,32 @@ app.layout = html.Div(className='container', children=[
                           options=[{'label': i, 'value': i} for i in rd_elec_inputs],
                           value = 'Select Utility Rate Schedule',),
     html.Div([                  
-        LabeledDropdown('Select your utility','utility', options=[],placeholder='Select Utility Company'),
-        LabeledInput('PCE:','pce_val'),
+        LabeledDropdown('Select your Utility and Rate Schedule','utility', options=[],placeholder='Select Utility Company'),
         ],id='div-schedule',style={'display': 'none'}),
 
     html.Div([html.Table(
         [
-            html.Tr( [html.Label('Enter Electric Rate $/kWh'), html.Td(dcc.Input(id='man_elec_rate',type='text'))] ),
-            html.Tr( [html.Td(html.Label('Enter PCE Rate in $/kWh')), html.Td(dcc.Input(id='man_elec_pce', type='text'))] ),                    
+            html.Tr( [html.Td(html.Label('Electric Rate:')), html.Td(['$ ', dcc.Input(id='elec_rate_ez',type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+            html.Tr( [html.Td(html.Label('PCE Rate:')), html.Td(['$ ', dcc.Input(id='pce_ez', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+            html.Tr( [html.Td(html.Label('Customer Charge:')), html.Td(['$ ', dcc.Input(id='customer_chg_ez', type='number', style={'maxWidth': 100}), ' /month'])] ),                    
         ]
     ),],id='div-man-ez', style={'display': 'none'}),
     
     html.Div([html.Label('Enter block rates:'),
         html.Table(
             [
-                html.Tr( [html.Th("kWh range"), html.Th("Block kWh"), html.Th("Block rate")] )
-            ] +
-            [
-                html.Tr( [html.Td("0 -  "), html.Td(dcc.Input(id='block_k', type='number')), html.Td(dcc.Input(id='block_r', type='number'))] ),
-                html.Tr( [html.Td(html.P('',id='block_0')), html.Td(dcc.Input(id='block_k2', type='number')), html.Td(dcc.Input(id='block_r2', type='number'))] ),
-                html.Tr( [html.Td(html.P('',id='block_1')), html.Td(dcc.Input(id='block_k3', type='number')), html.Td(dcc.Input(id='block_r3', type='number'))] ),
-                html.Tr( [html.Td(html.P('',id='block_2')), html.Td(dcc.Input(id='block_k4', type='number')), html.Td(dcc.Input(id='block_r4', type='number'))] ),
-                html.Tr( [html.Td('Demand Charge in $/kWh', colSpan='2'), html.Td(dcc.Input(id='demand_charge', type='number'))] ),
-                html.Tr( [html.Td('Customer Charge in $', colSpan='2'), html.Td(dcc.Input(id='customer_charge',type='number'))] ),
-                html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(dcc.Input(id='man_elec_pce2',type='number'))] ),              
+                html.Tr( [html.Th("Start kWh"), html.Th("End kWh"), html.Th("Rate, $/kWh")] ),
+                html.Tr( [html.Td(html.P("1 -")), html.Td([dcc.Input(id='blk0_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk0_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td(html.P('',id='blk1_min')), html.Td([dcc.Input(id='blk1_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk1_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td(html.P('',id='blk2_min')), html.Td([dcc.Input(id='blk2_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk2_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td(html.P('',id='blk3_min')), html.Td([dcc.Input(id='blk3_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk3_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td('Demand Charge:', colSpan='2'), html.Td(['$ ', dcc.Input(id='demand_chg_adv', type='number', style={'maxWidth': 100}), ' /kW/mo'])] ),
+                html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv',type='number', style={'maxWidth': 100}), ' /kWh'])] ),              
+                html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv',type='number', style={'maxWidth': 100}), ' /mo'])] ),
             ]
         ),],id='div-man-adv', style={'display': 'none'}),
+
+        html.P('.'),
         
         LabeledSlider(app, 'Pounds of CO2 per kWh of incremental electricity generation:', 'elec-co2', 
             0, 3.3, 'pounds/kWh',
@@ -116,7 +115,6 @@ app.layout = html.Div(className='container', children=[
 
     LabeledSection('Building Info', [
         LabeledInput('Building Floor Area, excluding garage (ft/sq)', 'ht_floor_area', size=6),
-        LabeledInput('Year built', 'yr_blt', size=4),
         LabeledRadioItems('Wall Construction:', 'wall_const', options=[{'label': '2x4', 'value': 1}, {'label': '2x6', 'value': 2},{'label': 'better than 2x6', 'value': 3}],labelStyle={'display': 'inline-block'},value = [],),
         LabeledDropdown('Select existing heating fuel type', 'fuel',
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()],
@@ -157,7 +155,8 @@ app.layout = html.Div(className='container', children=[
         LabeledDropdown('Heat Pump Model:', 'hp-model',
                         options=[],
                         max_width=1000,   # wide as possible
-                        placeholder='Select Heat Pump Model'),
+                        placeholder='Select Heat Pump Model',
+                        style={'fontSize': 14}),
 
         LabeledInput('Installed Cost of Heat Pump:', 'hp-cost', '$', 
                      'Include all equipment and labor costs.', value=4500),
@@ -271,20 +270,26 @@ def electricalinputs(elec_input, city):
     else:
         return {'display': 'none'}   
         
-@app.callback(Output('block_0','children'), [Input('block_k','value')])
-def setblockkwh(block_k):
-    block_0 = block_k + 1
-    return block_0    
-    
-@app.callback(Output('block_1','children'), [Input('block_k2','value')])
-def setblockkwh(block_k2):
-    block_1 = block_k2 + 1
-    return block_1    
+@app.callback(Output('blk1_min','children'), [Input('blk0_kwh','value')])
+def setblockkwh(blk0_kwh):
+    try:
+        return f'{int(blk0_kwh) + 1} -'
+    except:
+        return None
 
-@app.callback(Output('block_2','children'), [Input('block_k3','value')])
-def setblockkwh(block_k3):
-    block_2 = block_k3 + 1
-    return block_2    
+@app.callback(Output('blk2_min','children'), [Input('blk1_kwh','value')])
+def setblockkwh(blk1_kwh):
+    try:
+        return f'{int(blk1_kwh) + 1} -'
+    except:
+        return None
+
+@app.callback(Output('blk3_min','children'), [Input('blk2_kwh','value')])
+def setblockkwh(blk2_kwh):
+    try:
+        return f'{int(blk2_kwh) + 1} -'
+    except:
+        return None
 
 @app.callback(Output('ppu', 'value'),
     [Input('fuel', 'value'), Input('city','value')])
@@ -362,22 +367,12 @@ def hp_models2(manuf, zones, effic_check_list):
     model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
     return [{'label': lbl, 'value': id} for lbl, id in model_list]
 
+
+calc_inputs = ('city', 'utility', 'fuel', 'hp-model')
 @app.callback(Output('key-inputs', 'children'), 
-    [
-        Input('city', 'value'),
-        Input('utility', 'value'),
-        Input('fuel', 'value'),
-        Input('hp-model', 'value'),
-    ])
-def show_key_inputs(city, utility, fuel, hp_model):
-    return dedent(f"""
-        ```
-        City:  {city}
-        Utility: {utility}
-        Fuel: {fuel}
-        Heat Pump Model: {hp_model}
-        ```
-        """)
+    [Input(nm, 'value') for nm in calc_inputs])
+def show_key_inputs(*args):
+    return str(dict(zip(calc_inputs, args)))
 
 
 # -------------------------------------- MAIN ---------------------------------------------
