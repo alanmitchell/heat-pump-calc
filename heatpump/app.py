@@ -45,13 +45,37 @@ app.index_string = '''
 '''
 
 # -------------------------------------- DEFINITIONS -------------------------------------- 
-rd_elec_inputs = ['Select Utility Rate Schedule','Manual Entry','Manual Entry (Advanced)']
+def make_options(option_list):
+    """Converts a list of two-tuples: (label, value) into a list
+    of dictionaries suitable for use in Dropdown and RadioItems
+    components.
+    """
+    return [{'label': lbl, 'value': val} for lbl, val in option_list]
 
-rd_bldg_types = ['Residential', 'Community Building', 'Commercial Building']
+ELEC_INPUT_METHOD = (
+    ('Select Utility Rate Schedule', 'util'),
+    ('Manual Entry', 'ez'),
+    ('Manual Entry (Advanced)', 'adv'),
+)
 
-rd_comm_pce = ['Yes','No']
+BLDG_TYPE = (
+    ('Residential', 'res'), 
+    ('Commercial Building', 'comm'),
+    ('Community Building', 'commun'),
+)
 
-rd_aux_elec = ['No Fans/Pumps (e.g. wood stove)', 'Hydronic (boiler)', 'Fan-assisted Space Heater (e.g. Toyostove)','Forced Air Furnace']  
+WALL_TYPE = (
+    ('2x4', '2x4'),
+    ('2x6', '2x6'),
+    ('Better than 2x6', 'better'),
+)
+
+AUX_ELEC_TYPE = (
+    ('No Fans/Pumps (e.g. wood stove)', 'no-fan'),
+    ('Hydronic (boiler)', 'boiler'),
+    ('Fan-assisted Space Heater (e.g. Toyostove)', 'toyo'),
+    ('Forced Air Furnace', 'furnace'),
+)  
 
 # -------------------------------------- LAYOUT ---------------------------------------------
 
@@ -62,65 +86,67 @@ app.layout = html.Div(className='container', children=[
     html.P('Explanation here of what the Calculator does. Credits and logos of sponsoring organizations.'),
 
     LabeledSection('General', [
-        LabeledTextInput('Building Name', 'bldg-name', size=50),
+        LabeledTextInput('Building Name', 'bldg_name', size=50),
         html.P('Enter in any Notes you want to be shown when you print this page.'),
         html.Textarea(style={'width': '100%'}),
     ]),
    
     LabeledSection('Location Info', [
 
-        LabeledDropdown('City where Building is Located:', 'city',
+        LabeledDropdown('City where Building is Located:', 'city_id',
 		options=[{'label': lbl, 'value': i} for lbl, i in lib.cities()]),
         
         LabeledRadioItems('Input method:', 'elec_input',
                           'Choose "Select Utility Rate Schedule" if you would like to select a utility based on your location. Select "Manual Entry" if you would like to manually enter utility and PCE rates. Finally, select "Manual Entry (Advanced)" if you would like to enter block rates. * A copy of your utility bill will be necessary for both manual entry options.',
-                          options=[{'label': i, 'value': i} for i in rd_elec_inputs]),
-    html.Div([                  
-        LabeledDropdown('Select your Utility and Rate Schedule','utility', options=[],placeholder='Select Utility Company'),
-        ],id='div-schedule',style={'display': 'none'}),
+                          options=make_options(ELEC_INPUT_METHOD), value='util'),
+        html.Div([                  
+            LabeledDropdown('Select your Utility and Rate Schedule','utility_id', options=[],placeholder='Select Utility Company'),
+            ],id='div-schedule',style={'display': 'none'}),
 
-    html.Div([html.Table(
-        [
-            html.Tr( [html.Td(html.Label('Electric Rate:')), html.Td(['$ ', dcc.Input(id='elec_rate_ez',type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-            html.Tr( [html.Td(html.Label('PCE Rate:')), html.Td(['$ ', dcc.Input(id='pce_ez', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-            html.Tr( [html.Td(html.Label('Customer Charge:')), html.Td(['$ ', dcc.Input(id='customer_chg_ez', type='number', style={'maxWidth': 100}), ' /month'])] ),                    
-        ]
-    ),],id='div-man-ez', style={'display': 'none'}),
-    
-    html.Div([html.Label('Enter block rates:'),
-        html.Table(
+        html.Div([html.Table(
             [
-                html.Tr( [html.Th("Start kWh"), html.Th("End kWh"), html.Th("Rate, $/kWh")] ),
-                html.Tr( [html.Td(html.P("1 -")), html.Td([dcc.Input(id='blk0_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk0_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                html.Tr( [html.Td(html.P('',id='blk1_min')), html.Td([dcc.Input(id='blk1_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk1_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                html.Tr( [html.Td(html.P('',id='blk2_min')), html.Td([dcc.Input(id='blk2_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk2_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                html.Tr( [html.Td(html.P('',id='blk3_min')), html.Td([dcc.Input(id='blk3_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk3_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                html.Tr( [html.Td('Demand Charge:', colSpan='2'), html.Td(['$ ', dcc.Input(id='demand_chg_adv', type='number', style={'maxWidth': 100}), ' /kW/mo'])] ),
-                html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv',type='number', style={'maxWidth': 100}), ' /kWh'])] ),              
-                html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv',type='number', style={'maxWidth': 100}), ' /mo'])] ),
+                html.Tr( [html.Td(html.Label('Electric Rate:')), html.Td(['$ ', dcc.Input(id='elec_rate_ez',type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td(html.Label('PCE Rate:')), html.Td(['$ ', dcc.Input(id='pce_ez', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td(html.Label('Customer Charge:')), html.Td(['$ ', dcc.Input(id='customer_chg_ez', type='number', style={'maxWidth': 100}), ' /month'])] ),                    
             ]
-        ),],id='div-man-adv', style={'display': 'none'}),
-
-        html.P('.'),
+        ),],id='div-man-ez', style={'display': 'none'}),
         
-        LabeledSlider(app, 'Pounds of CO2 per kWh of incremental electricity generation:', 'elec-co2', 
-            0, 3.3, 'pounds/kWh',
-            max_width = 800,
-            marks = {0: 'Renewables/Wood', 1.1: 'Natural Gas', 1.7: 'Lg Diesel', 2: 'Sm Diesel', 2.9: 'Coal' },
-            step=0.1, value= 1.7,
-            ),
+        html.Div([html.Label('Enter block rates:'),
+            html.Table(
+                [
+                    html.Tr( [html.Th("Start kWh"), html.Th("End kWh"), html.Th("Rate, $/kWh")] ),
+                    html.Tr( [html.Td(html.P("1 -")), html.Td([dcc.Input(id='blk0_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk0_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P('',id='blk1_min')), html.Td([dcc.Input(id='blk1_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk1_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P('',id='blk2_min')), html.Td([dcc.Input(id='blk2_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk2_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P('',id='blk3_min')), html.Td([dcc.Input(id='blk3_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk3_rate', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td('Demand Charge:', colSpan='2'), html.Td(['$ ', dcc.Input(id='demand_chg_adv', type='number', style={'maxWidth': 100}), ' /kW/mo'])] ),
+                    html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv',type='number', style={'maxWidth': 100}), ' /kWh'])] ),              
+                    html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv',type='number', style={'maxWidth': 100}), ' /mo'])] ),
+                ]
+            ),],id='div-man-adv', style={'display': 'none'}),
+
+            html.P('.'),
+            
+            LabeledSlider(app, 'Pounds of CO2 per kWh of incremental electricity generation:', 'elec-co2', 
+                0, 3.3, 'pounds/kWh',
+                max_width = 800,
+                marks = {0: 'Renewables/Wood', 1.1: 'Natural Gas', 1.7: 'Lg Diesel', 2: 'Sm Diesel', 2.9: 'Coal' },
+                step=0.1, value= 1.7,
+                ),
     ]),
 
     LabeledSection('Building Info', [
         LabeledInput('Building Floor Area, excluding garage (square feet)', 'ht_floor_area', size=6),
-        LabeledRadioItems('Wall Construction', 'wall_const', options=[{'label': '2x4', 'value': 1}, {'label': '2x6', 'value': 2},{'label': 'better than 2x6', 'value': 3}],labelStyle={'display': 'inline-block'},value = [],),
+        LabeledRadioItems('Wall Construction', 'wall_const', 
+                options=make_options(WALL_TYPE), value = '2x6'),
         LabeledDropdown('Select existing heating fuel type', 'fuel',
-                options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()],
-                ),
+                options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()]),
         LabeledInput('Fuel Price Per Unit', 'fuel_price', '$'),     
-        LabeledRadioItems('Efficiency of Existing Heating System','ht_eff',max_width=500, labelStyle={'display': 'inline-block'}),		
-        LabeledRadioItems('Auxiliary electricity use from existing heating system', 'aux_elec', options=[{'label': i, 'value': i} for i in rd_aux_elec],
-        value = 'Fan-assisted Space Heater (e.g. Toyostove)',help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system.'),
+        LabeledRadioItems('Efficiency of Existing Heating System','ht_eff', max_width=500),
+        LabeledRadioItems('Auxiliary electricity use from existing heating system', 'aux_elec', 
+                options=AUX_ELEC_TYPE, value='toyo',
+                help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system.',
+                ),
         #the item below needs to be labeledinput and assigned a number type once we figure out how to get the units tag to go where it's supposed to
 		LabeledInput('(Optional) Annual space heating Fuel Use for building in physical units','sp_ht_use', help_text='This value is optional and may be left blank. If left blank, size, year built, and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
         LabeledInput('Whole Building Electricity Use (without heat pump) in January', 'jan_elec', 'kWh', help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
@@ -231,34 +257,34 @@ app.layout = html.Div(className='container', children=[
 
 # -------------------------------------- CALLBACKS ---------------------------------------------
 
-@app.callback(Output('utility', 'options'),
-    [Input('city', 'value')])
+@app.callback(Output('utility_id', 'options'),
+    [Input('city_id', 'value')])
 def find_util(city):
-    if city is None:
+    if city_id is None:
         return []
-    utils = lib.city_from_id(city).ElecUtilities
+    utils = lib.city_from_id(city_id).ElecUtilities
     return [{'label': util_name, 'value': util_id} for util_name, util_id in utils]
     
-@app.callback(
-    Output('div-schedule', 'style'), [Input('elec_input','value'), Input('city','value')])
+@app.callback(Output('div-schedule', 'style'), 
+    [Input('elec_input','value')])
 def electricalinputs(elec_input, city):
-    if elec_input == 'Select Utility Rate Schedule':
+    if elec_input == 'util':
         return {'display': 'block'}
     else:
         return {'display': 'none'}
     
-@app.callback(
-    Output('div-man-ez', 'style'), [Input('elec_input','value'), Input('city','value')])
+@app.callback(Output('div-man-ez', 'style'), 
+    [Input('elec_input','value')])
 def electricalinputs_ez(elec_input, city):
-    if elec_input == 'Manual Entry':
+    if elec_input == 'ez':
         return {'display': 'block'}
     else:
         return {'display': 'none'}
 
-@app.callback(
-    Output('div-man-adv', 'style'), [Input('elec_input','value'), Input('city','value')])
+@app.callback(Output('div-man-adv', 'style'), 
+    [Input('elec_input','value')])
 def electricalinputs_adv(elec_input, city):
-    if elec_input == 'Manual Entry (Advanced)':
+    if elec_input == 'adv':
         return {'display': 'block'}
     else:
         return {'display': 'none'}   
@@ -307,7 +333,9 @@ def effic_choices(fuel_id):
 
 @app.callback(Output('ht_eff','value'), [Input('ht_eff','options')])
 def options(ht_eff):
-    if len(ht_eff):
+    if len(ht_eff)>2:
+        return ht_eff[1]['value']
+    elif len(ht_eff)>0:
         return ht_eff[0]['value']
     else:
         return None
@@ -320,20 +348,20 @@ def updateunits(fuel_id):
     fu2 = lib.fuel_from_id(fuel_id)
     return fu2.unit  
     
-@app.callback(Output('jan_elec','value'),[Input('city','value')])
-def whole_bldg_jan(city):
-    if city is None:
+@app.callback(Output('jan_elec','value'),[Input('city_id','value')])
+def whole_bldg_jan(city_id):
+    if city_id is None:
         return None
-    jan_elec = lib.city_from_id(city).avg_elec_usage[0]
-    jan_elec = np.round(jan_elec,2)
+    jan_elec = lib.city_from_id(city_id).avg_elec_usage[0]
+    jan_elec = np.round(jan_elec, 0)
     return jan_elec
     
-@app.callback(Output('may_elec','value'),[Input('city','value')])
-def whole_bldg_may(city):
-    if city is None:
+@app.callback(Output('may_elec','value'),[Input('city_id','value')])
+def whole_bldg_may(city_id):
+    if city_id is None:
         return None
-    may_elec = lib.city_from_id(city).avg_elec_usage[4]
-    may_elec = np.round(may_elec,2)
+    may_elec = lib.city_from_id(city_id).avg_elec_usage[4]
+    may_elec = np.round(may_elec, 0)
     return may_elec
         
 @app.callback(Output('hp-manuf', 'options'), [Input('zones', 'value'), Input('efficient-only', 'values')])
@@ -375,13 +403,13 @@ def hp_models2(manuf, zones, effic_check_list):
 def show_key_inputs(*args):
     vars, extra_vars = ui_helper.inputs_to_vars(args)
     return dedent(f'''
+    ```
     Variables:
-
     {vars}
 
     Extra Variables:
-
     {extra_vars}
+    ```
     ''')
 
 # -------------------------------------- MAIN ---------------------------------------------
