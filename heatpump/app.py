@@ -379,19 +379,19 @@ def hp_models(manuf, zones, effic_check_list):
     model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
     return [{'label': lbl, 'value': id} for lbl, id in model_list]
 
-# @app.callback(Output('key-inputs', 'children'), 
-#     ui_helper.calc_input_objects())
-# def show_key_inputs(*args):
-#     vars, extra_vars = ui_helper.inputs_to_vars(args)
-#     return dedent(f'''
-#     ```
-#     Variables:
-#     {pformat(vars)}
+@app.callback(Output('key-inputs', 'children'), 
+    ui_helper.calc_input_objects())
+def show_key_inputs(*args):
+    vars, extra_vars = ui_helper.inputs_to_vars(args)
+    return dedent(f'''
+    ```
+    Variables:
+    {pformat(vars)}
 
-#     Extra Variables:
-#     {pformat(extra_vars)}
-#     ```
-#     ''')
+    Extra Variables:
+    {pformat(extra_vars)}
+    ```
+    ''')
 
 # -------------------------------------- MAIN ---------------------------------------------
 
