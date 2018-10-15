@@ -116,10 +116,10 @@ app.layout = html.Div(className='container', children=[
                 html.Label('Enter block rates:'),
                 html.Table([
                     html.Tr( [html.Th("Start kWh"), html.Th("End kWh"), html.Th("Rate, $/kWh")] ),
-                    html.Tr( [html.Td(html.P("1 -")), html.Td([dcc.Input(id='blk0_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk0_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                    html.Tr( [html.Td(html.P('',id='blk1_min')), html.Td([dcc.Input(id='blk1_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk1_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P("1 -")), html.Td([dcc.Input(id='blk1_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk1_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
                     html.Tr( [html.Td(html.P('',id='blk2_min')), html.Td([dcc.Input(id='blk2_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk2_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
                     html.Tr( [html.Td(html.P('',id='blk3_min')), html.Td([dcc.Input(id='blk3_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk3_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P('',id='blk4_min')), html.Td([dcc.Input(id='blk4_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk4_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
                     html.Tr( [html.Td('Demand Charge:', colSpan='2'), html.Td(['$ ', dcc.Input(id='demand_chg_adv', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kW/mo'])] ),
                     html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),              
                     html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /mo'])] ),
@@ -292,21 +292,21 @@ def electricalinputs_adv(elec_input):
     else:
         return {'display': 'none'}   
         
-@app.callback(Output('blk1_min','children'), [Input('blk0_kwh','value')])
+@app.callback(Output('blk2_min','children'), [Input('blk1_kwh','value')])
 def setblockkwh1(blk0_kwh):
     try:
         return f'{int(blk0_kwh) + 1} -'
     except:
         return None
 
-@app.callback(Output('blk2_min','children'), [Input('blk1_kwh','value')])
+@app.callback(Output('blk3_min','children'), [Input('blk2_kwh','value')])
 def setblockkwh2(blk1_kwh):
     try:
         return f'{int(blk1_kwh) + 1} -'
     except:
         return None
 
-@app.callback(Output('blk3_min','children'), [Input('blk2_kwh','value')])
+@app.callback(Output('blk4_min','children'), [Input('blk3_kwh','value')])
 def setblockkwh3(blk2_kwh):
     try:
         return f'{int(blk2_kwh) + 1} -'
