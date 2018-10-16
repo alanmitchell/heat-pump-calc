@@ -23,6 +23,20 @@ input_info = [
     ('demand_chg_adv', 'Electric Demand Charge', 'null-ok,null-to-zero,float,extra'),
     ('pce_adv', 'PCE assistance', 'null-ok,null-to-zero,float,extra'),
     ('customer_chg_adv', 'Electric Customer Charge', 'null-ok,null-to-zero,float,extra'),
+    ('co2_lbs_per_kwh', 'CO2 per kWh of extra electricity generation'),
+    ('bldg_type', 'Building Type', 'extra'),
+    ('commun_all_pce', 'Community Building PCE Used Up', 'extra'),
+    ('bldg_floor_area', 'Building Floor Area', 'float'),
+    ('garage_stall_count', 'Garage Size'),
+    ('wall_type', 'Wall Construction Type', 'extra'),
+    ('exist_heat_fuel_id', 'Heating Fuel Type'),
+    ('exist_unit_fuel_cost', 'Heating Fuel Price', 'float'),
+    ('exist_heat_effic', 'Heating System Efficiency'),
+    ('aux_elec', 'Auxiliary Electric Use', 'extra'),
+    ('exist_fuel_use', 'Existing Heating Fuel Use', 'null-ok,float'),
+    ('elec_use_jan', 'January Electric Use', 'float'),
+    ('elec_use_may', 'May Electric Use', 'float'),
+    ('indoor_heat_setpoint', 'Heating Thermostat'),
 ]
 
 def calc_input_objects():
@@ -75,7 +89,8 @@ def inputs_to_vars(input_vals):
         else:
             if cc['float']:
                 try:
-                    val = float(val)
+                    # remove any commas before converting.
+                    val = float(val.replace(',', ''))
                 except:
                     errors.append(f'{desc} must be a number.')
             elif cc['int']:
