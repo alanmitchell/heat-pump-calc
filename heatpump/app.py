@@ -9,7 +9,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-from .components import LabeledInput, LabeledSlider, LabeledSection, LabeledTextInput, \
+from .components import LabeledInput, LabeledSlider, LabeledSection, \
     LabeledDropdown, LabeledRadioItems, LabeledChecklist
 import numpy as np	
 from . import library as lib
@@ -65,6 +65,14 @@ BLDG_TYPE = (
     ('Community Building', 'commun'),
 )
 
+GARAGE_SIZE = (
+    ('No Garage', 0),
+    ('1-Car', 1),
+    ('2-Car', 2),
+    ('3-Car', 3),
+    ('4-Car', 4)
+)
+
 WALL_TYPE = (
     ('2x4', '2x4'),
     ('2x6', '2x6'),
@@ -76,7 +84,7 @@ AUX_ELEC_TYPE = (
     ('Hydronic (boiler)', 'boiler'),
     ('Fan-assisted Space Heater (e.g. Toyostove)', 'toyo'),
     ('Forced Air Furnace', 'furnace'),
-)  
+)
 
 # -------------------------------------- LAYOUT ---------------------------------------------
 
@@ -87,7 +95,7 @@ app.layout = html.Div(className='container', children=[
     html.P('Explanation here of what the Calculator does. Credits and logos of sponsoring organizations.'),
 
     LabeledSection('General', [
-        LabeledTextInput('Building Name', 'bldg_name', size=50),
+        LabeledInput('Building Name', 'bldg_name', size=50),
         html.P('Enter in any Notes you want to be shown when you print this page.'),
         html.Textarea(style={'width': '100%'}),
     ]),
@@ -106,9 +114,9 @@ app.layout = html.Div(className='container', children=[
 
         html.Div([html.Table(
             [
-                html.Tr( [html.Td(html.Label('Electric Rate:')), html.Td(['$ ', dcc.Input(id='elec_rate_ez',type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                html.Tr( [html.Td(html.Label('PCE Rate:')), html.Td(['$ ', dcc.Input(id='pce_ez', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                html.Tr( [html.Td(html.Label('Customer Charge:')), html.Td(['$ ', dcc.Input(id='customer_chg_ez', type='number', style={'maxWidth': 100}), ' /month'])] ),                    
+                html.Tr( [html.Td(html.Label('Electric Rate:')), html.Td(['$ ', dcc.Input(id='elec_rate_ez', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td(html.Label('PCE Rate:')), html.Td(['$ ', dcc.Input(id='pce_ez', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td(html.Label('Customer Charge:')), html.Td(['$ ', dcc.Input(id='customer_chg_ez', style={'maxWidth': 100}), ' /month'])] ),                    
             ]
         ),],id='div-man-ez', style={'display': 'none'}),
         
@@ -116,18 +124,18 @@ app.layout = html.Div(className='container', children=[
                 html.Label('Enter block rates:'),
                 html.Table([
                     html.Tr( [html.Th("Start kWh"), html.Th("End kWh"), html.Th("Rate, $/kWh")] ),
-                    html.Tr( [html.Td(html.P("1 -")), html.Td([dcc.Input(id='blk1_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk1_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                    html.Tr( [html.Td(html.P('',id='blk2_min')), html.Td([dcc.Input(id='blk2_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk2_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                    html.Tr( [html.Td(html.P('',id='blk3_min')), html.Td([dcc.Input(id='blk3_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk3_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                    html.Tr( [html.Td(html.P('',id='blk4_min')), html.Td([dcc.Input(id='blk4_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk4_rate', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),
-                    html.Tr( [html.Td('Demand Charge:', colSpan='2'), html.Td(['$ ', dcc.Input(id='demand_chg_adv', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kW/mo'])] ),
-                    html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /kWh'])] ),              
-                    html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv', inputmode='numeric', type='number', style={'maxWidth': 100}), ' /mo'])] ),
+                    html.Tr( [html.Td(html.P("1 -")), html.Td([dcc.Input(id='blk1_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk1_rate', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P('',id='blk2_min')), html.Td([dcc.Input(id='blk2_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk2_rate', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P('',id='blk3_min')), html.Td([dcc.Input(id='blk3_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk3_rate', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td(html.P('',id='blk4_min')), html.Td([dcc.Input(id='blk4_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk4_rate', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
+                    html.Tr( [html.Td('Demand Charge:', colSpan='2'), html.Td(['$ ', dcc.Input(id='demand_chg_adv', type='text', style={'maxWidth': 100}), ' /kW/mo'])] ),
+                    html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv', type='text', style={'maxWidth': 100}), ' /kWh'])] ),              
+                    html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv', type='text', style={'maxWidth': 100}), ' /mo'])] ),
                     ])
             ], id='div-man-adv', style={'display': 'none'}),
             html.P('.'),
             
-            LabeledSlider(app, 'Pounds of CO2 per kWh of incremental electricity generation:', 'elec-co2', 
+            LabeledSlider(app, 'Pounds of CO2 per kWh of incremental electricity generation:', 'co2_lbs_per_kwh', 
                 0, 3.3, 'pounds/kWh',
                 max_width = 800,
                 marks = {0: 'Renewables/Wood', 1.1: 'Natural Gas', 1.7: 'Lg Diesel', 2: 'Sm Diesel', 2.9: 'Coal' },
@@ -136,10 +144,15 @@ app.layout = html.Div(className='container', children=[
     ]),
 
     LabeledSection('Building Info', [
-        LabeledInput('Building Floor Area, excluding garage (square feet)', 'ht_floor_area', size=6),
-        LabeledRadioItems('Wall Construction', 'wall_const', 
+        LabeledRadioItems('Type of Building:', 'bldg_type',
+                options=make_options(BLDG_TYPE), value='res'),
+        LabeledInput('Building Floor Area, excluding garage (square feet):', 'bldg_floor_area', 
+                units='ft2', size=6),
+        LabeledRadioItems('Size of Garage:', 'garage_stall_count', 
+                options=make_options(GARAGE_SIZE), value=0),
+        LabeledRadioItems('Wall Construction:', 'wall_type', 
                 options=make_options(WALL_TYPE), value = '2x6'),
-        LabeledDropdown('Select existing heating fuel type', 'fuel',
+        LabeledDropdown('Select existing heating fuel type', 'exist_heat_fuel_id',
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()]),
         LabeledInput('Fuel Price Per Unit', 'fuel_price'),     
         LabeledRadioItems('Efficiency of Existing Heating System','ht_eff', max_width=500),
@@ -241,7 +254,7 @@ app.layout = html.Div(className='container', children=[
                             5, 30, 'years',
                             'This should be set to 14 years unless there is evidence that a particular model will last shorter or longer than most heat pumps.',
                             mark_gap=2, step=1, value=14),    
-                LabeledInput('Annual increase in heating system O&M Cost:', 'annl-om', '$/year', 'Enter a positive value if the cost of maintaining the heating systems with the heat pump is higher than the cost of maintaining the previous system.', inputmode='numeric', value='0'),                            
+                LabeledInput('Annual increase in heating system O&M Cost:', 'annl-om', '$/year', 'Enter a positive value if the cost of maintaining the heating systems with the heat pump is higher than the cost of maintaining the previous system.'),                            
             ])
         ])
 
@@ -314,11 +327,11 @@ def setblockkwh3(blk2_kwh):
         return None
 
 @app.callback(Output('fuel_price', 'value'),
-    [Input('fuel', 'value'), Input('city_id','value')])
-def find_fuel_price(fuel, city_id):
-    if fuel is None or city_id is None:
+    [Input('exist_heat_fuel_id', 'value'), Input('city_id','value')])
+def find_fuel_price(fuel_id, city_id):
+    if fuel_id is None or city_id is None:
         return None
-    the_fuel = lib.fuel_from_id(fuel)
+    the_fuel = lib.fuel_from_id(fuel_id)
     price_col = the_fuel['price_col']
     the_city = lib.city_from_id(city_id)
     price = np.nan_to_num(the_city[price_col])
@@ -326,7 +339,7 @@ def find_fuel_price(fuel, city_id):
     
     return price 
 
-@app.callback(Output('ht_eff','options'), [Input('fuel', 'value')])
+@app.callback(Output('ht_eff','options'), [Input('exist_heat_fuel_id', 'value')])
 def effic_choices(fuel_id):
     if fuel_id is None:
         return []
@@ -343,7 +356,7 @@ def options(ht_eff):
         return None
 
 #I've directed this to write into the sp_ht_use box so I can make sure it works, nothing I've tried gets it to update the units label
-@app.callback(Output('units-sp_ht_use', 'children'),[Input('fuel','value')])
+@app.callback(Output('units-sp_ht_use', 'children'),[Input('exist_heat_fuel_id','value')])
 def updateunits(fuel_id):
     if fuel_id is None:
         return None
@@ -382,9 +395,12 @@ def hp_models(manuf, zones, effic_check_list):
 @app.callback(Output('key-inputs', 'children'), 
     ui_helper.calc_input_objects())
 def show_key_inputs(*args):
-    vars, extra_vars = ui_helper.inputs_to_vars(args)
+    errors, vars, extra_vars = ui_helper.inputs_to_vars(args)
     return dedent(f'''
     ```
+    Errors:
+    {pformat(errors)}
+
     Variables:
     {pformat(vars)}
 

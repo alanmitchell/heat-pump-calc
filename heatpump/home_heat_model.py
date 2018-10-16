@@ -28,7 +28,7 @@ class HomeHeatModel(object):
                  # calculation process. They are give default values.
                  hp_only=False,           # when using heat pump, it's the only heat source for home
                  no_heat_pump_use=False,  # If True, models existing heating system alone.
-                 ua_true_up=1.0,          # used to true up calculaion to actual fuel use
+                 ua_true_up=1.0,          # used to true up calculation to actual fuel use
                  **kwargs
                 ):
         

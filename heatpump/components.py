@@ -42,15 +42,12 @@ def LabeledSection(label, children):
 # also displayed next to the label. Any extra keyword arguments passed to the
 # function are passed to the main Dash component wrapped by the function call.
 
-def LabeledInput(label, id, units='', help_text='', inputmode='numeric', type='number', **kwargs):
-    """ This component is meant for Numeric input.  Use the "LabeledTexInput" component for
-    text input.  
-    'inputmode' and 'type' are arguments to the dcc.Input component but are
-    called out explicitly in the argument list in order to change their default values.
+def LabeledInput(label, id, units='', help_text='', size=7, **kwargs):
+    """ A labeled Input control.
     This control puts a units label after the Input control to hold strings like
     'kWh' or 'gallons'.  Pass the Units text to the 'units' parameter.  Also, this
     label (an HTML Span element) has an id of 'units-{id}' so it can be accessed
-    through callbacks.
+    through callbacks. 'size' controls the width of the Input box.
     """
 
     # make the paragraph element holding the label, help icon, and units suffix.
@@ -58,22 +55,11 @@ def LabeledInput(label, id, units='', help_text='', inputmode='numeric', type='n
 
     # now insert the actual input control into the correct spot in the children list
     para.children.insert(-1, 
-        dcc.Input(id=id, inputmode=inputmode, type=type, 
-                  style={'maxWidth': 100, 'marginLeft': 10},
+        dcc.Input(id=id, type='text', size=size,
+                  style={'marginLeft': 10},
                   **kwargs))
             
     return html.Div(className='labeled-comp', id=f'div-{id}', children=para)
-
-def LabeledTextInput(label, id, help_text='', type='text', **kwargs):
-    """ This is meant for text input.  Use the "LabeledInput" for numeric
-    input.
-    'type' is an argument to the dcc.Input component but is called out 
-    explicitly in the argument list in order to change its default values.
-    """
-    return html.Div(className='labeled-comp', id=f'div-{id}', children=[
-                    make_label(label, help_text),
-                    dcc.Input(id=id, type=type, **kwargs)
-                    ])
 
 def LabeledSlider(app, label, id, min_val, max_val, units='', help_text='', max_width=500, 
                   mark_gap=None, marks={}, **kwargs):

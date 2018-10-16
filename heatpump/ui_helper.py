@@ -5,16 +5,13 @@ are used in the Energy Model are addressed here.
 """
 from dash.dependencies import Input
 
-# shortcut for None
-na = None
-
 input_info = [
     ('city_id', 'City', ''),
     ('elec_input', 'Type of Electric Rate input', 'extra'),
     ('utility_id', 'Utility', 'null-ok,extra'),
     ('elec_rate_ez', 'Electric Rate', 'null-ok,float,extra'),
-    ('pce_ez', 'PCE assistance', 'null-to-zero,float,extra'),
-    ('customer_chg_ez', 'Electric Utility Customer Charge per month', 'null-to-zero,float,extra'),
+    ('pce_ez', 'PCE assistance', 'null-ok,null-to-zero,float,extra'),
+    ('customer_chg_ez', 'Electric Utility Customer Charge', 'null-ok,null-to-zero,float,extra'),
     ('blk1_kwh', 'Electric Block 1 kWh limit', 'null-ok,int,extra'),
     ('blk2_kwh', 'Electric Block 2 kWh limit', 'null-ok,int,extra'),
     ('blk3_kwh', 'Electric Block 3 kWh limit', 'null-ok,int,extra'),
@@ -23,9 +20,9 @@ input_info = [
     ('blk2_rate', 'Electric Block 2 rate', 'null-ok,float,extra'),
     ('blk3_rate', 'Electric Block 3 rate', 'null-ok,float,extra'),
     ('blk4_rate', 'Electric Block 4 rate', 'null-ok,float,extra'),
-    ('demand_chg_adv', 'Electric Demand Charge', 'null-to-zero,float,extra'),
-    ('pce_adv', 'PCE assistance', 'null-to-zero,float,extra'),
-    ('customer_chg_adv', 'Electric Customer Charge', 'null-to-zero,float,extra'),
+    ('demand_chg_adv', 'Electric Demand Charge', 'null-ok,null-to-zero,float,extra'),
+    ('pce_adv', 'PCE assistance', 'null-ok,null-to-zero,float,extra'),
+    ('customer_chg_adv', 'Electric Customer Charge', 'null-ok,null-to-zero,float,extra'),
 ]
 
 def calc_input_objects():
@@ -43,15 +40,53 @@ def inputs_to_vars(input_vals):
     variables and associated values.  To create the dictionary of variables and
     values, conversions that are listed in the input_info list above are applied.
     """
+    # Separate the variables that are the final variables that are used in the
+    # calculation, 'vars', from those that are secondary and will be used to
+    # create main variables, 'extras'
     vars = {}
     extras = {}
+
+    # Start a list of error messages
+    errors = []
+
+    # Make the dictionaries of main variables and extra variables, doing the
+    # requested checks and conversions.
     for info, val in zip(input_info, input_vals):
-        cc = check_conversion.copy()
-        for item in info[2].split(','):
-            cc[item.strip()] = True
-        if cc['extra']:
-            extras[info[0]] = val
+
+        # The third info item may or may not be present so use a wildcard
+        # item in the tuple unpacking.
+        var, desc, *other = info
+
+        # Start assuming no checks and conversions are present and then
+        # override by those present in the third element of the info tuple.
+        cc = check_conversion.copy()  # all False to start with.
+        if len(other):
+            for item in other[0].split(','):
+                cc[item.strip()] = True
+
+        if val is None:
+            if cc['null-ok']:
+                # Only other check / conversion is null to zero if the value is
+                # None
+                if cc['null-to-zero']:
+                    val = 0
+            else:
+                errors.append(f'The {desc} must be entered.')
         else:
-            vars[info[0]] = val
+            if cc['float']:
+                try:
+                    val = float(val)
+                except:
+                    errors.append(f'{desc} must be a number.')
+            elif cc['int']:
+                try:
+                    val = int(val)
+                except:
+                    errors.append(f'{desc} must be an integer number.')
+
+        if cc['extra']:
+            extras[var] = val
+        else:
+            vars[var] = val
     
-    return vars, extras
+    return errors, vars, extras
