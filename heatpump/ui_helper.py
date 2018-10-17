@@ -41,11 +41,26 @@ input_info = [
     ('hp_model_id', 'Heat Pump Model'),
     ('capital_cost', 'Installed Heat Pump Cost', 'float'),
     ('rebate_dol', 'Heat Pump Rebate', 'float'),
+    ('pct_financed', '% of Heat Pump Financed'),
+    ('loan_term', 'Length/Term of Loan'),
+    ('loan_interest', 'Loan Interest Rate'),
+    ('indoor_high_mount', 'High Mounting of Indoor Units'),
+    ('low_temp_cutoff', 'Low Temperature Cutoff of Heat Pump'),
+    ('sales_tax', 'Sales Tax'),
+    ('inflation_rate', 'Inflation Rate'),
+    ('fuel_esc_rate', 'Fuel Price Escalation Rate'),
+    ('elec_esc_rate', 'Electricity Price Escalation Rate'),
+    ('discount_rate', 'Discount Rate'),
+    ('hp_life', 'Heat Pump Life'),
+    ('op_cost_chg', 'Operating Cost Change', 'null-ok,null-to-zero,float'),
 ]
 
 def calc_input_objects():
     """Return a set of Input objects that can be used in a callback
-    for the above inputs."""
+    for the above inputs.  The 'value' property for each component is
+    used in the callback unless the component ID ends in '_chks'; in that
+    case the component is a checklist, and the 'values' property is used.
+    """
     in_list = []
     for info in input_info:
         var_name = info[0]
@@ -102,8 +117,10 @@ def inputs_to_vars(input_vals):
         else:
             if cc['float']:
                 try:
-                    # remove any commas before converting.
-                    val = float(val.replace(',', ''))
+                    if isinstance(val, str):
+                        # remove any commas before converting.
+                        val = val.replace(',', '')
+                    val = float(val)
                 except:
                     errors.append(f'{desc} must be a number.')
             elif cc['int']:
@@ -116,5 +133,17 @@ def inputs_to_vars(input_vals):
             extras[var] = val
         else:
             vars[var] = val
-    
+
+    if len(errors):
+        return errors, vars, extras
+
+    # convert percentage values to fractions
+    vars['discount_rate'] /= 100.
+    vars['elec_esc_rate'] /= 100.
+    vars['fuel_esc_rate'] /= 100.
+    vars['inflation_rate'] /= 100.
+    vars['loan_interest'] /= 100.
+    vars['pct_financed'] /= 100.
+    vars['sales_tax'] /= 100.
+
     return errors, vars, extras

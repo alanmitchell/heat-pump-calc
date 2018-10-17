@@ -85,9 +85,9 @@ WALL_TYPE = (
 )
 
 END_USES = (
-    ('Domestic Water Heating', 'dhw'),
-    ('Clothes Drying', 'drying'),
-    ('Cooking', 'cooking')
+    ('Domestic Water Heater', 'dhw'),
+    ('Clothes Dryer', 'drying'),
+    ('Range or Oven', 'cooking')
 )
 
 AUX_ELEC_TYPE = (
@@ -182,7 +182,7 @@ app.layout = html.Div(className='container', children=[
                 options=make_options(WALL_TYPE), value = '2x6'),
         LabeledDropdown('Select existing Space Heating Fuel type:', 'exist_heat_fuel_id',
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()]),
-        LabeledChecklist('Besides Space Heating, what other End Uses use this Fuel?', 'end_uses_chks',
+        LabeledChecklist('Besides Space Heating, what other Appliances use this Fuel?', 'end_uses_chks',
                          options=make_options(END_USES), values=[]),
         LabeledInput('Number of Occupants in Building using Above End Uses:', 'occupant_count',
                 'people', value=3),
@@ -231,7 +231,7 @@ app.layout = html.Div(className='container', children=[
                       mark_gap=10, max_width=700,
                       step=1, value=0),
         html.Div([
-            LabeledSlider(app, 'Term of Loan', 'loan_term',
+            LabeledSlider(app, 'Length (Term) of Loan', 'loan_term',
                         3, 14, 'years',
                         'Numbers of Years to pay off Loan.',
                         mark_gap=1, max_width=700,
@@ -242,15 +242,15 @@ app.layout = html.Div(className='container', children=[
                         mark_gap=1, max_width=700,
                         step=0.1, value=4),
         ], id='div-loan', style={'display': 'none'}),
-        LabeledChecklist('Check the Box if Indoor Units are mounted 6 feet or higher on wall',
-                         'indoor-unit-height',
-                         'If most or all of the heat-delivering Indoor Units are mounted high on the wall, check this box.  High mounting of Indoor Units slightly decreases the efficiency of the heat pump.',
-                         max_width=500,
-                         options=[{'label': "Indoor Unit mounted 6' or higher", 'value': 'in_ht_6'}],
-                         values=['in_ht_6']),
-        LabeledSlider(app, 'Minimum Operating Temperature of Heat Pump', 'low_temp_cutoff', 
+        LabeledRadioItems('Are the Heat Pump Indoor Units mounted 6 feet or higher on the wall?',
+                'indoor_high_mount', 
+                'If most or all of the heat-delivering Indoor Units are mounted high on the wall, check this box.  High mounting of Indoor Units slightly decreases the efficiency of the heat pump.',
+                options=make_options(YES_NO), value=True,
+                labelStyle={'display': 'inline-block'}),
+        LabeledSlider(app, 'Heat Pump is Turned Off below this Outdoor Temperature:', 
+                    'low_temp_cutoff', 
                     -20, 20, '°F', 
-                    'Please enter the lowest outdoor temperature at which the heat pump will continue to operate. This should be available in the unit’s documentation. The turn off of the heat pump can either be due to technical limits of the heat pump, or due to the homeowner choosing to not run the heat pump in cold temperatures due to poor efficiency.', 
+                    'Please enter the lowest outdoor temperature at which the heat pump will continue to operate. The turn off of the heat pump can either be due to technical limits of the heat pump, or due to the homeowner choosing to not run the heat pump in cold temperatures due to poor efficiency.', 
                     mark_gap=5, step=1, value=5),
     ]),
 
@@ -259,31 +259,33 @@ app.layout = html.Div(className='container', children=[
         html.Details(style={'maxWidth': 550}, children=[
             html.Summary('Click Here to see Advanced Economic Inputs'),
             html.Div(style={'marginTop': '3rem'}, children=[
-                LabeledSlider(app, 'General Inflation Rate:', 'inf-rate',
+                LabeledSlider(app, 'Sales Tax:', 'sales_tax',
                             0, 10, '%',
+                            'Enter your city/state sales tax.  This will be applied to the heat pump installed cost and to electricity and fuel prices',
+                            mark_gap=1, step=0.1, value=0),                            
+                LabeledSlider(app, 'General Inflation Rate:', 'inflation_rate',
+                            0, 6, '%',
                             'The default is the inflation rate used by the U.S. Department of Energy. Change this only in special circumstances.',
-                            mark_gap=1, step=0.5, value=2),
-                LabeledSlider(app, 'Heating Fuel Price Inflation Rate:', 'fuel-inf-rate',
-                            0, 10, '%',
+                            mark_gap=1, step=0.1, value=2),
+                LabeledSlider(app, 'Heating Fuel Price Inflation Rate:', 'fuel_esc_rate',
+                            0, 8, '%',
                             'This is the predicted annual increase in the price of the chosen heating fuel, based on U.S. Department of Energy estimates.',
-                            mark_gap=1, step=0.5, value=4),    
-                LabeledSlider(app, 'Electricity Price Inflation Rate:', 'elec-inf-rate',
-                            0, 10, '%',
+                            mark_gap=1, step=0.1, value=4),    
+                LabeledSlider(app, 'Electricity Price Inflation Rate:', 'elec_esc_rate',
+                            0, 8, '%',
                             'This is the predicted annual increase in the price of electricity in this location, based on U.S. Department of Energy estimates.',
-                            mark_gap=1, step=0.5, value=4),        
-                LabeledSlider(app, 'Discount Rate:', 'discount-rate',
-                            3, 10, '%',
+                            mark_gap=1, step=0.1, value=2),        
+                LabeledSlider(app, 'Discount Rate:', 'discount_rate',
+                            3, 12, '%',
                             'Enter the Economic Discount Rate, i.e the threshhold rate-of-return for this type of investment.  This rate is a nominal rate *not* adjusted for inflation.',
-                            mark_gap=1, step=0.5, value=5),
-                LabeledSlider(app, 'Sales Tax:', 'sales-tax',
-                            0, 10, '%',
-                            'Enter your city/state sales tax.',
-                            mark_gap=1, step=0.5, value=0),                            
-                LabeledSlider(app, 'Life of Heat Pump:', 'hp-life',
-                            5, 30, 'years',
+                            mark_gap=1, step=0.1, value=5),
+                LabeledSlider(app, 'Life of Heat Pump:', 'hp_life',
+                            5, 25, 'years',
                             'This should be set to 14 years unless there is evidence that a particular model will last shorter or longer than most heat pumps.',
                             mark_gap=2, step=1, value=14),    
-                LabeledInput('Annual increase in heating system O&M Cost:', 'annl-om', '$/year', 'Enter a positive value if the cost of maintaining the heating systems with the heat pump is higher than the cost of maintaining the previous system.'),                            
+                LabeledInput('Annual increase in heating system O&M Cost:', 'op_cost_chg', 
+                            '$/year', 
+                            'Enter a positive value if the cost of maintaining the heating systems with the heat pump is higher than the cost of maintaining the previous system.'),
             ])
         ])
 
@@ -448,6 +450,7 @@ def loan_inputs(pct_financed):
     ui_helper.calc_input_objects())
 def show_key_inputs(*args):
     errors, vars, extra_vars = ui_helper.inputs_to_vars(args)
+
     return dedent(f'''
     ```
     Errors:
