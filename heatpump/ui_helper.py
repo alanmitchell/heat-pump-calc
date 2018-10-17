@@ -30,7 +30,7 @@ input_info = [
     ('garage_stall_count', 'Garage Size'),
     ('wall_type', 'Wall Construction Type', 'extra'),
     ('exist_heat_fuel_id', 'Heating Fuel Type'),
-    ('end_uses', 'End Uses using Heating Fuel', 'extra'),
+    ('end_uses_chks', 'End Uses using Heating Fuel', 'extra'),
     ('exist_unit_fuel_cost', 'Heating Fuel Price', 'float'),
     ('exist_heat_effic', 'Heating System Efficiency'),
     ('aux_elec', 'Auxiliary Electric Use', 'extra'),
@@ -46,7 +46,16 @@ input_info = [
 def calc_input_objects():
     """Return a set of Input objects that can be used in a callback
     for the above inputs."""
-    return [Input(info[0], 'value') for info in input_info]
+    in_list = []
+    for info in input_info:
+        var_name = info[0]
+        if var_name.endswith('_chks'):
+            # this is a checklist component and the needed property is 'values'
+            in_list.append(Input(var_name, 'values'))
+        else:
+            in_list.append(Input(var_name, 'value'))
+
+    return in_list
 
 # Default dictionary of all possible input checks and conversions.
 # All checks and conversions are assumed to be not applied in the default case.

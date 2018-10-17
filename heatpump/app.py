@@ -182,7 +182,7 @@ app.layout = html.Div(className='container', children=[
                 options=make_options(WALL_TYPE), value = '2x6'),
         LabeledDropdown('Select existing Space Heating Fuel type:', 'exist_heat_fuel_id',
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()]),
-        LabeledChecklist('Besides Space Heating, what other End Uses use this Fuel?', 'end_uses',
+        LabeledChecklist('Besides Space Heating, what other End Uses use this Fuel?', 'end_uses_chks',
                          options=make_options(END_USES), values=[]),
         LabeledInput('Number of Occupants in Building using Above End Uses:', 'occupant_count',
                 'people', value=3),
