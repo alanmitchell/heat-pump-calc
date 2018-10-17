@@ -30,6 +30,7 @@ input_info = [
     ('garage_stall_count', 'Garage Size'),
     ('wall_type', 'Wall Construction Type', 'extra'),
     ('exist_heat_fuel_id', 'Heating Fuel Type'),
+    ('end_uses', 'End Uses using Heating Fuel', 'extra'),
     ('exist_unit_fuel_cost', 'Heating Fuel Price', 'float'),
     ('exist_heat_effic', 'Heating System Efficiency'),
     ('aux_elec', 'Auxiliary Electric Use', 'extra'),
@@ -37,6 +38,9 @@ input_info = [
     ('elec_use_jan', 'January Electric Use', 'float'),
     ('elec_use_may', 'May Electric Use', 'float'),
     ('indoor_heat_setpoint', 'Heating Thermostat'),
+    ('hp_model_id', 'Heat Pump Model'),
+    ('capital_cost', 'Installed Heat Pump Cost', 'float'),
+    ('rebate_dol', 'Heat Pump Rebate', 'float'),
 ]
 
 def calc_input_objects():

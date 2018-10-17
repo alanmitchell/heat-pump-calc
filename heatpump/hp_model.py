@@ -43,7 +43,7 @@ class HP_model:
                  exist_kwh_per_mmbtu,
                  exist_is_point_source,
                  includes_dhw,
-                 dhw_occupant_count,
+                 occupant_count,
                  includes_dryer,
                  elec_use_jan,
                  elec_use_may,
@@ -140,11 +140,11 @@ class HP_model:
             # number.
             space_fuel_use = s.exist_fuel_use
             if s.includes_dhw:
-                dhw_use = s.dhw_occupant_count * 4.23e6 / fuel.dhw_effic / fuel.btus
+                dhw_use = s.occupant_count * 4.23e6 / fuel.dhw_effic / fuel.btus
                 space_fuel_use -= dhw_use
                 
             if s.includes_dryer:
-                space_fuel_use -= 2.15e6 * s.dhw_occupant_count / fuel.btus
+                space_fuel_use -= 2.15e6 * s.occupant_count / fuel.btus
             
             sim.no_heat_pump_use = True
             sim.calculate()

@@ -84,6 +84,12 @@ WALL_TYPE = (
     ('Better than 2x6', 'better'),
 )
 
+END_USES = (
+    ('Domestic Water Heating', 'dhw'),
+    ('Clothes Drying', 'drying'),
+    ('Cooking', 'cooking')
+)
+
 AUX_ELEC_TYPE = (
     ('No Fans/Pumps (e.g. wood stove)', 'no-fan'),
     ('Hydronic (boiler)', 'boiler'),
@@ -120,7 +126,7 @@ app.layout = html.Div(className='container', children=[
         LabeledRadioItems('Input method:', 'elec_input',
                           'Choose "Select Utility Rate Schedule" if you would like to select a utility based on your location. Select "Manual Entry" if you would like to manually enter utility and PCE rates. Finally, select "Manual Entry (Advanced)" if you would like to enter block rates. * A copy of your utility bill will be necessary for both manual entry options.',
                           options=make_options(ELEC_INPUT_METHOD), value='util'),
-        html.Div([                  
+        html.Div([
             LabeledDropdown('Select your Utility and Rate Schedule','utility_id', options=[],placeholder='Select Utility Company'),
             ],id='div-schedule', style={'display': 'none'}),
 
@@ -168,20 +174,26 @@ app.layout = html.Div(className='container', children=[
                 units='ft2', size=6),
         LabeledRadioItems('Size of Garage:', 'garage_stall_count', 
                 options=make_options(GARAGE_SIZE), value=0),
+        LabeledRadioItems('Will the Heat Pump be used to Heat the Garage?',
+                'garage_heated_by_hp',
+                options=make_options(YES_NO), value=False,
+                labelStyle={'display': 'inline-block'}),
         LabeledRadioItems('Wall Construction:', 'wall_type', 
                 options=make_options(WALL_TYPE), value = '2x6'),
-        LabeledDropdown('Select existing Heating Fuel type:', 'exist_heat_fuel_id',
+        LabeledDropdown('Select existing Space Heating Fuel type:', 'exist_heat_fuel_id',
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()]),
+        LabeledChecklist('Besides Space Heating, what other End Uses use this Fuel?', 'end_uses',
+                         options=make_options(END_USES), values=[]),
+        LabeledInput('Number of Occupants in Building using Above End Uses:', 'occupant_count',
+                'people', value=3),
         LabeledInput('Fuel Price Per Unit:', 'exist_unit_fuel_cost'),     
         LabeledRadioItems('Efficiency of Existing Heating System:','exist_heat_effic', max_width=500),
         LabeledRadioItems('Auxiliary electricity use (fans/pumps/controls) from existing heating system:', 'aux_elec', 
                 options=make_options(AUX_ELEC_TYPE), value='toyo',
                 help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system.',
                 ),
-        # the item below needs to be labeledinput and assigned a number type 
-        # once we figure out how to get the units tag to go where it's supposed to
-		LabeledInput('(Optional) Annual space heating Fuel Use for building in physical units:','exist_fuel_use', 
-                help_text='This value is optional and may be left blank. If left blank, size, year built, and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
+		LabeledInput('Annual Fuel Use for building including heating and any other uses identified above (Optional, but very helpful!):', 'exist_fuel_use', 
+                help_text='This value is optional and may be left blank. If left blank, size and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
         LabeledInput('Whole Building Electricity Use (without heat pump) in January:', 'elec_use_jan', 'kWh', 
                 help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
         LabeledInput('Whole Building Electricity Use (without heat pump) in May:', 'elec_use_may', 'kWh', 
@@ -193,43 +205,53 @@ app.layout = html.Div(className='container', children=[
     ]),
     LabeledSection('Heat Pump Info', [
         
-        LabeledRadioItems('Type of Heat Pump: Single- or Multi-zone', 'zones',
+        LabeledRadioItems('Type of Heat Pump: Single- or Multi-zone', 'hp_zones',
                           'Select the number of Indoor Units (heads) installed on the Heat Pump.',
                           options=make_options(HP_ZONES), value=1),
-        LabeledChecklist('Show Most Efficient Units Only?', 'efficient-only',
+        LabeledChecklist('Show Most Efficient Units Only?', 'efficient_only',
                          options=[{'label': 'Efficient Only', 'value': 'efficient'}],
                          values=['efficient']),
-        LabeledDropdown('Heat Pump Manufacturer', 'hp-manuf',
+        LabeledDropdown('Heat Pump Manufacturer', 'hp_manuf_id',
                         options=[],
                         max_width=300,
                         placeholder='Select Heat Pump Manufacturer'),   
-        LabeledDropdown('Heat Pump Model', 'hp-model',
+        LabeledDropdown('Heat Pump Model', 'hp_model_id',
                         options=[],
                         max_width=1000,   # wide as possible
                         placeholder='Select Heat Pump Model',
                         style={'fontSize': 14}),
-        LabeledInput('Installed Cost of Heat Pump', 'hp-cost', '$', 
+        LabeledInput('Installed Cost of Heat Pump, $', 'capital_cost', '$', 
                      'Include all equipment and labor costs.', value=4500),
-        LabeledSlider(app, '% of Heat Pump Purchase Financed with a Loan', 'pct-financed', 
+        LabeledInput('Rebates Received for Heat Pump, $', 'rebate_dol', '$',
+                     'Enter the dollar amount of any rebates received for installation of the heat pump.',
+                     value=0),
+        LabeledSlider(app, '% of Heat Pump Purchase Financed with a Loan', 'pct_financed', 
                       0, 100, '%', 
                       'Select 0 if the purchased is not financed.',
                       mark_gap=10, max_width=700,
-                      step=5, value=0),
-        LabeledInput('Term of Loan', 'loan-term', 'years',
-                     'Numbers of Years to pay off Loan.', value=10),
+                      step=1, value=0),
+        html.Div([
+            LabeledSlider(app, 'Term of Loan', 'loan_term',
+                        3, 14, 'years',
+                        'Numbers of Years to pay off Loan.',
+                        mark_gap=1, max_width=700,
+                        step=1, value=10),
+            LabeledSlider(app, 'Loan Interest Rate', 'loan_interest',
+                        0, 12, '%',
+                        'Numbers of Years to pay off Loan.',
+                        mark_gap=1, max_width=700,
+                        step=0.1, value=4),
+        ], id='div-loan', style={'display': 'none'}),
         LabeledChecklist('Check the Box if Indoor Units are mounted 6 feet or higher on wall',
                          'indoor-unit-height',
                          'If most or all of the heat-delivering Indoor Units are mounted high on the wall, check this box.  High mounting of Indoor Units slightly decreases the efficiency of the heat pump.',
                          max_width=500,
                          options=[{'label': "Indoor Unit mounted 6' or higher", 'value': 'in_ht_6'}],
                          values=['in_ht_6']),
-        LabeledChecklist('When the heat pump is operating, does it serve all areas of the building, or does another heat source serve some areas?:',
-                         'serve-all-bldg',
-                         'If there is another heat source for the back bedrooms, for example, do *not* check the box.',
-                         max_width=700,
-                         options=[{'label': "Heat Pump serves the entire Building when Operating.", 'value': 'serves_all'}],
-                         values=[]),
-        LabeledSlider(app, 'Minimum Operating Temperature of Heat Pump', 'min_op_temp', -20, 20, '°F', help_text='Please enter the lowest outdoor temperature at which the heat pump will continue to operate. This should be available in the unit’s documentation. The turn off of the heat pump can either be due to technical limits of the heat pump, or due to the homeowner choosing to not run the heat pump in cold temperatures due to poor efficiency.', mark_gap=5, step=1, value=5),
+        LabeledSlider(app, 'Minimum Operating Temperature of Heat Pump', 'low_temp_cutoff', 
+                    -20, 20, '°F', 
+                    'Please enter the lowest outdoor temperature at which the heat pump will continue to operate. This should be available in the unit’s documentation. The turn off of the heat pump can either be due to technical limits of the heat pump, or due to the homeowner choosing to not run the heat pump in cold temperatures due to poor efficiency.', 
+                    mark_gap=5, step=1, value=5),
     ]),
 
     LabeledSection('Economic Inputs', [
@@ -391,19 +413,36 @@ def whole_bldg_may(city_id):
     may_elec = lib.city_from_id(city_id).avg_elec_usage[4]
     may_elec = np.round(may_elec, 0)
     return may_elec
-        
-@app.callback(Output('hp-manuf', 'options'), [Input('zones', 'value'), Input('efficient-only', 'values')])
+
+@app.callback(Output('div-garage_heated_by_hp', 'style'), 
+    [Input('garage_stall_count','value')])
+def garage_heated(stalls):
+    if stalls > 0:
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+@app.callback(Output('hp_manuf_id', 'options'), 
+    [Input('hp_zones', 'value'), Input('efficient_only', 'values')])
 def hp_brands(zones, effic_check_list):
     zone_type = 'Single' if zones==1 else 'Multi'
     manuf_list = lib.heat_pump_manufacturers(zone_type, 'efficient' in effic_check_list)
     return [{'label': brand, 'value': brand} for brand in manuf_list]
 
-@app.callback(Output('hp-model', 'options'), 
-              [Input('hp-manuf', 'value'), Input('zones', 'value'), Input('efficient-only', 'values')])
+@app.callback(Output('hp_model_id', 'options'), 
+              [Input('hp_manuf_id', 'value'), Input('hp_zones', 'value'), Input('efficient_only', 'values')])
 def hp_models(manuf, zones, effic_check_list):
     zone_type = 'Single' if zones==1 else 'Multi'
     model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
     return [{'label': lbl, 'value': id} for lbl, id in model_list]
+
+@app.callback(Output('div-loan', 'style'), 
+    [Input('pct_financed','value')])
+def loan_inputs(pct_financed):
+    if pct_financed > 0:
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
 
 @app.callback(Output('key-inputs', 'children'), 
     ui_helper.calc_input_objects())
