@@ -34,6 +34,7 @@ input_info = [
     ('exist_unit_fuel_cost', 'Heating Fuel Price', 'float'),
     ('exist_heat_effic', 'Heating System Efficiency'),
     ('aux_elec', 'Auxiliary Electric Use', 'extra'),
+    ('exist_is_point_source', 'Existing Heating is One Room'),
     ('exist_fuel_use', 'Existing Heating Fuel Use', 'null-ok,float'),
     ('elec_use_jan', 'January Electric Use', 'float'),
     ('elec_use_may', 'May Electric Use', 'float'),
@@ -145,5 +146,6 @@ def inputs_to_vars(input_vals):
     vars['loan_interest'] /= 100.
     vars['pct_financed'] /= 100.
     vars['sales_tax'] /= 100.
+    vars['pct_exposed_to_hp'] /= 100.
 
     return errors, vars, extras

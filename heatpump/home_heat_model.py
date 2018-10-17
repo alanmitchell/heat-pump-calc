@@ -22,7 +22,7 @@ class HomeHeatModel(object):
                  insul_level,             # 1 - 2x4, 2 - 2x6, 3 - better than 2x6 Walls
                  pct_exposed_to_hp,
                  doors_open_to_adjacent,
-                 low_temp_acceptance,     # 1 - no temp drop in back rooms, 2 - 4 deg F cooler, 10 deg F cooler
+                 bedroom_temp_tolerance,     # 1 - no temp drop in back rooms, 2 - 4 deg F cooler, 10 deg F cooler
 
                  # The inputs below are not user inputs, they control the 
                  # calculation process. They are give default values.

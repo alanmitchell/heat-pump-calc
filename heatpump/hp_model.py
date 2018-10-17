@@ -56,7 +56,7 @@ class HP_model:
                  insul_level,  
                  pct_exposed_to_hp,
                  doors_open_to_adjacent,
-                 low_temp_acceptance,
+                 bedroom_temp_tolerance,
                  capital_cost,
                  rebate_dol,
                  pct_financed,
@@ -127,7 +127,7 @@ class HP_model:
             insul_level=s.insul_level,            
             pct_exposed_to_hp=s.pct_exposed_to_hp,
             doors_open_to_adjacent=s.doors_open_to_adjacent,
-            low_temp_acceptance=s.low_temp_acceptance,    
+            bedroom_temp_tolerance=s.bedroom_temp_tolerance,    
         )
         
         # Match the existing space heating use if it is provided.  Do so by using
