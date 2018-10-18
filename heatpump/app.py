@@ -497,6 +497,12 @@ def set_capital_cost(zones, city_id):
 def show_key_inputs(*args):
     errors, vars, extra_vars = ui_helper.inputs_to_vars(args)
 
+    try:
+        print(vars['utility'])
+        del vars['utility']
+    except:
+        pass
+
     return dedent(f'''
     ```
     Errors:

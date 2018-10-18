@@ -3,10 +3,12 @@ and convert the values from the components associated with those objects
 into variables suitable for passing to energy models.  Only inputs that 
 are used in the Energy Model are addressed here.
 """
+import numpy as np
 from dash.dependencies import Input
+from . import library as lib
 
 input_info = [
-    ('city_id', 'City', ''),
+    ('city_id', 'City'),
     ('elec_input', 'Type of Electric Rate input', 'extra'),
     ('utility_id', 'Utility', 'null-ok,extra'),
     ('elec_rate_ez', 'Electric Rate', 'null-ok,float,extra'),
@@ -151,5 +153,55 @@ def inputs_to_vars(input_vals):
     vars['pct_financed'] /= 100.
     vars['sales_tax'] /= 100.
     vars['pct_exposed_to_hp'] /= 100.
+
+    # Create a utility object from the electric utility inputs.
+    # Start with a real utility object from the first one listed
+    # for the community and set fields to default values.
+    city = lib.city_from_id(vars['city_id'])
+    utility = lib.util_from_id(city.ElecUtilities[0][1])
+    utility.at['Name'] = 'Custom'
+    utility.at['IsCommercial'] = False
+    utility.at['DemandCharge'] = np.NaN
+    # Blocks, PCE, Customer Charge will be set below if this object
+    # is used.
+
+    if extras['elec_input'] == 'util':
+        if extras['utility_id'] is None:
+            errors.append('You must select an Electric Utility for this City.')
+            return errors, vars, extras
+        else:
+            utility = lib.util_from_id(extras['utility_id'])
+
+    elif extras['elec_input'] == 'ez':
+        if extras['elec_rate_ez'] is None:
+            errors.append('You must enter an Electric Rate for this City.')
+            return errors, vars, extras
+        else:
+            # just one block
+            utility.at['Blocks'] = [(np.NaN, extras['elec_rate_ez'])]
+            utility.at['PCE'] = extras['pce_ez']
+            utility.at['CustomerChg'] = extras['customer_chg_ez']
+
+    else:
+        # Advanced utility rate input
+        # Need to check block limits and rates to see if they are in 
+        # the correct format.
+
+        # make a list of limits and a list of block rates
+        limits = [extras[f'blk{i}_kwh'] for i in range(1, 5)]
+        rates = [extras[f'blk{i}_rate'] for i in range(1, 5)]
+
+        # there must be a None at the last block
+        last_ix = None
+        for i in reversed(range(4)):    # look from the top down
+            if limits[i] is None:
+                last_ix = i
+                break
+                
+        if last_ix is None:
+            errors.append('The Last Electric Rate Block kWh limit must be empty.')
+            return errors, vars, extras
+
+    vars['utility'] =  utility
 
     return errors, vars, extras
