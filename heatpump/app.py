@@ -138,9 +138,9 @@ app.layout = html.Div(className='container', children=[
 
         html.Div([html.Table(
             [
-                html.Tr( [html.Td(html.Label('Electric Rate:')), html.Td(['$ ', dcc.Input(id='elec_rate_ez', style={'maxWidth': 100}), ' /kWh'])] ),
-                html.Tr( [html.Td(html.Label('PCE Rate:')), html.Td(['$ ', dcc.Input(id='pce_ez', style={'maxWidth': 100}), ' /kWh'])] ),
-                html.Tr( [html.Td(html.Label('Customer Charge:')), html.Td(['$ ', dcc.Input(id='customer_chg_ez', style={'maxWidth': 100}), ' /month'])] ),                    
+                html.Tr( [html.Td(html.Label('Electric Rate:')), html.Td(['$ ', dcc.Input(id='elec_rate_ez', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td(html.Label('PCE Rate:')), html.Td(['$ ', dcc.Input(id='pce_ez', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td(html.Label('Customer Charge:')), html.Td(['$ ', dcc.Input(id='customer_chg_ez', type='text', style={'maxWidth': 100}), ' /month'])] ),                    
             ]
         ),],id='div-man-ez', style={'display': 'none'}),
         
@@ -485,7 +485,7 @@ def set_pct_exposed(zones):
 @app.callback(Output('capital_cost', 'value'),
     [Input('hp_zones', 'value'), Input('city_id', 'value')])
 def set_capital_cost(zones, city_id):
-    cost = (4000, 5500, 7000, 8500)[zones - 1]
+    cost = (4000, 5500, 7500, 9500)[zones - 1]
     if city_id is None:
         return cost
     else:
