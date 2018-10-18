@@ -139,6 +139,7 @@ def inputs_to_vars(input_vals):
             vars[var] = val
 
     if len(errors):
+        # Because of errors, no point in going further.
         return errors, vars, extras
 
     # convert percentage values to fractions
