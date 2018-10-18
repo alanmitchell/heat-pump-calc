@@ -485,8 +485,12 @@ def set_pct_exposed(zones):
 @app.callback(Output('capital_cost', 'value'),
     [Input('hp_zones', 'value'), Input('city_id', 'value')])
 def set_capital_cost(zones, city_id):
-    # TO DO: factor in Improvement Cost Level for the City
-    return (4200, 5700, 7200, 8700)[zones - 1]
+    cost = (4000, 5500, 7000, 8500)[zones - 1]
+    if city_id is None:
+        return cost
+    else:
+        # TO DO: factor in Improvement Cost Level for the City
+        return cost
 
 @app.callback(Output('key-inputs', 'children'), 
     ui_helper.calc_input_objects())
