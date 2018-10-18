@@ -289,10 +289,16 @@ class HP_model:
         fuel_cost = -ann_chg.secondary_fuel_dol * make_pattern(s.fuel_esc_rate, s.hp_life)
         elec_cost = -ann_chg.elec_dol * make_pattern(s.elec_esc_rate, s.hp_life)
         cash_flow = initial_cost + loan_cost + operating_cost + fuel_cost + elec_cost
+
+        # calculate cumulative, discounted cash flow.
+        disc_factor = np.ones(s.hp_life) * (1 + s.discount_rate)
+        disc_factor = np.insert(disc_factor.cumprod(), 0, 1.0)
+        cum_disc_cash_flow = np.cumsum(cash_flow / disc_factor)
         
         # Do the two columns that change when PCE is ignored
         elec_cost_no_pce = -ann_chg.elec_dol_no_pce * make_pattern(s.elec_esc_rate, s.hp_life)
         cash_flow_no_pce = initial_cost + loan_cost + operating_cost + fuel_cost + elec_cost_no_pce
+        cum_disc_cash_flow_no_pce = np.cumsum(cash_flow_no_pce / disc_factor)
         
         s.df_cash_flow = pd.DataFrame(
             {'initial_cost': initial_cost,
@@ -302,7 +308,9 @@ class HP_model:
              'elec_cost': elec_cost,
              'elec_cost_no_pce': elec_cost_no_pce,
              'cash_flow': cash_flow,
-             'cash_flow_no_pce': cash_flow_no_pce
+             'cum_disc_cash_flow': cum_disc_cash_flow,
+             'cash_flow_no_pce': cash_flow_no_pce,
+             'cum_disc_cash_flow_no_pce': cum_disc_cash_flow_no_pce,
             }
         )
         s.df_cash_flow.index.name = 'year'
