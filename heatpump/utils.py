@@ -14,3 +14,18 @@ def chg_nonnum(val, sub_val):
             return val
     else:
         return sub_val
+
+def check_null(val):
+    """Returns True if 'val' is None, NaN, or a blank string.
+    Returns False otherwise.
+    """
+    if val is None:
+        return True
+
+    if isinstance(val, float) and math.isnan(val):
+        return True
+
+    if isinstance(val, str) and len(val.strip())==0:
+        return True
+
+    return False

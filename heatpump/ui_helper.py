@@ -6,6 +6,7 @@ are used in the Energy Model are addressed here.
 import numpy as np
 from dash.dependencies import Input
 from . import library as lib
+from .utils import check_null
 
 input_info = [
     ('city_id', 'City'),
@@ -112,7 +113,7 @@ def inputs_to_vars(input_vals):
             for item in other[0].split(','):
                 cc[item.strip()] = True
 
-        if val is None:
+        if check_null(val):
             if cc['null-ok']:
                 # Only other check / conversion is null to zero if the value is
                 # None
@@ -154,6 +155,8 @@ def inputs_to_vars(input_vals):
     vars['sales_tax'] /= 100.
     vars['pct_exposed_to_hp'] /= 100.
 
+    # --------------------- Electric Utility Rates ----------------------------
+
     # Create a utility object from the electric utility inputs.
     # Start with a real utility object from the first one listed
     # for the community and set fields to default values.
@@ -166,14 +169,21 @@ def inputs_to_vars(input_vals):
     # is used.
 
     if extras['elec_input'] == 'util':
-        if extras['utility_id'] is None:
+        if check_null(extras['utility_id']):
             errors.append('You must select an Electric Utility for this City.')
             return errors, vars, extras
         else:
             utility = lib.util_from_id(extras['utility_id'])
+            # Zero out PCE if this is a commercial building or a community 
+            # building in a coummunity where community building PCE has been
+            # exhausted.
+            if extras['bldg_type']  == 'comm':
+                utility.at['PCE'] = 0.0
+            elif extras['bldg_type'] == 'commun' and extras['commun_all_pce']:
+                utility.at['PCE'] = 0.0
 
     elif extras['elec_input'] == 'ez':
-        if extras['elec_rate_ez'] is None:
+        if check_null(extras['elec_rate_ez']):
             errors.append('You must enter an Electric Rate for this City.')
             return errors, vars, extras
         else:
@@ -193,15 +203,58 @@ def inputs_to_vars(input_vals):
 
         # there must be a None at the last block
         last_ix = None
-        for i in reversed(range(4)):    # look from the top down
-            if limits[i] is None:
+        for i in range(4):
+            if check_null(limits[i]):
                 last_ix = i
                 break
-                
+
         if last_ix is None:
             errors.append('The Last Electric Rate Block kWh limit must be empty.')
             return errors, vars, extras
 
+        # Now check that all limits prior to the None are filled out
+        for i in range(last_ix):
+            val = limits[i]
+            if check_null(val):
+                errors.append(f'The Electric Rate Block {i+1} must have a kWh value.')
+                return errors, vars, extras
+
+        # Check that there are rates for all the blocks through the last
+        for i in range(last_ix + 1):
+            val = rates[i]
+            if check_null(val):
+                errors.append(f'The Electric Rate Block {i+1} must have a rate.')
+                return errors, vars, extras
+
+        # Blocks are good, so add them to the utility
+        blocks = []
+        for i in range(last_ix + 1):
+            kwh = limits[i] if i != last_ix else np.nan
+            rate = rates[i]
+            blocks.append( (kwh, rate) )
+        utility.at['Blocks'] = blocks
+        utility.at['PCE'] = extras['pce_adv']
+        utility.at['CustomerChg'] = extras['customer_chg_adv']
+        utility.at['DemandCharge'] = extras['demand_chg_adv']
+
+
     vars['utility'] =  utility
+
+    # -------------- Other Variables needing Processing --------------------
+
+    # Wall Type translates to Insulation Level
+    wall_to_insul = {'2x4': 1, '2x6': 2, 'better': 3}
+    vars['insul_level'] = wall_to_insul[extras['wall_type']]
+
+    # Auxiliary Electricity Use of Heating System, kWh / MMBtu of heat 
+    # delivered.
+    aux_to_kwh = {'no-fan': 0.0, 'boiler': 4.0, 'toyo': 3.0, 
+                    'furnace-effic': 6.25, 'furnace-std': 12.5}
+    vars['exist_kwh_per_mmbtu'] =  aux_to_kwh[extras['aux_elec']]
+
+    # Other End Uses using Heating Fuel
+    vars['includes_dhw'] = 'dhw' in extras['end_uses_chks']
+    vars['includes_dryer'] = 'drying' in extras['end_uses_chks']
+    vars['includes_cooking'] = 'cooking' in extras['end_uses_chks']
 
     return errors, vars, extras

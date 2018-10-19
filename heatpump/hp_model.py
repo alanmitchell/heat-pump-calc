@@ -295,7 +295,7 @@ class HP_model:
         disc_factor = np.insert(disc_factor.cumprod(), 0, 1.0)
         cum_disc_cash_flow = np.cumsum(cash_flow / disc_factor)
         
-        # Do the two columns that change when PCE is ignored
+        # Do the three columns that change when PCE is ignored
         elec_cost_no_pce = -ann_chg.elec_dol_no_pce * make_pattern(s.elec_esc_rate, s.hp_life)
         cash_flow_no_pce = initial_cost + loan_cost + operating_cost + fuel_cost + elec_cost_no_pce
         cum_disc_cash_flow_no_pce = np.cumsum(cash_flow_no_pce / disc_factor)

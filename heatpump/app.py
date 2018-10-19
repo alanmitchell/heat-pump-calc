@@ -5,6 +5,7 @@ Requires version 0.23 or later of Dash.
 from textwrap import dedent
 from pprint import pformat
 
+import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -94,7 +95,8 @@ AUX_ELEC_TYPE = (
     ('No Fans/Pumps (e.g. wood stove)', 'no-fan'),
     ('Hydronic (boiler)', 'boiler'),
     ('Fan-assisted Space Heater (e.g. Toyostove)', 'toyo'),
-    ('Forced Air Furnace', 'furnace'),
+    ('Forced Air Furnace, Efficient Fan', 'furnace-effic'),
+    ('Forced Air Furnace, Standard Fan', 'furnace-std')
 )
 
 HP_ZONES = (
@@ -139,7 +141,7 @@ app.layout = html.Div(className='container', children=[
         html.Div([html.Table(
             [
                 html.Tr( [html.Td(html.Label('Electric Rate:')), html.Td(['$ ', dcc.Input(id='elec_rate_ez', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
-                html.Tr( [html.Td(html.Label('PCE Rate:')), html.Td(['$ ', dcc.Input(id='pce_ez', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
+                html.Tr( [html.Td(html.Label('PCE Rate (only if eligible building):')), html.Td(['$ ', dcc.Input(id='pce_ez', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
                 html.Tr( [html.Td(html.Label('Customer Charge:')), html.Td(['$ ', dcc.Input(id='customer_chg_ez', type='text', style={'maxWidth': 100}), ' /month'])] ),                    
             ]
         ),],id='div-man-ez', style={'display': 'none'}),
@@ -153,7 +155,7 @@ app.layout = html.Div(className='container', children=[
                     html.Tr( [html.Td(html.P('',id='blk3_min')), html.Td([dcc.Input(id='blk3_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk3_rate', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
                     html.Tr( [html.Td(html.P('',id='blk4_min')), html.Td([dcc.Input(id='blk4_kwh', type='text', style={'maxWidth': 100}), ' kWh']), html.Td(['$ ', dcc.Input(id='blk4_rate', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
                     html.Tr( [html.Td('Demand Charge:', colSpan='2'), html.Td(['$ ', dcc.Input(id='demand_chg_adv', type='text', style={'maxWidth': 100}), ' /kW/mo'])] ),
-                    html.Tr( [html.Td('PCE in $/kWh', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv', type='text', style={'maxWidth': 100}), ' /kWh'])] ),              
+                    html.Tr( [html.Td('PCE in $/kWh (only if eligible building)', colSpan='2'), html.Td(['$ ', dcc.Input(id='pce_adv', type='text', style={'maxWidth': 100}), ' /kWh'])] ),              
                     html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv', type='text', style={'maxWidth': 100}), ' /mo'])] ),
                     ])
             ], id='div-man-adv', style={'display': 'none'}),
@@ -495,13 +497,13 @@ def set_capital_cost(zones, city_id):
 @app.callback(Output('key-inputs', 'children'), 
     ui_helper.calc_input_objects())
 def show_key_inputs(*args):
+
     errors, vars, extra_vars = ui_helper.inputs_to_vars(args)
 
-    try:
-        print(vars['utility'])
-        del vars['utility']
-    except:
-        pass
+    # The utility Pandas Series messes up formatting if
+    # left in the vars dictionary.  So pull it out and convert
+    # it to a dictionary before displaying.
+    util = vars.pop('utility', pd.Series()).to_dict()
 
     return dedent(f'''
     ```
@@ -513,6 +515,9 @@ def show_key_inputs(*args):
 
     Extra Variables:
     {pformat(extra_vars)}
+
+    Utility:
+    {pformat(util)}
     ```
     ''')
 
