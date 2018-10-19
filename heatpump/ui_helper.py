@@ -12,13 +12,13 @@ input_info = [
     ('city_id', 'City'),
     ('elec_input', 'Type of Electric Rate input', 'extra'),
     ('utility_id', 'Utility', 'null-ok,extra'),
-    ('elec_rate_ez', 'Electric Rate', 'null-ok,float,extra'),
+    ('elec_rate_ez', 'Electric Rate', 'null-ok,float,greater-than-zero,extra'),
     ('pce_ez', 'PCE assistance', 'null-ok,null-to-zero,float,extra'),
     ('customer_chg_ez', 'Electric Utility Customer Charge', 'null-ok,null-to-zero,float,extra'),
-    ('blk1_kwh', 'Electric Block 1 kWh limit', 'null-ok,int,extra'),
-    ('blk2_kwh', 'Electric Block 2 kWh limit', 'null-ok,int,extra'),
-    ('blk3_kwh', 'Electric Block 3 kWh limit', 'null-ok,int,extra'),
-    ('blk4_kwh', 'Electric Block 4 kWh limit', 'null-ok,int,extra'),
+    ('blk1_kwh', 'Electric Block 1 kWh limit', 'null-ok,int,greater-than-zero,extra'),
+    ('blk2_kwh', 'Electric Block 2 kWh limit', 'null-ok,int,greater-than-zero,extra'),
+    ('blk3_kwh', 'Electric Block 3 kWh limit', 'null-ok,int,greater-than-zero,extra'),
+    ('blk4_kwh', 'Electric Block 4 kWh limit', 'null-ok,int,greater-than-zero,extra'),
     ('blk1_rate', 'Electric Block 1 rate', 'null-ok,float,extra'),
     ('blk2_rate', 'Electric Block 2 rate', 'null-ok,float,extra'),
     ('blk3_rate', 'Electric Block 3 rate', 'null-ok,float,extra'),
@@ -29,22 +29,22 @@ input_info = [
     ('co2_lbs_per_kwh', 'CO2 per kWh of extra electricity generation'),
     ('bldg_type', 'Building Type', 'extra'),
     ('commun_all_pce', 'Community Building PCE Used Up', 'extra'),
-    ('bldg_floor_area', 'Building Floor Area', 'float'),
+    ('bldg_floor_area', 'Building Floor Area', 'float,greater-than-zero'),
     ('garage_stall_count', 'Garage Size'),
     ('wall_type', 'Wall Construction Type', 'extra'),
     ('exist_heat_fuel_id', 'Heating Fuel Type'),
     ('end_uses_chks', 'End Uses using Heating Fuel', 'extra'),
-    ('exist_unit_fuel_cost', 'Heating Fuel Price', 'float'),
+    ('exist_unit_fuel_cost', 'Heating Fuel Price', 'float,greater-than-zero'),
     ('exist_heat_effic', 'Heating System Efficiency'),
     ('aux_elec', 'Auxiliary Electric Use', 'extra'),
     ('exist_is_point_source', 'Existing Heating is One Room'),
-    ('exist_fuel_use', 'Existing Heating Fuel Use', 'null-ok,float'),
-    ('elec_use_jan', 'January Electric Use', 'float'),
-    ('elec_use_may', 'May Electric Use', 'float'),
+    ('exist_fuel_use', 'Existing Heating Fuel Use', 'null-ok,float,greater-than-zero'),
+    ('elec_use_jan', 'January Electric Use', 'float,greater-than-zero'),
+    ('elec_use_may', 'May Electric Use', 'float,greater-than-zero'),
     ('indoor_heat_setpoint', 'Heating Thermostat'),
     ('hp_model_id', 'Heat Pump Model'),
-    ('capital_cost', 'Installed Heat Pump Cost', 'float'),
-    ('rebate_dol', 'Heat Pump Rebate', 'float'),
+    ('capital_cost', 'Installed Heat Pump Cost', 'float,greater-than-zero'),
+    ('rebate_dol', 'Heat Pump Rebate', 'null-ok,null-to-zero,float'),
     ('pct_financed', '% of Heat Pump Financed'),
     ('loan_term', 'Length/Term of Loan'),
     ('loan_interest', 'Loan Interest Rate'),
@@ -81,7 +81,7 @@ def calc_input_objects():
 
 # Default dictionary of all possible input checks and conversions.
 # All checks and conversions are assumed to be not applied in the default case.
-check_conversion_codes = ('null-ok', 'null-to-zero', 'float', 'int', 'extra')
+check_conversion_codes = ('null-ok', 'null-to-zero', 'float', 'int', 'greater-than-zero','extra')
 check_conversion = dict(zip(check_conversion_codes, [False] * len(check_conversion_codes)))
 
 def inputs_to_vars(input_vals):
@@ -135,6 +135,8 @@ def inputs_to_vars(input_vals):
                     val = int(val)
                 except:
                     errors.append(f'{desc} must be an integer number.')
+            if cc['greater-than-zero'] and val <= 0:
+                errors.append(f'{desc} must be greater than zero.')
 
         if cc['extra']:
             extras[var] = val
@@ -154,6 +156,11 @@ def inputs_to_vars(input_vals):
     vars['pct_financed'] /= 100.
     vars['sales_tax'] /= 100.
     vars['pct_exposed_to_hp'] /= 100.
+
+    # ------------------- Some Input Checks -------------------------
+    if vars['loan_term'] > vars['hp_life']:
+        errors.append('The Term of the Loan cannot be longer than the Life of the Heat Pump.  The Heat Pump Life can be changed in the Advanced Economic Inputs section.')
+        return errors, vars, extras
 
     # --------------------- Electric Utility Rates ----------------------------
 

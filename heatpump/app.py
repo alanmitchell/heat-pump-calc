@@ -494,6 +494,17 @@ def set_capital_cost(zones, city_id):
         # TO DO: factor in Improvement Cost Level for the City
         return cost
 
+@app.callback(Output('div-commun_all_pce', 'style'),
+    [Input('bldg_type', 'value'), Input('elec_input', 'value'), Input('utility_id', 'value')])
+def commun_pce_vis(bldg_type, elec_input, utility_id):
+    # only situation where this should be asked is Community Building, Utility
+    # rate schedule being use, PCE is more than 0
+    if bldg_type == 'commun' and elec_input == 'util' and utility_id is not None:
+        utility = lib.util_from_id(utility_id)
+        if utility['PCE'] > 0:
+            return {'display': 'block'}
+    return {'display': 'none'}
+
 @app.callback(Output('key-inputs', 'children'), 
     ui_helper.calc_input_objects())
 def show_key_inputs(*args):
