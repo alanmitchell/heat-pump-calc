@@ -4,7 +4,7 @@ into variables suitable for passing to energy models.  Only inputs that
 are used in the Energy Model are addressed here.
 """
 import numpy as np
-from dash.dependencies import Input
+from dash.dependencies import Input, State
 from . import library as lib
 from .utils import check_null
 
@@ -62,22 +62,31 @@ input_info = [
     ('op_cost_chg', 'Operating Cost Change', 'null-ok,null-to-zero,float'),
 ]
 
+# Make a list of Input objects and a list of State objects for each of 
+# the Inputs that can affect the calculation.
+input_objects = []
+state_objects = []
+for info in input_info:
+    var_name = info[0]
+    if var_name.endswith('_chks'):
+        # this is a checklist component and the needed property is 'values'
+        input_objects.append(Input(var_name, 'values'))
+        state_objects.append(State(var_name, 'values'))
+    else:
+        input_objects.append(Input(var_name, 'value'))
+        state_objects.append(State(var_name, 'value'))
+
 def calc_input_objects():
     """Return a set of Input objects that can be used in a callback
-    for the above inputs.  The 'value' property for each component is
-    used in the callback unless the component ID ends in '_chks'; in that
-    case the component is a checklist, and the 'values' property is used.
+    for the above inputs. 
     """
-    in_list = []
-    for info in input_info:
-        var_name = info[0]
-        if var_name.endswith('_chks'):
-            # this is a checklist component and the needed property is 'values'
-            in_list.append(Input(var_name, 'values'))
-        else:
-            in_list.append(Input(var_name, 'value'))
+    return input_objects
 
-    return in_list
+def calc_state_objects():
+    """Returns a list of State objects that can be used in a callback
+    for the above inputs.
+    """
+    return state_objects
 
 # Default dictionary of all possible input checks and conversions.
 # All checks and conversions are assumed to be not applied in the default case.
@@ -157,7 +166,7 @@ def inputs_to_vars(input_vals):
     vars['sales_tax'] /= 100.
     vars['pct_exposed_to_hp'] /= 100.
 
-    # ------------------- Some Input Checks -------------------------
+    # ------------------- Some Other Input Checks -------------------------
     if vars['loan_term'] > vars['hp_life']:
         errors.append('The Term of the Loan cannot be longer than the Life of the Heat Pump.  The Heat Pump Life can be changed in the Advanced Economic Inputs section.')
         return errors, vars, extras

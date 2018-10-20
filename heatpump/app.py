@@ -11,6 +11,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
 from .components import LabeledInput, LabeledSlider, LabeledSection, \
     LabeledDropdown, LabeledRadioItems, LabeledChecklist
 import numpy as np	
@@ -331,6 +332,10 @@ app.layout = html.Div(className='container', children=[
             html.Button('Calculate Results', id='but-calculate'),
             id='div-calculate'
         ),
+        html.Div(
+            dcc.Markdown('#### Calculating...', id='md-calculating'),
+            id='div-calculating'
+        ),
         html.Div(id='div-results'),
         html.Details(style={'maxWidth': 550, 'marginTop': '3rem'}, children=[
             html.Summary('Click Here to view Debug Output'),
@@ -346,23 +351,24 @@ app.layout = html.Div(className='container', children=[
 
     # Storage controls needed for control purposes
 
-    # This one stores the time when the Calculation Inputs changed,
-    # as indicated by the time when the Div holding the Error List
-    # last changed.
-    dcc.Store(id='store-input-chg-ts'),
+    # This one stores the time when the Calculation Inputs last changed.
+    dcc.Store(id='store-inputs-ts'),
 
     # This one stores the time when the Calculation button was clicked.
-    dcc.Store(id='store-calc-button-ts'),
+    dcc.Store(id='store-calc-ts'),
+
+    # Stores the time when the Results Div was updated.
+    dcc.Store(id='store-results-ts'),
 
 ])
 
-# -------------------------------------- CALLBACKS ---------------------------------------------
+# ------------------ CALLBACKS for Input Configuration ---------------------------
 
 @app.callback(Output('utility_id', 'options'),
     [Input('city_id', 'value')])
 def find_util(city_id):
     if city_id is None:
-        return []
+        raise PreventUpdate
     utils = lib.city_from_id(city_id).ElecUtilities
     return [{'label': util_name, 'value': util_id} for util_name, util_id in utils]
     
@@ -415,7 +421,7 @@ def setblockkwh3(blk2_kwh):
     [Input('exist_heat_fuel_id', 'value'), Input('city_id','value')])
 def find_fuel_price(fuel_id, city_id):
     if fuel_id is None or city_id is None:
-        return None
+        raise PreventUpdate
     the_fuel = lib.fuel_from_id(fuel_id)
     price_col = the_fuel['price_col']
     the_city = lib.city_from_id(city_id)
@@ -443,21 +449,21 @@ def options(ht_eff):
 @app.callback(Output('units-exist_fuel_use', 'children'),[Input('exist_heat_fuel_id','value')])
 def update_use_units(fuel_id):
     if fuel_id is None:
-        return None
+        raise PreventUpdate
     fuel = lib.fuel_from_id(fuel_id)
     return fuel.unit  
 
 @app.callback(Output('units-exist_unit_fuel_cost', 'children'),[Input('exist_heat_fuel_id','value')])
 def update_price_units(fuel_id):
     if fuel_id is None:
-        return None
+        raise PreventUpdate
     fuel = lib.fuel_from_id(fuel_id)
     return f'$ / {fuel.unit}'
     
 @app.callback(Output('elec_use_jan','value'),[Input('city_id','value')])
 def whole_bldg_jan(city_id):
     if city_id is None:
-        return None
+        raise PreventUpdate
     jan_elec = lib.city_from_id(city_id).avg_elec_usage[0]
     jan_elec = np.round(jan_elec, 0)
     return jan_elec
@@ -465,7 +471,7 @@ def whole_bldg_jan(city_id):
 @app.callback(Output('elec_use_may','value'),[Input('city_id','value')])
 def whole_bldg_may(city_id):
     if city_id is None:
-        return None
+        raise PreventUpdate
     may_elec = lib.city_from_id(city_id).avg_elec_usage[4]
     may_elec = np.round(may_elec, 0)
     return may_elec
@@ -526,11 +532,36 @@ def commun_pce_vis(bldg_type, elec_input, utility_id):
             return {'display': 'block'}
     return {'display': 'none'}
 
+# -------------- Callbacks Related to Calculation Mechanics --------------
+
+def invalid_ts(ts):
+    return (ts is None or ts<=0)
+
+@app.callback(Output('store-inputs-ts', 'data'),
+    ui_helper.calc_input_objects())
+def inputs_ts(*args):
+    # Store time inputs changed
+    return {'ts': time.time()}
+
+@app.callback(Output('store-calc-ts', 'data'),
+    [Input('but-calculate', 'n_clicks')])
+def calc_ts(clicks):
+    # Store time that Calculate was clicked.
+    if clicks is None:
+        raise PreventUpdate
+    return {'ts': time.time()}
+
+@app.callback(Output('store-results-ts', 'data'),
+    [Input('div-results', 'children')],)
+def results_ts(children):
+    # Store time results changed.
+    return {'ts': time.time()}
+
 @app.callback(Output('md-errors', 'children'),
     ui_helper.calc_input_objects())
 def list_errors(*args):
     # Returns a Markdown string containing the input error list.
-    errors, vars, extra_vars = ui_helper.inputs_to_vars(args)
+    errors, _, _ = ui_helper.inputs_to_vars(args)
     if len(errors)==0:
         return ''
     error_md = '#### Please Correct the following Input Problems:\n\n'
@@ -539,18 +570,64 @@ def list_errors(*args):
     return error_md
 
 @app.callback(Output('div-calculate', 'style'),
-    [Input('md-errors', 'children')])
-def set_calc_visibility(error_md):
-    if len(error_md)==0:
+    [Input('md-errors', 'children'), 
+     Input('store-calc-ts', 'modified_timestamp'),
+     Input('store-inputs-ts', 'modified_timestamp')
+    ])
+def set_calc_visibility(md_error_children, ts_calc, ts_inputs):
+    # Sets visibility of Calculate Button
+    if md_error_children is None or len(md_error_children)>0:
+        return {'display': 'none'}
+    else:
+        if invalid_ts(ts_calc) or ts_calc < ts_inputs:
+            return {'display': 'block'}
+        else:
+            return {'display': 'none'}
+
+@app.callback(Output('div-calculating', 'style'),
+    [Input('store-calc-ts', 'modified_timestamp'),
+     Input('store-results-ts', 'modified_timestamp')
+    ])
+def set_calc_indicator_vis(ts_calc, ts_results):
+    # Set visibility of the "Calculating..." indicator.
+    if invalid_ts(ts_calc):
+        return {'display': 'none'}
+    elif invalid_ts(ts_results):
         return {'display': 'block'}
     else:
+        if ts_calc >= ts_results:
+            return {'display': 'block'}
+        else:
+            return {'display': 'none'}
+
+@app.callback(Output('div-results', 'children'),
+    [Input('but-calculate', 'n_clicks')])
+def update_results(clicks):
+    # Updates the Results
+    if clicks is None:
+        raise PreventUpdate
+    time.sleep(2)
+    return [dcc.Markdown('### Here are the Results!')]
+
+@app.callback(Output('div-results', 'style'),
+    [Input('store-inputs-ts', 'modified_timestamp'),
+     Input('store-results-ts', 'modified_timestamp')
+    ])
+def results_vis(ts_inputs, ts_results):
+    # Sets visibility of Results
+    if invalid_ts(ts_results) or invalid_ts(ts_inputs):
         return {'display': 'none'}
+    else:
+        if ts_results >= ts_inputs:
+            return {'display': 'block'}  
+        else:
+            return {'display': 'none'}
 
 @app.callback(Output('md-debug', 'children'), 
     ui_helper.calc_input_objects())
 def debug_output(*args):
-
-    errors, vars, extra_vars = ui_helper.inputs_to_vars(args)
+    # Displays debug output
+    _, vars, extra_vars = ui_helper.inputs_to_vars(args)
 
     # The utility Pandas Series messes up formatting if
     # left in the vars dictionary.  So pull it out and convert
