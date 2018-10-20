@@ -4,6 +4,7 @@ Requires version 0.23 or later of Dash.
 """
 from textwrap import dedent
 from pprint import pformat
+import time
 
 import pandas as pd
 import dash
@@ -325,13 +326,33 @@ app.layout = html.Div(className='container', children=[
     ]),
 
     LabeledSection('Results', [
-        html.H3('Results go Here!'), 
-        dcc.Markdown('Key Inputs.', id='key-inputs')
+        dcc.Markdown(id='md-errors'),
+        html.Div(
+            html.Button('Calculate Results', id='but-calculate'),
+            id='div-calculate'
+        ),
+        html.Div(id='div-results'),
+        html.Details(style={'maxWidth': 550, 'marginTop': '3rem'}, children=[
+            html.Summary('Click Here to view Debug Output'),
+            html.Div(style={'marginTop': '3rem'}, children=[
+                dcc.Markdown(id='md-debug'),
+            ]),
+        ]),
     ]),
 
     html.Hr(),
 
     html.P('Some sort of Footer goes here.'),
+
+    # Storage controls needed for control purposes
+
+    # This one stores the time when the Calculation Inputs changed,
+    # as indicated by the time when the Div holding the Error List
+    # last changed.
+    dcc.Store(id='store-input-chg-ts'),
+
+    # This one stores the time when the Calculation button was clicked.
+    dcc.Store(id='store-calc-button-ts'),
 
 ])
 
@@ -505,9 +526,29 @@ def commun_pce_vis(bldg_type, elec_input, utility_id):
             return {'display': 'block'}
     return {'display': 'none'}
 
-@app.callback(Output('key-inputs', 'children'), 
+@app.callback(Output('md-errors', 'children'),
     ui_helper.calc_input_objects())
-def show_key_inputs(*args):
+def list_errors(*args):
+    # Returns a Markdown string containing the input error list.
+    errors, vars, extra_vars = ui_helper.inputs_to_vars(args)
+    if len(errors)==0:
+        return ''
+    error_md = '#### Please Correct the following Input Problems:\n\n'
+    for e in errors:
+        error_md += f'* {e}\n'
+    return error_md
+
+@app.callback(Output('div-calculate', 'style'),
+    [Input('md-errors', 'children')])
+def set_calc_visibility(error_md):
+    if len(error_md)==0:
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+@app.callback(Output('md-debug', 'children'), 
+    ui_helper.calc_input_objects())
+def debug_output(*args):
 
     errors, vars, extra_vars = ui_helper.inputs_to_vars(args)
 
@@ -518,9 +559,6 @@ def show_key_inputs(*args):
 
     return dedent(f'''
     ```
-    Errors:
-    {pformat(errors)}
-
     Variables:
     {pformat(vars)}
 
