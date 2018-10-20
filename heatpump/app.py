@@ -601,13 +601,14 @@ def set_calc_indicator_vis(ts_calc, ts_results):
             return {'display': 'none'}
 
 @app.callback(Output('div-results', 'children'),
-    [Input('but-calculate', 'n_clicks')])
-def update_results(clicks):
+    [Input('but-calculate', 'n_clicks')], ui_helper.calc_state_objects())
+def update_results(clicks, *args):
     # Updates the Results
+    _, vars, extras = ui_helper.inputs_to_vars(args)
     if clicks is None:
         raise PreventUpdate
     time.sleep(2)
-    return [dcc.Markdown('### Here are the Results!')]
+    return [dcc.Markdown(f'### Here are the Results!\n\nFloor Area: {vars["bldg_floor_area"]}')]
 
 @app.callback(Output('div-results', 'style'),
     [Input('store-inputs-ts', 'modified_timestamp'),
