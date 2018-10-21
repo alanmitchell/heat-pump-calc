@@ -34,7 +34,7 @@ class HP_model:
 
     def __init__(self,
                  city_id,
-                 utility_id,
+                 utility,
                  co2_lbs_per_kwh,
                  exist_heat_fuel_id,
                  exist_unit_fuel_cost,
@@ -43,11 +43,13 @@ class HP_model:
                  exist_kwh_per_mmbtu,
                  exist_is_point_source,
                  includes_dhw,
-                 occupant_count,
                  includes_dryer,
+                 includes_cooking,
+                 occupant_count,
                  elec_use_jan,
                  elec_use_may,
                  hp_model_id,
+                 indoor_high_mount,
                  low_temp_cutoff,
                  garage_stall_count,
                  garage_heated_by_hp,
@@ -78,7 +80,6 @@ class HP_model:
             
         # Look up the objects associated with the IDs
         self.city = lib.city_from_id(city_id)
-        self.utility = lib.util_from_id(utility_id)
         self.exist_fuel = lib.fuel_from_id(exist_heat_fuel_id)
         self.hp_model = lib.heat_pump_from_id(hp_model_id)
                     
