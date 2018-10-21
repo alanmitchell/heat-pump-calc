@@ -32,5 +32,6 @@ def create_results(input_values):
 
     comps = []
     comps.append(dcc.Markdown(f"#### Results Here!\n\n{pformat(smy)}"))
-    comps.append(dcc.Markdown(f"```\n{df_cash_flow}\n```"))
+    dfc = df_cash_flow[['initial_cost', 'loan_cost', 'cash_flow', 'cash_flow_no_pce']]
+    comps.append(dcc.Markdown(f"```\n{dfc}\n```"))
     return comps
