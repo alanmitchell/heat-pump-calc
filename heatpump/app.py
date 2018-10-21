@@ -17,6 +17,7 @@ from .components import LabeledInput, LabeledSlider, LabeledSection, \
 import numpy as np	
 from . import library as lib
 from . import ui_helper
+from . import create_results_display
 
 app = dash.Dash(__name__)
 server = app.server             # this is the underlying Flask app
@@ -614,16 +615,6 @@ def set_calc_indicator_vis(ts_calc, ts_results):
         else:
             return {'display': 'none'}
 
-@app.callback(Output('div-results', 'children'),
-    [Input('but-calculate', 'n_clicks')], ui_helper.calc_state_objects())
-def update_results(clicks, *args):
-    # Updates the Results
-    _, vars, extras = ui_helper.inputs_to_vars(args)
-    if clicks is None:
-        raise PreventUpdate
-    time.sleep(2)
-    return [dcc.Markdown(f'### Here are the Results!\n\nFloor Area: {vars["bldg_floor_area"]}')]
-
 @app.callback(Output('div-results', 'style'),
     [Input('store-inputs-ts', 'modified_timestamp'),
      Input('store-results-ts', 'modified_timestamp')
@@ -637,6 +628,14 @@ def results_vis(ts_inputs, ts_results):
             return {'display': 'block'}  
         else:
             return {'display': 'none'}
+
+@app.callback(Output('div-results', 'children'),
+    [Input('but-calculate', 'n_clicks')], ui_helper.calc_state_objects())
+def update_results(clicks, *args):
+    # Updates the Results Display
+    if clicks is None:
+        raise PreventUpdate
+    return create_results_display.create_results(args)
 
 @app.callback(Output('md-debug', 'children'), 
     ui_helper.calc_input_objects())
