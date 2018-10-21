@@ -196,8 +196,11 @@ app.layout = html.Div(className='container', children=[
                 options=make_options(END_USES), values=[]),
         LabeledInput('Number of Occupants in Building using Above End Uses:', 'occupant_count',
                 'people', value=3),
-        LabeledInput('Fuel Price Per Unit:', 'exist_unit_fuel_cost'),     
-        LabeledRadioItems('Efficiency of Existing Heating System:','exist_heat_effic', max_width=500),
+        LabeledInput('Fuel Price Per Unit:', 'exist_unit_fuel_cost'), 
+        LabeledRadioItems('Efficiency of Existing Heating System:','heat_effic', max_width=500),
+        LabeledSlider(app, 'Efficiency of Existing Heating System:', 'heat_effic_slider',
+                    40, 100, '%',
+                    mark_gap=10, step=1, value=80),
         LabeledRadioItems('Auxiliary electricity use (fans/pumps/controls) from existing heating system:', 
                 'aux_elec', 
                 options=make_options(AUX_ELEC_TYPE), value='toyo',
@@ -430,14 +433,17 @@ def find_fuel_price(fuel_id, city_id):
     
     return price 
 
-@app.callback(Output('exist_heat_effic','options'), [Input('exist_heat_fuel_id', 'value')])
+@app.callback(Output('heat_effic','options'), 
+    [Input('exist_heat_fuel_id', 'value')])
 def effic_choices(fuel_id):
     if fuel_id is None:
         return []
     fu = lib.fuel_from_id(fuel_id)
-    return [{'label': lbl, 'value': val} for lbl, val in fu.effic_choices]
+    choices = [{'label': lbl, 'value': val} for lbl, val in fu.effic_choices]
+    choices += [{'label': 'Manual Entry', 'value': 'manual'}]
+    return choices
 
-@app.callback(Output('exist_heat_effic','value'), [Input('exist_heat_effic','options')])
+@app.callback(Output('heat_effic','value'), [Input('heat_effic','options')])
 def options(ht_eff):
     if len(ht_eff)>2:
         return ht_eff[1]['value']
@@ -445,6 +451,14 @@ def options(ht_eff):
         return ht_eff[0]['value']
     else:
         return None
+
+@app.callback(Output('div-heat_effic_slider', 'style'),
+    [Input('heat_effic', 'value')])
+def heat_effic_vis(val):
+    if val == 'manual':
+        return {'display': 'block', 'marginBottom': '4rem'}
+    else:
+        return {'display': 'none'}
 
 @app.callback(Output('units-exist_fuel_use', 'children'),[Input('exist_heat_fuel_id','value')])
 def update_use_units(fuel_id):

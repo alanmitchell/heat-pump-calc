@@ -35,7 +35,8 @@ input_info = [
     ('exist_heat_fuel_id', 'Heating Fuel Type'),
     ('end_uses_chks', 'End Uses using Heating Fuel', 'extra'),
     ('exist_unit_fuel_cost', 'Heating Fuel Price', 'float,greater-than-zero'),
-    ('exist_heat_effic', 'Heating System Efficiency'),
+    ('heat_effic', 'Heating System Efficiency', 'extra'),
+    ('heat_effic_slider', 'Custom-entered Heating System Efficiency', 'extra'),
     ('aux_elec', 'Auxiliary Electric Use', 'extra'),
     ('exist_is_point_source', 'Existing Heating is One Room'),
     ('exist_fuel_use', 'Existing Heating Fuel Use', 'null-ok,float,greater-than-zero'),
@@ -261,6 +262,12 @@ def inputs_to_vars(input_vals):
     # Wall Type translates to Insulation Level
     wall_to_insul = {'2x4': 1, '2x6': 2, 'better': 3}
     vars['insul_level'] = wall_to_insul[extras['wall_type']]
+
+    # Possible manual entry of heating efficiency
+    if extras['heat_effic'] == 'manual':
+        vars['exist_heat_effic'] = extras['heat_effic_slider'] / 100.
+    else:
+        vars['exist_heat_effic'] = extras['heat_effic'] / 100.
 
     # Auxiliary Electricity Use of Heating System, kWh / MMBtu of heat 
     # delivered.
