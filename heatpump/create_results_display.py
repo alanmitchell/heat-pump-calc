@@ -46,7 +46,7 @@ def create_results(input_values):
     comps = []
 
     # ------- Summary of Economic Return and Greenhouse Gas  ------------
-    
+
     # Add some items and adjust some in the summary dictionary
     smy['npv_abs'] =  abs(smy['npv'])
     smy['irr'] *= 100.   # convert to %
@@ -147,7 +147,8 @@ def create_results(input_values):
     comps.append(dcc.Markdown('##### Cash Flow Table'))
 
     comps.append(dcc.Markdown('Temporary Hack.  Will produce a formatted table later.'))
-    dfc = df_cash_flow[['initial_cost', 'loan_cost', 'cash_flow', 'cash_flow_no_pce']]
+    # no horizontal space for *operating cost* at the moment.
+    dfc = df_cash_flow[['initial_cost', 'loan_cost', 'fuel_cost', 'elec_cost', 'cash_flow', 'cum_disc_cash_flow']]
     comps.append(dcc.Markdown(f"```\n{dfc}\n```"))
 
     # Monthly Energy Cost Impact

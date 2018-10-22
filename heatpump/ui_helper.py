@@ -26,6 +26,7 @@ input_info = [
     ('demand_chg_adv', 'Electric Demand Charge', 'null-ok,null-to-zero,float,extra'),
     ('pce_adv', 'PCE assistance', 'null-ok,null-to-zero,float,extra'),
     ('customer_chg_adv', 'Electric Customer Charge', 'null-ok,null-to-zero,float,extra'),
+    ('no_pce_chks', 'Ignore PCE', 'extra'),
     ('co2_lbs_per_kwh', 'CO2 per kWh of extra electricity generation'),
     ('bldg_type', 'Building Type', 'extra'),
     ('commun_all_pce', 'Community Building PCE Used Up', 'extra'),
@@ -256,6 +257,9 @@ def inputs_to_vars(input_vals):
         utility.at['CustomerChg'] = extras['customer_chg_adv']
         utility.at['DemandCharge'] = extras['demand_chg_adv']
 
+    # If checkbox indicating PCE should be ignored, then zero it out.
+    if 'no_pce' in extras['no_pce_chks']:
+        utility.at['PCE'] = 0.0
 
     vars['utility'] =  utility
 

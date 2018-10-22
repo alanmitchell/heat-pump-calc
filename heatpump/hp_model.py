@@ -227,18 +227,11 @@ class HP_model:
         # cost function that will be applied to each row of the cost DataFrame
         cost_func = lambda r: elec_cost_calc.monthly_cost(r.elec_kwh, r.elec_kw)
 
-        # Now the no-PCE version
-        util_no_pce = s.utility.copy()
-        util_no_pce.PCE = 0.0    # blank out the PCE
-        elec_cost_calc_no_pce = ElecCostCalc(util_no_pce, sales_tax=s.sales_tax, pce_limit=500.0)
-        cost_func_no_pce = lambda r: elec_cost_calc_no_pce.monthly_cost(r.elec_kwh, r.elec_kw)
-
         dfb['elec_kwh'] =  pat_use
         # rough estimate of a base demand: not super critical, as the demand rate 
         # structure does not have blocks.  Assume a load factor of 0.4
         dfb['elec_kw'] = dfb.elec_kwh / 730.0 / 0.4
         dfb['elec_dol'] = dfb.apply(cost_func, axis=1)
-        dfb['elec_dol_no_pce'] = dfb.apply(cost_func_no_pce, axis=1)
 
         # Now fuel
         dfb['secondary_fuel_units'] = s.df_mo_en_base.secondary_fuel_units
@@ -246,7 +239,6 @@ class HP_model:
 
         # Total Electric + space heat
         dfb['total_dol'] =  dfb.elec_dol + dfb.secondary_fuel_dol
-        dfb['total_dol_no_pce'] =  dfb.elec_dol_no_pce + dfb.secondary_fuel_dol
 
         # Now with the heat pump
         # determine extra kWh used in the heat pump scenario
@@ -254,7 +246,6 @@ class HP_model:
         dfh['elec_kwh'] = dfb['elec_kwh'] + extra_kwh
         dfh['elec_kw'] =  dfb['elec_kw'] + s.df_mo_en_hp.hp_kw
         dfh['elec_dol'] = dfh.apply(cost_func, axis=1)
-        dfh['elec_dol_no_pce'] = dfh.apply(cost_func_no_pce, axis=1)
 
         # Now fuel
         dfh['secondary_fuel_units'] = s.df_mo_en_hp.secondary_fuel_units
@@ -262,7 +253,6 @@ class HP_model:
 
         # Total Electric + space heat
         dfh['total_dol'] =  dfh.elec_dol + dfh.secondary_fuel_dol
-        dfh['total_dol_no_pce'] =  dfh.elec_dol_no_pce + dfh.secondary_fuel_dol
         
     def calc_cash_flow(self):
         """Calculates the cash flow impacts of the installation over the 
@@ -286,41 +276,31 @@ class HP_model:
         loan_pmt = np.pmt(s.loan_interest, s.loan_term, s.capital_cost * (1 + s.sales_tax) * s.pct_financed)
         loan_cost = [0.0] + [loan_pmt] * s.loan_term + [0.0] * (s.hp_life -  s.loan_term)
         loan_cost = np.array(loan_cost)
-        operating_cost = -s.op_cost_chg * make_pattern(s.inflation_rate, s.hp_life)
+        op_cost = -s.op_cost_chg * make_pattern(s.inflation_rate, s.hp_life)
         fuel_cost = -ann_chg.secondary_fuel_dol * make_pattern(s.fuel_esc_rate, s.hp_life)
         elec_cost = -ann_chg.elec_dol * make_pattern(s.elec_esc_rate, s.hp_life)
-        cash_flow = initial_cost + loan_cost + operating_cost + fuel_cost + elec_cost
+        cash_flow = initial_cost + loan_cost + op_cost + fuel_cost + elec_cost
 
         # calculate cumulative, discounted cash flow.
         disc_factor = np.ones(s.hp_life) * (1 + s.discount_rate)
         disc_factor = np.insert(disc_factor.cumprod(), 0, 1.0)
         cum_disc_cash_flow = np.cumsum(cash_flow / disc_factor)
-        
-        # Do the three columns that change when PCE is ignored
-        elec_cost_no_pce = -ann_chg.elec_dol_no_pce * make_pattern(s.elec_esc_rate, s.hp_life)
-        cash_flow_no_pce = initial_cost + loan_cost + operating_cost + fuel_cost + elec_cost_no_pce
-        cum_disc_cash_flow_no_pce = np.cumsum(cash_flow_no_pce / disc_factor)
-        
+                
         s.df_cash_flow = pd.DataFrame(
             {'initial_cost': initial_cost,
              'loan_cost': loan_cost,
-             'operating_cost': operating_cost,
+             'op_cost': op_cost,
              'fuel_cost': fuel_cost,
              'elec_cost': elec_cost,
-             'elec_cost_no_pce': elec_cost_no_pce,
              'cash_flow': cash_flow,
              'cum_disc_cash_flow': cum_disc_cash_flow,
-             'cash_flow_no_pce': cash_flow_no_pce,
-             'cum_disc_cash_flow_no_pce': cum_disc_cash_flow_no_pce,
             }
         )
         s.df_cash_flow.index.name = 'year'
         
         # Calculate IRR and NPV for w/ and w/o PCE.
         s.summary['irr'] = np.irr(s.df_cash_flow.cash_flow)
-        s.summary['irr_no_pce'] = np.irr(s.df_cash_flow.cash_flow_no_pce)
         s.summary['npv'] = np.npv(s.discount_rate, s.df_cash_flow.cash_flow)
-        s.summary['npv_no_pce'] = np.npv(s.discount_rate, s.df_cash_flow.cash_flow_no_pce)
         
         # Add some summary fuel and electric usage  and unit cost info
         s.summary['fuel_use_base'] = ann_base.secondary_fuel_units

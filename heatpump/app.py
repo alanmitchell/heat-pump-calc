@@ -162,8 +162,12 @@ app.layout = html.Div(className='container', children=[
                     html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv', type='text', style={'maxWidth': 100}), ' /mo'])] ),
                     ])
             ], id='div-man-adv', style={'display': 'none'}),
+            dcc.Checklist(
+                options=[{'label': 'Run Analysis ignoring PCE Assistance', 'value': 'no_pce'}],
+                values=[],
+                id='no_pce_chks'
+            ),
             html.P('.'),
-            
             LabeledSlider(app, 'Pounds of CO2 released per kWh of additional electricity generation:', 'co2_lbs_per_kwh', 
                 0, 3.3, 'pounds/kWh',
                 help_text='This is used to determine how much CO2 is released due to the electricity consumed by the heat pump.  Pick the type of generation that will be used to produce more electricity in your community.',
@@ -309,7 +313,7 @@ app.layout = html.Div(className='container', children=[
                 LabeledSlider(app, 'Heating Fuel Price Inflation Rate:', 'fuel_esc_rate',
                             0, 8, '%/year',
                             'Select the predicted annual increase in the price of the chosen heating fuel at this location.',
-                            mark_gap=1, step=0.1, value=4),    
+                            mark_gap=1, step=0.1, value=3),    
                 LabeledSlider(app, 'Electricity Price Inflation Rate:', 'elec_esc_rate',
                             0, 8, '%/year',
                             'Select the predicted annual increase in the price of electricity at this location.',
