@@ -178,7 +178,8 @@ def inputs_to_vars(input_vals):
     # --------------------- Electric Utility Rates ----------------------------
 
     # Create a utility object from the electric utility inputs.
-    # Start with a real utility object from the first one listed
+    # To prepare for manual entry of the utility parameters, if that
+    # is selected, make a real utility object from the first one listed
     # for the community and set fields to default values.
     city = lib.city_from_id(vars['city_id'])
     utility = lib.util_from_id(city.ElecUtilities[0][1])
@@ -194,13 +195,6 @@ def inputs_to_vars(input_vals):
             return errors, vars, extras
         else:
             utility = lib.util_from_id(extras['utility_id'])
-            # Zero out PCE if this is a commercial building or a community 
-            # building in a coummunity where community building PCE has been
-            # exhausted.
-            if extras['bldg_type']  == 'comm':
-                utility.at['PCE'] = 0.0
-            elif extras['bldg_type'] == 'commun' and extras['commun_all_pce']:
-                utility.at['PCE'] = 0.0
 
     elif extras['elec_input'] == 'ez':
         if check_null(extras['elec_rate_ez']):
@@ -257,11 +251,31 @@ def inputs_to_vars(input_vals):
         utility.at['CustomerChg'] = extras['customer_chg_adv']
         utility.at['DemandCharge'] = extras['demand_chg_adv']
 
-    # If checkbox indicating PCE should be ignored, then zero it out.
-    if 'no_pce' in extras['no_pce_chks']:
-        utility.at['PCE'] = 0.0
-
     vars['utility'] =  utility
+
+    # To account for whether this building type gets PCE and to account
+    # for the "ignore PCE" checkbox, set the 'pce_limit' variable.
+    if 'no_pce' in extras['no_pce_chks']:
+        # ignore PCE is selected
+        pce_limit = 0.0
+    else:
+        if extras['bldg_type'] == 'res':
+            pce_limit = 500.0
+        elif extras['bldg_type'] == 'comm':
+            # no PCE for commercial buildings
+            pce_limit = 0.0
+        elif extras['bldg_type'] == 'commun':
+            if extras['commun_all_pce']:
+                # all of the community building PCE is used up for 
+                # this community
+                pce_limit = 0.0
+            else:
+                # assume enough community building PCE left to supply the 
+                # heat pump.  Thus, no limit on PCE for this building.
+                pce_limit = np.inf
+
+    # save the PCE limit variable
+    vars['pce_limit'] =  pce_limit
 
     # -------------- Other Variables needing Processing --------------------
 

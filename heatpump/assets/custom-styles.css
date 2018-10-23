@@ -20,3 +20,7 @@ i {
 .label-units {
     margin-left: 0.5rem;
 }
+
+td {
+    padding: 6px 10px;
+}

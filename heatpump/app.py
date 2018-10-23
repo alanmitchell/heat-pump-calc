@@ -425,6 +425,16 @@ def setblockkwh3(blk2_kwh):
     except:
         return None
 
+@app.callback(Output('div-commun_all_pce', 'style'),
+    [Input('bldg_type', 'value')])
+def commun_pce_vis(bldg_type):
+    # If Community Building, show this input, although it is irrelevant if there is
+    # no PCE in this community.
+    if bldg_type == 'commun':
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
 @app.callback(Output('exist_unit_fuel_cost', 'value'),
     [Input('exist_heat_fuel_id', 'value'), Input('city_id','value')])
 def find_fuel_price(fuel_id, city_id):
@@ -543,17 +553,6 @@ def set_capital_cost(zones, city_id):
         # Assume highest level (level 5) is 1.6 x lowest level.
         cost_mult = 1.6 ** 0.25
         return round(cost * cost_mult ** (cost_level - 1), 0)
-
-@app.callback(Output('div-commun_all_pce', 'style'),
-    [Input('bldg_type', 'value'), Input('elec_input', 'value'), Input('utility_id', 'value')])
-def commun_pce_vis(bldg_type, elec_input, utility_id):
-    # only situation where this should be asked is Community Building, Utility
-    # rate schedule being use, PCE is more than 0
-    if bldg_type == 'commun' and elec_input == 'util' and utility_id is not None:
-        utility = lib.util_from_id(utility_id)
-        if utility['PCE'] > 0:
-            return {'display': 'block'}
-    return {'display': 'none'}
 
 # -------------- Callbacks Related to Calculation Mechanics --------------
 

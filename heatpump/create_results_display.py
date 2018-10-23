@@ -13,7 +13,7 @@ import plotly.graph_objs as go
 from . import ui_helper
 from . import hp_model
 
-def generate_table(dataframe, max_rows=20):
+def generate_table(dataframe, max_rows=50):
     return html.Table(
         # Header
         [html.Tr([html.Th(dataframe.index.name)] + [html.Th(col) for col in dataframe.columns])] +
@@ -62,18 +62,17 @@ def create_results(input_values):
     # Add some items and adjust some in the summary dictionary
     smy['npv_abs'] =  abs(smy['npv'])
     smy['irr'] *= 100.   # convert to %
+    smy['fuel_savings'] = -smy['fuel_use_chg']
     smy['npv_indicator'] = 'earn' if smy['npv'] >= 0 else 'lose'
     smy['co2_lbs_saved_life'] = smy['co2_lbs_saved'] * inputs['hp_life']
     smy['co2_driving_miles_saved_life'] = smy['co2_driving_miles_saved'] * inputs['hp_life']
 
     md_tmpl = dedent('''
-    ### Heat Pump Cost Effectiveness
-
     #### Net Present Value:  **\${npv:,.0f}**
 
     The Net Present Value of installing an air-source heat pump is estimated to 
     be **\${npv:,.0f}**. This means that over the course of the life of the equipment you 
-    will {npv_indicator} **\${npv_abs:,.0f}** in today's dollars.
+    will {npv_indicator} a total of **\${npv_abs:,.0f}** in today's dollars.
     ''')
 
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
@@ -95,13 +94,35 @@ def create_results(input_values):
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
     md_tmpl = dedent('''
-    ---
+    #### Annual Heating Fuel Savings: **{fuel_savings:,.3g} {fuel_unit}** of {fuel_desc}
 
-    ### Greenhouse Gas Emissions
+    This shows how much heating fuel is saved each year by use of the heat pump. 
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
-    Installing a heat pump is predicted to save {co2_lbs_saved:,.0f} pounds of CO2 emissions annually, 
+    md_tmpl = dedent('''
+    #### Annual Increase in Electricity Use: **{elec_use_chg:,.0f} kWh**
+
+    Use of the heat pump adds to the electric use of the building.  Shown here is 
+    the annual increase in electricity use.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+    md_tmpl = dedent('''
+    #### Seasonal Average Heat Pump COP: **{cop:.2f}**
+
+    The Seasonal Average Heat Pump COP indicates the annual average efficiency of the heat pump.
+    Conventional Electric Resistance heat (e.g. electric baseboard) would have a COP of 1.0.
+    Heat Pumps generally have COPs in excess of 2.0.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+    md_tmpl = dedent('''
+    #### Greenhouse Gas Emissions
+
+    Installing a heat pump is predicted to save **{co2_lbs_saved:,.0f} pounds of CO2** emissions annually, 
     or {co2_lbs_saved_life:,.0f} pounds over the life of the equipment. This is equivalent to a reduction 
-    of {co2_driving_miles_saved:,.0f} miles driven by an average passenger vehicle annually, 
+    of **{co2_driving_miles_saved:,.0f} miles driven** by an average passenger vehicle annually, 
     or {co2_driving_miles_saved_life:,.0f} miles over the equipment's life.
 
     ---
@@ -238,12 +259,12 @@ def create_results(input_values):
     old_cols, new_cols = zip(*cols)
     dfc = df_cash_flow[list(old_cols)].copy()
     dfc.columns = new_cols
+    dfc.index.name = 'Year'
     comps.append(generate_table(dfc))
 
-    # Monthly Energy Cost Impact
-    comps.append(dcc.Markdown('##### Monthly Energy Cost Impact Graph Here'))
+    comps.append(dcc.Markdown('### Results by Month'))
 
-    # Energy Related Graphs
+    comps.append(dcc.Markdown('##### Monthly Energy Cost Impact Graph Here'))
     comps.append(dcc.Markdown('##### Monthly Load Graph Here'))
     comps.append(dcc.Markdown('##### Monthly Electricity & Fuel, before/after, Graph Here'))
     comps.append(dcc.Markdown('##### Monthly COP Graph Here'))

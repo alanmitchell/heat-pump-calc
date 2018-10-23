@@ -35,6 +35,7 @@ class HP_model:
     def __init__(self,
                  city_id,
                  utility,
+                 pce_limit,
                  co2_lbs_per_kwh,
                  exist_heat_fuel_id,
                  exist_unit_fuel_cost,
@@ -223,7 +224,7 @@ class HP_model:
         s.df_mo_dol_hp = dfh = s.df_mo_en_base[[]].copy()
         
         # Make an object to calculate electric utility costs
-        elec_cost_calc = ElecCostCalc(s.utility, sales_tax=s.sales_tax, pce_limit=500.0)
+        elec_cost_calc = ElecCostCalc(s.utility, sales_tax=s.sales_tax, pce_limit=s.pce_limit)
         # cost function that will be applied to each row of the cost DataFrame
         cost_func = lambda r: elec_cost_calc.monthly_cost(r.elec_kwh, r.elec_kw)
 
