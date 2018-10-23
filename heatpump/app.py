@@ -537,8 +537,12 @@ def set_capital_cost(zones, city_id):
     if city_id is None:
         return cost
     else:
-        # TO DO: factor in Improvement Cost Level for the City
-        return cost
+        # Factor in Improvement Cost Level for the City
+        cost_level = lib.city_from_id(city_id).ImpCost
+        # Each cost level is the same percentage above the one prior.
+        # Assume highest level (level 5) is 1.6 x lowest level.
+        cost_mult = 1.6 ** 0.25
+        return round(cost * cost_mult ** (cost_level - 1), 0)
 
 @app.callback(Output('div-commun_all_pce', 'style'),
     [Input('bldg_type', 'value'), Input('elec_input', 'value'), Input('utility_id', 'value')])
