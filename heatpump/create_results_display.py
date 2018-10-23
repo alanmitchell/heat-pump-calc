@@ -13,6 +13,18 @@ import plotly.graph_objs as go
 from . import ui_helper
 from . import hp_model
 
+def generate_table(dataframe, max_rows=20):
+    return html.Table(
+        # Header
+        [html.Tr([html.Th(dataframe.index.name)] + [html.Th(col) for col in dataframe.columns])] +
+
+        # Body
+        [html.Tr( [html.Td(dataframe.index[i])] + [
+            html.Td('{:,.0f}'.format(dataframe.iloc[i][col])) for col in dataframe.columns
+        ]) for i in range(min(len(dataframe), max_rows))]
+    )
+
+
 # This is a dictionary of configuration options for the Plotly 
 # graphs.  This removes a number of buttons from the mode bar, primarily.
 my_config = dict(
@@ -97,7 +109,14 @@ def create_results(input_values):
 
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
-    comps.append(dcc.Markdown('### Cash Flow Results'))
+    comps.append(dcc.Markdown(dedent('''
+    ### Cash Flow Results
+
+    The graph below shows how the heat pump project impacts cash flow in each of the years
+    during the life of the heat pump.  Negative, red, values indicate a net outflow of cash
+    due to installing the heat pump, and positive, black, values indicate an net inflow of
+    cash due to the heat pump installation.
+    # ''')))
 
     # Cash Flow Graph
     df_cash_flow['negative_flow'] = np.where(df_cash_flow.cash_flow < 0, df_cash_flow.cash_flow, 0)
@@ -126,6 +145,7 @@ def create_results(input_values):
             title='Annual Cash Flow ($)', 
             hoverformat='$,.0f', 
             fixedrange=True,
+            tickformat='$,.0f',
         ),
         hovermode= 'closest',
     )
@@ -136,20 +156,89 @@ def create_results(input_values):
             layout=layout,
         ),
         config=my_config,
+        id='gph-1',
     )
-    comps.append(dcc.Markdown('Explanation of graph below.'))
     comps.append(gph)
 
     # Cumulative Cash Flow Graph
-    comps.append(dcc.Markdown('##### Cumulative Cash Flow Graph Here'))
+
+    comps.append(dcc.Markdown(dedent('''
+    The graph below also shows cash flow but it shows the cumlative impact of the cash
+    flow over the life of the heat pump.  A running total of the cash flow impact is
+    shown, adjusted for the time-value of money (interest).  When the cumulative cash
+    flow exceeds zero (turns black), the heat pump invested has paid itself back 
+    with interest.
+    ''')))
+
+    df_cash_flow['cum_negative_flow'] = np.where(df_cash_flow.cum_disc_cash_flow < 0, df_cash_flow.cum_disc_cash_flow, 0)
+    df_cash_flow['cum_positive_flow'] = np.where(df_cash_flow.cum_disc_cash_flow > 0, df_cash_flow.cum_disc_cash_flow, 0)
+
+    negative_cash_flow = go.Scatter(
+        x=df_cash_flow.index,
+        y=df_cash_flow.cum_negative_flow,
+        name='Cash Flow ($)',
+        fill='tozeroy',
+        fillcolor='#d7191c',
+        line=dict(color='#ffffff'),
+        hoverinfo = 'y',
+        mode='lines',
+    )
+
+    positive_cash_flow = go.Scatter(
+        x=df_cash_flow.index,
+        y=df_cash_flow.cum_positive_flow,
+        name='Cash Flow ($)',
+        fill='tozeroy',
+        fillcolor='#000000',
+        line=dict(color='#ffffff'),
+        hoverinfo = 'y',
+        mode='lines',
+    )
+
+    layout = go.Layout(
+        title='Heat Pump Lifetime Cumulative Discounted Cash Flow',
+        xaxis=dict(title='Year', fixedrange=True,),
+        yaxis=dict(
+            title='Annual Discounted Cash Flow ($)', 
+            hoverformat='$,.0f',
+            fixedrange=True,
+            tickformat='$,.0f',
+        ),
+        hovermode= 'closest',
+        showlegend=False,
+    )
+
+    gph = dcc.Graph(
+        figure=go.Figure(
+            data=[negative_cash_flow, positive_cash_flow],
+            layout=layout,
+        ),
+        config=my_config,
+        id='gph-2',
+    )
+    comps.append(gph)
 
     # Cash Flow Table
-    comps.append(dcc.Markdown('##### Cash Flow Table'))
 
-    comps.append(dcc.Markdown('Temporary Hack.  Will produce a formatted table later.'))
-    # no horizontal space for *operating cost* at the moment.
-    dfc = df_cash_flow[['initial_cost', 'loan_cost', 'fuel_cost', 'elec_cost', 'cash_flow', 'cum_disc_cash_flow']]
-    comps.append(dcc.Markdown(f"```\n{dfc}\n```"))
+    comps.append(dcc.Markdown(dedent('''
+    The table below breakdowns the cash flow impacts into components.  All values are dollars.
+    Positive numbers indicate a beneficial impact (inflow of cash); negative values indicate
+    a detrimental impact (outflow of cash).
+    ''')))
+
+    cols = (
+        ('initial_cost', 'Initial Cost'),
+        ('loan_cost', 'Loan Payments'),
+        ('op_cost', 'Operating Cost'),
+        ('fuel_cost', 'Heating Fuel Cost'),
+        ('elec_cost', 'Electricity Cost'),	
+        ('cash_flow', 'Net Cash Flow'),
+        ('cum_disc_cash_flow', 'Cumulative Discounted Cash Flow')
+    )
+    old_cols, new_cols = zip(*cols)
+    dfc = df_cash_flow[list(old_cols)].copy()
+    dfc.columns = new_cols
+    comps.append(generate_table(dfc))
 
     # Monthly Energy Cost Impact
     comps.append(dcc.Markdown('##### Monthly Energy Cost Impact Graph Here'))
