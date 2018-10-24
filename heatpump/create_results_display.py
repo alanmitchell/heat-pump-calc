@@ -280,13 +280,14 @@ def create_results(input_values):
     ##### Monthly Energy Cost Impacts
 
     This graph shows how the building's monthly energy costs change due to
-    the heat pump.  Both electricity costs and fuel costs are included.  
+    the heat pump.  Both electricity costs and fuel costs are included.
     The dots show the current level of energy cost prior to
     installing the heat pump.  If the heat pump lowers energy cost in the month,
     a green bar drops from the dot down to the new level of energy cost for the
     month.  If the heat pump raises costs in the month (e.g. the added electricity
     cost is more than the fuel cost savings), a red bar extends from the current
-    cost dot to the new, higher, energy cost level.
+    cost dot to the new, higher, energy cost level.  All energy uses are inlcuded
+    in the costs, not just space heating.
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
