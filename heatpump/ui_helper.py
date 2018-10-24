@@ -6,7 +6,7 @@ are used in the Energy Model are addressed here.
 import numpy as np
 from dash.dependencies import Input, State
 from . import library as lib
-from .utils import check_null
+from .utils import is_null
 
 input_info = [
     ('city_id', 'City'),
@@ -126,7 +126,7 @@ def inputs_to_vars(input_vals):
             for item in other[0].split(','):
                 cc[item.strip()] = True
 
-        if check_null(val):
+        if is_null(val):
             if cc['null-ok']:
                 # Only other check / conversion is null to zero if the value is
                 # None
@@ -190,14 +190,14 @@ def inputs_to_vars(input_vals):
     # is used.
 
     if extras['elec_input'] == 'util':
-        if check_null(extras['utility_id']):
+        if is_null(extras['utility_id']):
             errors.append('You must select an Electric Utility for this City.')
             return errors, vars, extras
         else:
             utility = lib.util_from_id(extras['utility_id'])
 
     elif extras['elec_input'] == 'ez':
-        if check_null(extras['elec_rate_ez']):
+        if is_null(extras['elec_rate_ez']):
             errors.append('You must enter an Electric Rate for this City.')
             return errors, vars, extras
         else:
@@ -218,7 +218,7 @@ def inputs_to_vars(input_vals):
         # there must be a None at the last block
         last_ix = None
         for i in range(4):
-            if check_null(limits[i]):
+            if is_null(limits[i]):
                 last_ix = i
                 break
 
@@ -229,14 +229,14 @@ def inputs_to_vars(input_vals):
         # Now check that all limits prior to the None are filled out
         for i in range(last_ix):
             val = limits[i]
-            if check_null(val):
+            if is_null(val):
                 errors.append(f'The Electric Rate Block {i+1} must have a kWh value.')
                 return errors, vars, extras
 
         # Check that there are rates for all the blocks through the last
         for i in range(last_ix + 1):
             val = rates[i]
-            if check_null(val):
+            if is_null(val):
                 errors.append(f'The Electric Rate Block {i+1} must have a rate.')
                 return errors, vars, extras
 

@@ -15,7 +15,7 @@ def chg_nonnum(val, sub_val):
     else:
         return sub_val
 
-def check_null(val):
+def is_null(val):
     """Returns True if 'val' is None, NaN, or a blank string.
     Returns False otherwise.
     """

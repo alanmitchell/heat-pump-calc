@@ -406,8 +406,8 @@ def create_results(input_values):
     md_tmpl = dedent('''
     ##### Monthly Electricity and Fuel, Before/After
 
-    This graph shows electricity use before and after installation of the heat pump.  Also, 
-    fuel use is compared before and after.
+    This graph shows electricity use and fuel use before and after installation of the heat pump.
+    This is total electricity and fuel use, including energy uses beyond just space heating.
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
@@ -468,7 +468,7 @@ def create_results(input_values):
         hoverformat=',.0f',
         fixedrange=True,
     )
-    yaxis2_title = 'Heating Fuel Use (%s)' % (smy['fuel_unit'])
+    yaxis2_title = 'Fuel Use (%s)' % (smy['fuel_unit'])
     fig['layout']['yaxis2'].update(
         title=yaxis2_title, 
         hoverformat='.3g',

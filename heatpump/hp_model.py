@@ -9,6 +9,7 @@ from . import library as lib
 from . import elec_cost
 from .home_heat_model import HomeHeatModel
 from .elec_cost import ElecCostCalc
+from .utils import is_null
 
 def make_pattern(esc, life):
     """Makes a numpy array of length (life + 1) containing an escalation pattern
@@ -131,22 +132,26 @@ class HP_model:
             doors_open_to_adjacent=s.doors_open_to_adjacent,
             bedroom_temp_tolerance=s.bedroom_temp_tolerance,    
         )
+
+        # If other end uses use the heating fuel, make an estimate of their annual
+        # consumption of that fuel.  This figure is expressed in the physical unit
+        # for the fuel type, e.g. gallons of oil.  Save this as an object attribute
+        # so it is accessible in other routines.
+        s.fuel_other_uses = (
+            s.includes_dhw * 4.23e6 / fuel.dhw_effic + \
+            s.includes_dryer * 2.15e6 + \
+            s.includes_cooking * 0.8e6 \
+        ) * s.occupant_count / fuel.btus
+        print(s.fuel_other_uses)
         
         # Match the existing space heating use if it is provided.  Do so by using
         # the UA true up factor.
         # **** TO DO Deal with Electric Heat.  Calculate a space_fuel_use for electric
         # **** and then use the same calculation below.
-        if s.exist_fuel_use is not None:
+        if not is_null(s.exist_fuel_use):
             
-            # Remove DHW and Clothes dryer if they are present in the fuel use
-            # number.
-            space_fuel_use = s.exist_fuel_use
-            if s.includes_dhw:
-                dhw_use = s.occupant_count * 4.23e6 / fuel.dhw_effic / fuel.btus
-                space_fuel_use -= dhw_use
-                
-            if s.includes_dryer:
-                space_fuel_use -= 2.15e6 * s.occupant_count / fuel.btus
+            # Remove the energy use from the other end uses that use the fuel
+            space_fuel_use = s.exist_fuel_use - s.fuel_other_uses
             
             sim.no_heat_pump_use = True
             sim.calculate()
@@ -170,7 +175,8 @@ class HP_model:
         sim.ua_true_up = ua_true_up
         s.ua_true_up = ua_true_up
         
-        # Run the base case with no heat pump and record energy results
+        # Run the base case with no heat pump and record energy results.
+        # This model only models the space heating end use.
         sim.no_heat_pump_use = True
         sim.calculate()
         s.df_mo_en_base = sim.monthly_results()
@@ -228,14 +234,19 @@ class HP_model:
         # cost function that will be applied to each row of the cost DataFrame
         cost_func = lambda r: elec_cost_calc.monthly_cost(r.elec_kwh, r.elec_kw)
 
+        # The electricity use in the base case
         dfb['elec_kwh'] =  pat_use
+
         # rough estimate of a base demand: not super critical, as the demand rate 
         # structure does not have blocks.  Assume a load factor of 0.4
         dfb['elec_kw'] = dfb.elec_kwh / 730.0 / 0.4
         dfb['elec_dol'] = dfb.apply(cost_func, axis=1)
 
-        # Now fuel
-        dfb['secondary_fuel_units'] = s.df_mo_en_base.secondary_fuel_units
+        # Now fuel use by month.  Remember that the home heat model only looked at
+        # space heating, so we need to add in the fuel use from the other end uses
+        # that use this fuel.
+        dfb['secondary_fuel_units'] = s.df_mo_en_base.secondary_fuel_units + \
+            s.fuel_other_uses / 12.0
         dfb['secondary_fuel_dol'] = dfb.secondary_fuel_units * s.exist_unit_fuel_cost * (1. + s.sales_tax)
 
         # Total Electric + space heat
@@ -248,8 +259,9 @@ class HP_model:
         dfh['elec_kw'] =  dfb['elec_kw'] + s.df_mo_en_hp.hp_kw
         dfh['elec_dol'] = dfh.apply(cost_func, axis=1)
 
-        # Now fuel
-        dfh['secondary_fuel_units'] = s.df_mo_en_hp.secondary_fuel_units
+        # Now fuel, including other end uses using the heating fuel
+        dfh['secondary_fuel_units'] = s.df_mo_en_hp.secondary_fuel_units + \
+            s.fuel_other_uses / 12.0
         dfh['secondary_fuel_dol'] = dfh.secondary_fuel_units * s.exist_unit_fuel_cost * (1. + s.sales_tax)
 
         # Total Electric + space heat
