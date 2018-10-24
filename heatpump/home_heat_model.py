@@ -185,7 +185,7 @@ class HomeHeatModel(object):
         dfh['hp_kwh'] = dfh.hp_load_mmbtu / dfh.cop / 0.003412
         dfh['secondary_fuel_mmbtu'] = dfh.secondary_load_mmbtu / s.exist_heat_effic
         dfh['secondary_kwh'] = dfh.secondary_load_mmbtu * s.exist_kwh_per_mmbtu  # auxiliary electric use
-        
+
         # Store annual and monthly totals.
         # Annual totals is a Pandas Series.
         total_cols = ['hp_load_mmbtu', 'secondary_load_mmbtu', 'hp_kwh', 'secondary_fuel_mmbtu', 'secondary_kwh']

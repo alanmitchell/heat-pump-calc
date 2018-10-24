@@ -312,3 +312,5 @@ class HP_model:
         s.summary['elec_use_chg'] = ann_chg.elec_kwh
         s.summary['elec_rate_avg_base'] = ann_base.elec_dol / ann_base.elec_kwh
         s.summary['elec_rate_avg_hp'] = ann_hp.elec_dol / ann_hp.elec_kwh
+        s.summary['elec_rate_incremental'] = (ann_hp.elec_dol - ann_base.elec_dol) / (ann_hp.elec_kwh - ann_base.elec_kwh)
+    

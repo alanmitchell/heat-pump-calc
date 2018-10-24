@@ -119,6 +119,17 @@ def create_results(input_values):
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
+    smy['fuel_price'] = inputs['exist_unit_fuel_cost']
+    md_tmpl = dedent('''
+    #### Electricity and Fuel Prices
+
+    The average cost for the *additional* electricity needed for the heat pump was 
+    was **${elec_rate_incremental:.4f}/kWh**.  This accounts for any block rates, and 
+    PCE limits that may be present. The heating fuel price used in the model was 
+    **${fuel_price:.4g}/{fuel_unit}**.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
     md_tmpl = dedent('''
     #### Greenhouse Gas Emissions
 
@@ -509,6 +520,44 @@ def create_results(input_values):
         ),
         config=my_config,
         id='gph-6',
+    )
+    comps.append(gph)
+
+    md_tmpl = dedent('''
+    ##### Monthly Heat Pump Peak Demand
+
+    This graph shows the maximum electrical demand of the heat pump in each
+    month of the year.  Units are kilowatts are reflective of the point during
+    the month when the heat pumps electrical draw is at its maximum.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+    peak_demand = [go.Scatter(
+        x=df_mo_en_hp.index,
+        y=df_mo_en_hp.hp_kw, 
+        name='Peak Demand',
+        mode='lines+markers',
+        hoverinfo='y',
+    )]
+
+    layout = go.Layout(
+        title='Monthly Heat Pump Peak Demand, kW',
+        xaxis=dict(title='Month', fixedrange=True,),
+        yaxis=dict(
+            title='Peak Demand, kW', 
+            hoverformat=',.2f',
+            fixedrange=True,
+        ),
+        hovermode= 'closest',
+    )
+
+    gph = dcc.Graph(
+        figure=go.Figure(
+            data=peak_demand,
+            layout=layout,
+        ),
+        config=my_config,
+        id='gph-7',
     )
     comps.append(gph)
 
