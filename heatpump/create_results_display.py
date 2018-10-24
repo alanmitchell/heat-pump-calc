@@ -126,7 +126,7 @@ def create_results(input_values):
     The average cost for the *additional* electricity needed for the heat pump was 
     was **${elec_rate_incremental:.4f}/kWh**.  This accounts for any block rates, and 
     PCE limits that may be present. The heating fuel price used in the model was 
-    **${fuel_price:.4g}/{fuel_unit}**.
+    **${fuel_price:.4g}/{fuel_unit}**.  These values include sales taxes.
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
@@ -148,7 +148,7 @@ def create_results(input_values):
     The graph below shows how the heat pump project impacts cash flow in each of the years
     during the life of the heat pump.  Negative, red, values indicate a net outflow of cash
     due to installing the heat pump, and positive, black, values indicate an net inflow of
-    cash due to the heat pump installation.
+    cash due to the heat pump installation.  All values  in this section include sales taxes.
     # ''')))
 
     # Cash Flow Graph

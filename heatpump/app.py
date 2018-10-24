@@ -18,6 +18,7 @@ import numpy as np
 from . import library as lib
 from . import ui_helper
 from . import create_results_display
+from .utils import chg_nonnum
 
 app = dash.Dash(__name__)
 server = app.server             # this is the underlying Flask app
@@ -553,6 +554,16 @@ def set_capital_cost(zones, city_id):
         # Assume highest level (level 5) is 1.6 x lowest level.
         cost_mult = 1.6 ** 0.25
         return round(cost * cost_mult ** (cost_level - 1), 0)
+
+@app.callback(Output('sales_tax', 'value'),
+    [Input('city_id', 'value')])
+def set_sales_tax(city_id):
+    if city_id is None:
+        raise PreventUpdate
+    city = lib.city_from_id(city_id)
+    sales_tax = chg_nonnum(city.MunicipalSalesTax, 0.0) + chg_nonnum(city.BoroughSalesTax, 0.0)
+    sales_tax = round(sales_tax * 100.0, 1)  # express in % and round to nearest 0.1%
+    return sales_tax
 
 # -------------- Callbacks Related to Calculation Mechanics --------------
 
