@@ -9,6 +9,7 @@ import pandas as pd
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
+from plotly import tools
 
 from . import ui_helper
 from . import hp_model
@@ -61,6 +62,7 @@ def create_results(input_values):
 
     # Add some items and adjust some in the summary dictionary
     smy['npv_abs'] =  abs(smy['npv'])
+    smy['npv_fmt'] = '${:,.0f}'.format(smy['npv']).replace('$-', '-$')   # formatted version of NPV
     smy['irr'] *= 100.   # convert to %
     smy['fuel_savings'] = -smy['fuel_use_chg']
     smy['npv_indicator'] = 'earn' if smy['npv'] >= 0 else 'lose'
@@ -68,10 +70,10 @@ def create_results(input_values):
     smy['co2_driving_miles_saved_life'] = smy['co2_driving_miles_saved'] * inputs['hp_life']
 
     md_tmpl = dedent('''
-    #### Net Present Value:  **\${npv:,.0f}**
+    #### Net Present Value:  **{npv_fmt}**
 
     The Net Present Value of installing an air-source heat pump is estimated to 
-    be **\${npv:,.0f}**. This means that over the course of the life of the equipment you 
+    be **{npv_fmt}**. This means that over the course of the life of the equipment you 
     will {npv_indicator} a total of **\${npv_abs:,.0f}** in today's dollars.
     ''')
 
@@ -127,7 +129,6 @@ def create_results(input_values):
 
     ---
     ''')
-
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
     comps.append(dcc.Markdown(dedent('''
@@ -262,12 +263,277 @@ def create_results(input_values):
     dfc.index.name = 'Year'
     comps.append(generate_table(dfc))
 
-    comps.append(dcc.Markdown('### Results by Month'))
+    comps.append(dcc.Markdown('.\n\n### Results by Month'))
 
-    comps.append(dcc.Markdown('##### Monthly Energy Cost Impact Graph Here'))
-    comps.append(dcc.Markdown('##### Monthly Load Graph Here'))
-    comps.append(dcc.Markdown('##### Monthly Electricity & Fuel, before/after, Graph Here'))
-    comps.append(dcc.Markdown('##### Monthly COP Graph Here'))
-    comps.append(dcc.Markdown('##### Markdown with Other Energy Impacts (Design Heating, etc)'))
+    md_tmpl = dedent('''
+    ##### Monthly Energy Cost Impacts
+
+    This graph shows how the building's monthly energy costs change due to
+    the heat pump.  Both electricity costs and fuel costs are included.  
+    The dots show the current level of energy cost prior to
+    installing the heat pump.  If the heat pump lowers energy cost in the month,
+    a green bar drops from the dot down to the new level of energy cost for the
+    month.  If the heat pump raises costs in the month (e.g. the added electricity
+    cost is more than the fuel cost savings), a red bar extends from the current
+    cost dot to the new, higher, energy cost level.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+    # calculate the change in dollars between the base scenario and the heat
+    # pump scenario.
+    df_mo_dol_chg = df_mo_dol_hp - df_mo_dol_base
+
+    df_mo_dol_chg['cost_savings'] = np.where(
+        df_mo_dol_chg.total_dol < 0.0,
+        -df_mo_dol_chg.total_dol,
+        0.0
+    )
+
+    # Note: we make these negative values so bars extend downwards
+    df_mo_dol_chg['cost_increases'] = np.where(
+        df_mo_dol_chg.total_dol >= 0.0,
+        -df_mo_dol_chg.total_dol,
+        0.0
+    )
+
+    hp_cost = go.Bar(
+        x=df_mo_dol_hp.index,
+        y=df_mo_dol_hp.total_dol,
+        name='', 
+        marker=dict(color='#377eb8'),
+        hoverinfo = 'y',
+    )
+
+    cost_savings = go.Bar(
+        x=df_mo_dol_chg.index,
+        y=df_mo_dol_chg.cost_savings,
+        name='Cost Savings',
+        marker=dict(color='#4daf4a'),
+        hoverinfo = 'y',
+    )
+
+    cost_increases = go.Bar(
+        x=df_mo_dol_chg.index,
+        y=df_mo_dol_chg.cost_increases,
+        name='Cost Increases',
+        marker=dict(color='#e41a1c'),
+        hoverinfo = 'y',
+    )
+
+    no_hp_costs = go.Scatter(
+        x=df_mo_dol_base.index,
+        y=df_mo_dol_base.total_dol,
+        name='Baseline Energy Costs',
+        mode='markers',
+        marker=dict(color='#000000', size=12),
+        hoverinfo = 'y',
+    )
+
+    layout = go.Layout(
+        title='Energy Costs: Heat Pump vs. Baseline',
+        xaxis=dict(title='Month', fixedrange=True,),
+        yaxis=dict(
+            title='Total Energy Costs', 
+            hoverformat='$,.0f',
+            fixedrange=True,
+            tickformat='$,.0f',
+        ),
+        barmode='stack',
+        hovermode= 'closest',
+    )
+
+    gph = dcc.Graph(
+        figure=go.Figure(
+            data=[hp_cost, cost_savings, cost_increases, no_hp_costs],
+            layout=layout,
+        ),
+        config=my_config,
+        id='gph-3',
+    )
+    comps.append(gph)
+
+    md_tmpl = dedent('''
+    ##### Monthly Space Heating Load
+
+    This graph shows how the space heating load of the building varies
+    across the months.  The units are total MMBtu of heating load placed
+    on the building's heating system.  Not all of this load may be served
+    by the heat pump, due to heat distribution and capacity limitations of
+    the heat pump.  This figure does *not* include Domestic Hot Water or any
+    other uses of the fuel used for heating.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+    data = [go.Bar(
+        x=df_mo_en_base.index,
+        y=df_mo_en_base.secondary_load_mmbtu, 
+        name='Monthly Heating Load',
+        hoverinfo='y',
+    )]
+
+    layout = go.Layout(
+        title='Monthly Space Heating Load',
+        xaxis=dict(title='Month', fixedrange=True,),
+        yaxis=dict(
+            title='Estimated Space Heating Load, MMBtu', 
+            hoverformat=',.1f',
+            fixedrange=True,
+        ),
+        hovermode= 'closest',
+    )
+
+    gph = dcc.Graph(
+        figure=go.Figure(
+            data=data,
+            layout=layout,
+        ),
+        config=my_config,
+        id='gph-4',
+    )
+    comps.append(gph)
+
+    md_tmpl = dedent('''
+    ##### Monthly Electricity and Fuel, Before/After
+
+    This graph shows electricity use before and after installation of the heat pump.  Also, 
+    fuel use is compared before and after.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+    elec_no_hp = go.Scatter(
+        x=df_mo_dol_base.index,
+        y=df_mo_dol_base.elec_kwh,
+        name='Monthly kWh (no Heat Pump)',
+        line=dict(
+            color='#92c5de',
+            width=2,
+            dash='dash'
+        ),
+        hoverinfo='y',
+    )
+
+    elec_w_hp = go.Scatter(
+        x=df_mo_dol_hp.index,
+        y=df_mo_dol_hp.elec_kwh,
+        name='Monthly kWh (with Heat Pump)',
+        mode='lines+markers',
+        marker=dict(color='#0571b0'),
+        hoverinfo='y',
+    )
+
+    fuel_no_hp = go.Scatter(
+        x=df_mo_dol_base.index,
+        y=df_mo_dol_base.secondary_fuel_units,
+        name='Monthly Fuel Usage (no Heat Pump)',
+        line=dict(color='#f4a582',
+            width=2,
+            dash='dash',
+        ),
+        hoverinfo='y',
+    )
+
+    fuel_w_hp = go.Scatter(
+        x=df_mo_dol_hp.index,
+        y=df_mo_dol_hp.secondary_fuel_units,
+        name='Monthly Fuel Usage (with Heat Pump)',
+        mode='lines+markers',
+        marker=dict(color='#ca0020'),
+        hoverinfo='y',
+    )
+
+    fig = tools.make_subplots(rows=2, cols=1)
+
+    fig.append_trace(elec_no_hp, 1, 1)
+    fig.append_trace(elec_w_hp, 1, 1)
+    fig.append_trace(fuel_no_hp, 2, 1)
+    fig.append_trace(fuel_w_hp, 2, 1)
+
+    fig['layout'].update(title='Energy Usage: Heat Pump vs. Baseline')
+
+    fig['layout']['xaxis1'].update(title='Month', fixedrange=True)
+    fig['layout']['xaxis2'].update(title='Month', fixedrange=True)
+    fig['layout']['yaxis1'].update(
+        title='Electricity Use (kWh)', 
+        hoverformat=',.0f',
+        fixedrange=True,
+    )
+    yaxis2_title = 'Heating Fuel Use (%s)' % (smy['fuel_unit'])
+    fig['layout']['yaxis2'].update(
+        title=yaxis2_title, 
+        hoverformat='.3g',
+        fixedrange=True,
+    )
+    fig['layout']['hovermode'] = 'closest'
+
+    gph = dcc.Graph(
+        figure=fig,
+        config=my_config,
+        id='gph-5',
+    )
+    comps.append(gph)
+
+    md_tmpl = dedent('''
+    ##### Monthly Heat Pump Efficiency
+
+    This graph shows the efficiency of the heat pump in each month.  Heat Pump
+    efficiency is measured as "COP"(Coefficient of Performance).  A COP of 2.5
+    means 250% efficient, as compared to electric resistance heat, which is 100%
+    efficient.  The heat pump's efficiency improves as the temperature outside
+    warms.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+    efficiency = [go.Scatter(
+        x=df_mo_en_hp.index,
+        y=df_mo_en_hp.cop, 
+        name='COP',
+        mode='lines+markers',
+        hoverinfo='y',
+    )]
+
+    layout = go.Layout(
+        title='Monthly Heat Pump Efficiency, COP',
+        xaxis=dict(title='Month', fixedrange=True,),
+        yaxis=dict(
+            title='COP', 
+            hoverformat=',.2f',
+            fixedrange=True,
+        ),
+        hovermode= 'closest',
+    )
+
+    gph = dcc.Graph(
+        figure=go.Figure(
+            data=efficiency,
+            layout=layout,
+        ),
+        config=my_config,
+        id='gph-6',
+    )
+    comps.append(gph)
+
+    # Design Heat Load Info
+
+    if smy['max_hp_reached']:
+        smy['max_hp_str'] = '*did* deliver its maximum output capacity at some'
+    else:
+        smy['max_hp_str'] =  '*did not* need to deliver its maximum output capacity at any'
+
+    md_tmpl = dedent('''
+    ##### Design Heating Load Information
+
+    An approximate estimate of the design space heating load of this building is
+    **{design_heat_load:,.0f} Btu/hour**, not including any domestic hot water load.
+    This was based on a Design Outdoor Temperature of **{design_heat_temp:.1f} °F**; 
+    approximately 1% of the hours in the year (88 hours) will be colder than this 
+    temperature. The design heating load figure does *not* include any safety margin
+    and is measured at the output of the heating system.
+
+    The heat pump is estimated to have an output of **{hp_max_capacity_5F:,.0f} Btu/hour at a 5 °F**
+    outdoor temperature.  The heat pump will have different maximum output capacities at other
+    outdoor temperatures, as the heat pump's efficiency varies with outdoor temperature.
+    This energy model shows that the heat pump {max_hp_str} point during the year.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
     return comps
