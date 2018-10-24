@@ -180,6 +180,13 @@ class HomeHeatModel(object):
         dfh['hp_load_mmbtu'] = np.array(hp_load) / 1e6
         dfh['secondary_load_mmbtu'] = np.array(secondary_load) / 1e6
 
+        # reduce the secondary load to account for the heat produced by the auxiliary electricity
+        # use.
+        # convert the auxiliary heat factor for the secondary heating system into an
+        # energy ratio of aux electricity energy to heat delivered.
+        aux_ratio = s.exist_kwh_per_mmbtu * 0.003412
+        dfh['secondary_load_mmbtu'] /= (1.0 + aux_ratio)
+
         # using array operations, calculate kWh use by the heat pump and 
         # the Btu use of secondary system.
         dfh['hp_kwh'] = dfh.hp_load_mmbtu / dfh.cop / 0.003412
