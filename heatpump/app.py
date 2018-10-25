@@ -122,8 +122,9 @@ app.layout = html.Div(className='container', children=[
     
     html.H1('Alaska Mini-Split Heat Pump Calculator'),
     html.H2('------- UNDER CONSTRUCTION - Not Usable -------'),
+    html.Img(id='sponsors', alt='sponsors: Northwest Arctic Borough, Homer Electric, Alaska Energy Authority, AHFC, NANA, NAB, Tagiugmiullu Nunamiullu Housing Authority, AVEC, Alaska Power & Telephone',src='https://raw.githubusercontent.com/alanmitchell/heat-pump-calc/master/heatpump/assets/sponsors.png'),
     html.P('Explanation here of what the Calculator does. Credits and logos of sponsoring organizations.'),
-
+   
     LabeledSection('General', [
         LabeledInput('Building Name', 'bldg_name', size=50),
         html.P('Enter in any Notes you want to be shown when you print this page.'),
