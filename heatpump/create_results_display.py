@@ -119,14 +119,13 @@ def create_results(input_values):
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
-    smy['fuel_price'] = inputs['exist_unit_fuel_cost']
     md_tmpl = dedent('''
     #### Electricity and Fuel Prices
 
     The average cost for the *additional* electricity needed for the heat pump was 
     was **${elec_rate_incremental:.4f}/kWh**.  This accounts for any block rates, and 
-    PCE limits that may be present. The heating fuel price used in the model was 
-    **${fuel_price:.4g}/{fuel_unit}**.  These values include sales taxes.
+    PCE limits that may be present. The fuel price for the fuel saved was 
+    **${fuel_price_incremental:.4g}/{fuel_unit}**.  These values include sales taxes.
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
@@ -368,20 +367,29 @@ def create_results(input_values):
     ##### Monthly Space Heating Load
 
     This graph shows how the space heating load of the building varies
-    across the months.  The units are total MMBtu of heating load placed
+    across the months, and it shows what portion of that load is served by
+    the heat pump versus the existing heating system.  The units are total 
+    MMBtu of heating load placed
     on the building's heating system.  Not all of this load may be served
     by the heat pump, due to heat distribution and capacity limitations of
-    the heat pump.  This figure does *not* include Domestic Hot Water or any
+    the heat pump. This figure does *not* include Domestic Hot Water or any
     other uses of the fuel used for heating.
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
-    data = [go.Bar(
-        x=df_mo_en_base.index,
-        y=df_mo_en_base.secondary_load_mmbtu, 
-        name='Monthly Heating Load',
+    hp_load = go.Bar(
+        x=df_mo_en_hp.index,
+        y=df_mo_en_hp.hp_load_mmbtu, 
+        name='Heat Pump Load',
         hoverinfo='y',
-    )]
+    )
+
+    exist_load = go.Bar(
+        x=df_mo_en_hp.index,
+        y=df_mo_en_hp.secondary_load_mmbtu, 
+        name='Load on Existing System',
+        hoverinfo='y',
+    )
 
     layout = go.Layout(
         title='Monthly Space Heating Load',
@@ -391,12 +399,13 @@ def create_results(input_values):
             hoverformat=',.1f',
             fixedrange=True,
         ),
+        barmode='stack',
         hovermode= 'closest',
     )
 
     gph = dcc.Graph(
         figure=go.Figure(
-            data=data,
+            data=[hp_load, exist_load],
             layout=layout,
         ),
         config=my_config,
