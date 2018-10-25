@@ -24,3 +24,7 @@ i {
 td {
     padding: 6px 10px;
 }
+
+#sponsors {
+    max-width: 100%;
+}
