@@ -225,7 +225,7 @@ app.layout = html.Div(className='container', children=[
         html.Br(),
         LabeledSlider(app, 'Heating Temperature Setpoint:', 'indoor_heat_setpoint',
                       60, 80, '°F',
-                      mark_gap=5, step=1, value=71),
+                      mark_gap=5, step=1, value=70),
     ]),
     LabeledSection('Heat Pump Info', [
         
