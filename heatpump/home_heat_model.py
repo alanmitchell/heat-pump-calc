@@ -20,6 +20,7 @@ class HomeHeatModel(object):
                  bldg_floor_area,
                  indoor_heat_setpoint,
                  insul_level,             # 1 - 2x4, 2 - 2x6, 3 - better than 2x6 Walls
+                 indoor_high_mount,
                  pct_exposed_to_hp,
                  doors_open_to_adjacent,
                  bedroom_temp_tolerance,     # 1 - no temp drop in back rooms, 2 - 4 deg F cooler, 10 deg F cooler
@@ -29,7 +30,6 @@ class HomeHeatModel(object):
                  hp_only=False,           # when using heat pump, it's the only heat source for home
                  no_heat_pump_use=False,  # If True, models existing heating system alone.
                  ua_true_up=1.0,          # used to true up calculation to actual fuel use
-                 **kwargs
                 ):
         
         # Store all of these input parameters as object attributes
@@ -106,9 +106,16 @@ class HomeHeatModel(object):
         hp_is_running = lambda x: (x.min() > self.low_temp_cutoff)
         dfh['running'] = dfh.groupby('day_of_year')['db_temp'].transform(hp_is_running)
 
-        # Determine a heat pump COP for each hour
-        # ** NEED TO ADJUST FOR INDOOR SETPOINT and MOUNTING LOCATION OF INDOOR UNITS 
-        cop_interp = np.interp(dfh.db_temp, 
+        # Determine a heat pump COP for each hour. To adjust for the actual indoor
+        # setpoint and adjust for the mounting height of the indoor units, adjust the
+        # outdoor temperature before applying the COP vs. Outdoor Temperature curve.
+        # The COP curve is estimated to be based on a 70 deg F indoor temperature and
+        # high mounting of the indoor units.  Give a 2.5 deg F credit for low mounting of
+        # the indoor units.
+        out_t_adj = (70.0 - s.indoor_heat_setpoint)
+        if s.indoor_high_mount == False:
+            out_t_adj += 2.5
+        cop_interp = np.interp(dfh.db_temp + out_t_adj, 
                                HomeHeatModel.TEMPS_FIT, 
                                HomeHeatModel.COPS_FIT)
         dfh['cop'] = cop_interp * self.hp_model.hspf / HomeHeatModel.BASE_HSPF
