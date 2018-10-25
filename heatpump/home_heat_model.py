@@ -51,24 +51,41 @@ class HomeHeatModel(object):
     
     # ------- Data needed for calculation of COP vs. Temperature
     
-    # Piecewise linear COP vs. outdoor temperature.
+    # Piecewise linear COP vs. outdoor temperature.  See the notebook at
+    # https://github.com/alanmitchell/heat-pump-study/blob/master/general/cop_vs_temp.ipynb
+    # for derivation of this curve.  It is based on averaging a number of field studies
+    # of heat pump performance.
     COP_vs_TEMP = (
-        (-20.0, 1.1),
-        (0.0, 2.0),
-        (10.0, 2.2),
-        (15.0, 2.3),
-        (20.0, 2.5),
-        (25.0, 2.7),
-        (30.0, 2.8),
-        (40.0, 3.0),
-        (50.0, 3.2)
+        (-20.0, 0.66),
+        (-14.0, 1.11),
+        (-10.0, 1.41),
+        (-6.2, 1.54),
+        (-1.9, 1.67),
+        (2.0, 1.76),
+        (6.0, 1.89),
+        (10.8, 2.04),
+        (14.2, 2.15),
+        (18.1, 2.26),
+        (22.0, 2.37),
+        (25.7, 2.46),
+        (29.9, 2.50),
+        (34.5, 2.71),
+        (38.1, 2.88),
+        (41.8, 3.00),
+        (46.0, 3.10),
+        (50.0, 3.23),
+        (54.0, 3.32),
+        (58.0, 3.43),
+        (61.0, 3.51),
     )
 
     # convert to separate lists of temperatures and COPs
     TEMPS_FIT, COPS_FIT = tuple(zip(*COP_vs_TEMP))
 
-    # The HSPF value that this curve is associated with
-    BASE_HSPF = 13.3
+    # The HSPF value that this curve is associated with.  This is the average of the HSPFs
+    # for the studies used to create the above COP vs. Temperature curve.  See the above 
+    # referenced Jupyter notebook for more details.
+    BASE_HSPF = 11.33
     
     # -------------- OTHER CONSTANTS ---------------
     
@@ -113,7 +130,13 @@ class HomeHeatModel(object):
         cop_interp = np.interp(dfh.db_temp + out_t_adj, 
                                HomeHeatModel.TEMPS_FIT, 
                                HomeHeatModel.COPS_FIT)
-        dfh['cop'] = cop_interp * self.hp_model.hspf / HomeHeatModel.BASE_HSPF
+
+        # Adjust this COP according to the HSPF of this unit as compared to the 
+        # average HSPF of the units used to determine the COP vs. Temperature
+        # curve.  Because of the weak correlation of HSPF to actual performance,
+        # the HSPF adjustment here is not linear, but instead dampened by raising
+        # the ratio to the 0.5 power.  This was a judgement call.
+        dfh['cop'] = cop_interp * (self.hp_model.hspf / HomeHeatModel.BASE_HSPF) ** 0.5
 
         # adjustment to UA for insulation level.  My estimate, accounting
         # for better insulation *and* air-tightness as you move up the 

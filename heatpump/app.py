@@ -296,13 +296,13 @@ app.layout = html.Div(className='container', children=[
 
     LabeledSection('Economic Inputs', [
 
+        LabeledSlider(app, 'Sales Tax:', 'sales_tax',
+                    0, 10, '%',
+                    'Select your city/state sales tax.  This will be applied to the heat pump installed cost and to electricity and fuel prices',
+                    mark_gap=1, step=0.1, value=0.0),
         html.Details(style={'maxWidth': 550}, children=[
             html.Summary('Click Here to change Advanced Economic Inputs'),
             html.Div(style={'marginTop': '3rem'}, children=[
-                LabeledSlider(app, 'Sales Tax:', 'sales_tax',
-                            0, 10, '%',
-                            'Select your city/state sales tax.  This will be applied to the heat pump installed cost and to electricity and fuel prices',
-                            mark_gap=1, step=0.1, value=0),                            
                 LabeledSlider(app, 'General Inflation Rate:', 'inflation_rate',
                             0, 6, '%/year',
                             'Select the overall inflation rate of goods and services in this community.',
@@ -555,7 +555,7 @@ def set_capital_cost(zones, city_id):
     [Input('city_id', 'value')])
 def set_sales_tax(city_id):
     if city_id is None:
-        raise PreventUpdate
+        return 0.0
     city = lib.city_from_id(city_id)
     sales_tax = chg_nonnum(city.MunicipalSalesTax, 0.0) + chg_nonnum(city.BoroughSalesTax, 0.0)
     sales_tax = round(sales_tax * 100.0, 1)  # express in % and round to nearest 0.1%
