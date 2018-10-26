@@ -110,6 +110,11 @@ HP_ZONES = (
     ('Multi Zone: 4 zones installed', 4),
 )
 
+OPEN_DOORS = (
+    ('Open Doors', True),
+    ('Closed Doors', False),
+)
+
 TEMPERATURE_TOLERANCE = (
     ('Bedrooms must be kept at nearly the Same Temperature as Main Spaces', 'low'),
     ('Bedrooms can be as much as 5 degrees Cooler than Main Spaces', 'med'),
@@ -286,7 +291,7 @@ app.layout = html.Div(className='container', children=[
         LabeledRadioItems('Are Doors typically open to the Rooms adjacent to Spaces where the Heat Pump Indoor Units are Mounted?',
                 'doors_open_to_adjacent', 
                 'For those rooms that are adjacent to the spaces where the Heat Pump Indoor Units are located, are the doors generally left open to those spaces?  These normally would be bedrooms and bathrooms.',
-                options=make_options(YES_NO), value=False,
+                options=make_options(OPEN_DOORS), value=False,
                 max_width=600, labelStyle={'display': 'inline-block'})
     ]),
 

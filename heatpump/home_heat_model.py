@@ -4,6 +4,32 @@ import numpy as np
 
 from . import library as lib
 
+def temp_depression(ua_per_ft2, 
+                    balance_point, 
+                    outdoor_temp,
+                    doors_open):
+    """Function returns the number of degrees F cooler that the bedrooms are
+    relative to the main space, assuming no heating system heat is directly
+    provided to bedrooms.  Bedrooms are assumed to be adjacent to the main
+    space that is heated directly by a heating system.  This function can be
+    used for other rooms that are adjacent to the main space and not directly
+    heated.
+    See https://github.com/alanmitchell/heat-pump-study/blob/master/general/bedroom_temp_depression.ipynb
+    for derivation of the formula.
+    'ua_per_ft2':  is the heat loss coefficient per square foot of floor area
+        for the building.  It is measured as Btu/hour/deg-F/ft2
+    'balance_point': is the balance point temperature (deg F) for the building; an outdoor
+        temperature above which no heat needs to be supplied to the building.
+    'outdoor_temp': the outdoor temperature, deg F.
+    'doors_open': True if the doors between the main space and the bedroom are open,
+        False if they are closed.
+    """
+
+    r_to_bedroom = 0.424 if doors_open else 1.42
+    temp_delta = balance_point - outdoor_temp
+    temp_depress = temp_delta * r_to_bedroom / (r_to_bedroom + 1.0/ua_per_ft2)
+    return temp_depress
+
 class HomeHeatModel(object):
     
     def __init__(self,
@@ -21,7 +47,7 @@ class HomeHeatModel(object):
                  insul_level,             # 1 - 2x4, 2 - 2x6, 3 - better than 2x6 Walls
                  pct_exposed_to_hp,
                  doors_open_to_adjacent,
-                 bedroom_temp_tolerance,     # 1 - no temp drop in back rooms, 2 - 4 deg F cooler, 10 deg F cooler
+                 bedroom_temp_tolerance,     # low - little temp drop in back rooms,  med - 5 deg F cooler, high - 10 deg F cooler
 
                  # The inputs below are not user inputs, they control the 
                  # calculation process. They are given default values.
@@ -188,11 +214,41 @@ class HomeHeatModel(object):
                 hp_load.append(0.0)
                 secondary_load.append(total_load)
             else:
+                # Build up the possible heat pump load, and then limit it to 
+                # maximum available from the heat pump.
                 max_hp_output = s.hp_model.in_pwr_5F_max * h.cop * 3412.
-                # Nowhere near correct yet.  Just get a calc framework working.
-                hp_ld = min(home_load * s.pct_exposed_to_hp + garage_load * s.garage_heated_by_hp, max_hp_output)
+
+                # Start with all of the load in the spaces exposed to heat pump indoor
+                # units.
+                hp_ld = home_load * s.pct_exposed_to_hp
+
+                # Then, garage load if it is heated by the heat pump 
+                hp_ld += garage_load * s.garage_heated_by_hp
+
+                # For the spaces adjacent to the space heated directly by the heat pump,
+                # first calculate how much cooler those spaces would be without direct
+                # heat.
+                temp_depress = temp_depression(
+                    ua_home / s.bldg_floor_area,
+                    balance_point_home,
+                    h.db_temp,
+                    s.doors_open_to_adjacent
+                )
+                # determine the temp depression tolerance in deg F
+                temp_depress_tolerance = {'low': 2.0, 'med': 5.0, 'high': 10.0}[s.bedroom_temp_tolerance]
+                # if depression is less than this, include the load
+                if temp_depress <= temp_depress_tolerance:
+                    # I'm not diminishing the load here for smaller delta-T.  It's possible
+                    # the same diminished delta-T was present in the base case (point-source
+                    # heating system).  Probably need to refine this.
+                    hp_ld += home_load * (1.0 - s.pct_exposed_to_hp)
+
+                # limit the heat pump load to its capacity at this temperature
+                hp_ld = min(hp_ld, max_hp_output)
+
                 hp_load.append(hp_ld)
                 secondary_load.append(total_load - hp_ld)
+
                 if hp_ld >= max_hp_output * 0.999:
                     # running at within 0.1% of maximum heat pump output.
                     s.max_hp_reached = True
