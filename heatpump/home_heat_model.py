@@ -165,9 +165,11 @@ class HomeHeatModel(object):
         # in the main home and a 5 deg F heating effect in the garage.
         # Adjust the heating effect accordingly for other levels of insulation.
         htg_effect = np.array([10., 10., 10.]) / ua_insul_adj_arr
-        balance_point_home = s.indoor_heat_setpoint - htg_effect[s.insul_level - 1]
-        htg_effect = np.array([5.0, 5.0, 5.0]) / ua_insul_adj_arr  # fewer internal/solar in garage
-        balance_point_garage = HomeHeatModel.GARAGE_HEATING_SETPT - htg_effect[s.insul_level - 1]
+        balance_point_home = s.indoor_heat_setpoint - htg_effect[s.insul_level - 1] / s.ua_true_up
+        # fewer internal/solar in garage
+        htg_effect = np.array([5.0, 5.0, 5.0]) / ua_insul_adj_arr
+        balance_point_garage = HomeHeatModel.GARAGE_HEATING_SETPT - htg_effect[s.insul_level - 1] / s.ua_true_up
+        #print(balance_point_home, s.ua_true_up, s.ua_home)
 
         # BTU loads in the hour for the heat pump and for the secondary system.
         hp_load = []

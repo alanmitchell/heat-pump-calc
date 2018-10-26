@@ -141,7 +141,6 @@ class HP_model:
             s.includes_dryer * 2.15e6 + \
             s.includes_cooking * 0.8e6 \
         ) * s.occupant_count / fuel.btus
-        print(s.fuel_other_uses)
         
         # Match the existing space heating use if it is provided.  Do so by using
         # the UA true up factor.
