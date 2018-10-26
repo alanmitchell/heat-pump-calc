@@ -41,7 +41,6 @@ input_info = [
     ('heat_effic', 'Heating System Efficiency', 'extra'),
     ('heat_effic_slider', 'Custom-entered Heating System Efficiency', 'extra'),
     ('aux_elec', 'Auxiliary Electric Use', 'extra'),
-    ('exist_is_point_source', 'Existing Heating is One Room'),
     ('exist_fuel_use', 'Existing Heating Fuel Use', 'null-ok,float,greater-than-zero'),
     ('elec_use_jan', 'January Electric Use', 'float,greater-than-zero'),
     ('elec_use_may', 'May Electric Use', 'float,greater-than-zero'),

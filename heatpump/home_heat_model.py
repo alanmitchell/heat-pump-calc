@@ -12,7 +12,6 @@ class HomeHeatModel(object):
                  exist_heat_fuel_id,
                  exist_heat_effic,
                  exist_kwh_per_mmbtu,     # Boiler: 5.5, Toyo: 3, Oil Furnace: 8.75 - 15
-                 exist_is_point_source,
                  co2_lbs_per_kwh,
                  low_temp_cutoff,
                  garage_stall_count,
@@ -25,8 +24,7 @@ class HomeHeatModel(object):
                  bedroom_temp_tolerance,     # 1 - no temp drop in back rooms, 2 - 4 deg F cooler, 10 deg F cooler
 
                  # The inputs below are not user inputs, they control the 
-                 # calculation process. They are give default values.
-                 hp_only=False,           # when using heat pump, it's the only heat source for home
+                 # calculation process. They are given default values.
                  no_heat_pump_use=False,  # If True, models existing heating system alone.
                  ua_true_up=1.0,          # used to true up calculation to actual fuel use
                 ):
@@ -182,7 +180,7 @@ class HomeHeatModel(object):
         for h in dfh.itertuples():
             # calculate total heat load for the hour.
             # Really need to recognize that delta-T to outdoors is lower in the adjacent and remote spaces
-            # if there heat pump is the only source of heat.
+            # if there heat pump is the only source of heat. But, I'm saving that for later work.
             home_load = max(0.0, balance_point_home - h.db_temp) * ua_home 
             garage_load = max(0.0, balance_point_garage - h.db_temp) * ua_garage
             total_load = home_load + garage_load
@@ -191,15 +189,10 @@ class HomeHeatModel(object):
                 secondary_load.append(total_load)
             else:
                 max_hp_output = s.hp_model.in_pwr_5F_max * h.cop * 3412.
-                if s.hp_only:
-                    hp_ld = min(home_load + garage_load * s.garage_heated_by_hp, max_hp_output)                    
-                    hp_load.append(hp_ld)
-                    secondary_load.append(total_load - hp_load)
-                else:
-                    # Nowhere near correct yet.  Just get a calc framework working.
-                    hp_ld = min(home_load * s.pct_exposed_to_hp + garage_load * s.garage_heated_by_hp, max_hp_output)
-                    hp_load.append(hp_ld)
-                    secondary_load.append(total_load - hp_ld)
+                # Nowhere near correct yet.  Just get a calc framework working.
+                hp_ld = min(home_load * s.pct_exposed_to_hp + garage_load * s.garage_heated_by_hp, max_hp_output)
+                hp_load.append(hp_ld)
+                secondary_load.append(total_load - hp_ld)
                 if hp_ld >= max_hp_output * 0.999:
                     # running at within 0.1% of maximum heat pump output.
                     s.max_hp_reached = True
