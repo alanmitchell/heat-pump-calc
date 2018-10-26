@@ -127,7 +127,7 @@ app.layout = html.Div(className='container', children=[
     
     html.H1('Alaska Mini-Split Heat Pump Calculator'),
     html.H2('------- UNDER CONSTRUCTION - Not Usable -------'),
-    html.Img(id='sponsors', alt='sponsors: Northwest Arctic Borough, Homer Electric, Alaska Energy Authority, AHFC, NANA, NAB, Tagiugmiullu Nunamiullu Housing Authority, AVEC, Alaska Power & Telephone',src='https://raw.githubusercontent.com/alanmitchell/heat-pump-calc/master/heatpump/assets/sponsors.png'),
+    html.Img(id='sponsors', alt='sponsors: Northwest Arctic Borough, Homer Electric, Alaska Energy Authority, AHFC, NANA, NAB, Tagiugmiullu Nunamiullu Housing Authority, AVEC, Alaska Power & Telephone',src=app.get_asset_url('sponsors.png')),
     html.P('Explanation here of what the Calculator does. Credits and logos of sponsoring organizations.'),
    
     LabeledSection('General', [
@@ -353,7 +353,11 @@ app.layout = html.Div(className='container', children=[
 
     html.Hr(),
 
-    html.P('Some sort of Footer goes here.'),
+    html.Footer(dcc.Markdown('''This calculator was created in partnership with [Analysis North](http://www.analysisnorth.com), [The Cold Climate Housing Research Center](http://cchrc.org), and Arctic Energy Systems. &nbsp;
+	
+The underlying code for this calculator is Open Source and available on [Github](https://github.com/alanmitchell/heat-pump-calc). &nbsp;
+
+Questions and comments may be sent to Alan Mitchell <alan@analysisnorth.com> ''')),
 
     # Storage controls needed for control purposes
 
