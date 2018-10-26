@@ -196,6 +196,7 @@ class HP_model:
         ann_en_hp = s.df_mo_en_hp.sum()
         s.summary['co2_lbs_saved'] = ann_en_base.co2_lbs - ann_en_hp.co2_lbs
         s.summary['co2_driving_miles_saved'] = convert_co2_to_miles_driven(s.summary['co2_lbs_saved'])
+        s.summary['hp_load_frac'] = ann_en_hp.hp_load_mmbtu / (ann_en_hp.hp_load_mmbtu + ann_en_hp.secondary_load_mmbtu)
         
         # Create DataFrames that hold monthly energy cost amounts
         self.calc_monthly_cash()

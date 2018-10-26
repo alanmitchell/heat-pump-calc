@@ -68,6 +68,7 @@ def create_results(input_values):
     smy['npv_indicator'] = 'earn' if smy['npv'] >= 0 else 'lose'
     smy['co2_lbs_saved_life'] = smy['co2_lbs_saved'] * inputs['hp_life']
     smy['co2_driving_miles_saved_life'] = smy['co2_driving_miles_saved'] * inputs['hp_life']
+    smy['hp_load_frac'] *= 100.   # convert to %
 
     md_tmpl = dedent('''
     #### Net Present Value:  **{npv_fmt}**
@@ -98,7 +99,9 @@ def create_results(input_values):
     md_tmpl = dedent('''
     #### Annual Heating Fuel Savings: **{fuel_savings:,.3g} {fuel_unit}** of {fuel_desc}
 
-    This shows how much heating fuel is saved each year by use of the heat pump. 
+    This shows how much heating fuel is saved each year by use of the heat pump. The heat pump
+    achieves these savings by **serving {hp_load_frac:.0f}%** of the building's space heating
+    load.
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
