@@ -125,10 +125,38 @@ TEMPERATURE_TOLERANCE = (
 
 app.layout = html.Div(className='container', children=[
     
-    html.H1('Alaska Mini-Split Heat Pump Calculator'),
-    html.H2('------- UNDER CONSTRUCTION - Not Usable -------'),
-    html.Img(id='sponsors', alt='sponsors: Northwest Arctic Borough, Homer Electric, Alaska Energy Authority, AHFC, NANA, NAB, Tagiugmiullu Nunamiullu Housing Authority, AVEC, Alaska Power & Telephone',src=app.get_asset_url('sponsors.png')),
-    html.P('Explanation here of what the Calculator does. Credits and logos of sponsoring organizations.'),
+    html.H1('Alaska Mini-Split Heat Pump Calculator', style={'text-align': 'center'}),
+    html.Img(id='sponsors', 
+        alt='sponsors: Northwest Arctic Borough, Homer Electric, Alaska Energy Authority, AHFC, NANA, NAB, Tagiugmiullu Nunamiullu Housing Authority, AVEC, Alaska Power & Telephone',
+        src=app.get_asset_url('sponsors.png')
+    ),
+    html.H3('------- Beta Version -------', style={'text-align': 'center'}),
+
+    dcc.Markdown(dedent('''
+    This calculator allows you to evaluate the possible energy and cost savings from use of a
+    [mini-split (ductless) heat pump](https://learn.compactappliance.com/mini-split-heat-pumps/) in
+    an Alaskan home or small building.  Fill out the inputs listed below and then click the
+    "Calculate" button at the bottom of the page to see the results on the analysis.
+    ''')),
+    html.P([
+    'Where you see the question mark symbol ', html.I(className="fas fa-question-circle"), 
+    'additional help for the input is available.  Hover your mouse over the symbol to see the pop-up help.'
+    ]),
+    dcc.Markdown(dedent('''
+    The calculator was primarily built to evaluate retrofitting a mini-split heat pump into
+    an existing home with an existing heating system.  However, it can be used to compare
+    use of a heat pump in a new home to use of a different heating fuel.  To do a fair economic
+    comparison in that situation, for the "Installed Cost of the Heat Pump" input, 
+    enter in the *extra* cost of the heat pump relative to the
+    alternative heating system; this could be a negative number if the heat pump system is
+    less expensive.  This same approach should be used if you are in need of *replacing* your
+    existing heating system; enter the additional cost of the heat pump install relative to 
+    replacing the existing system.
+     
+    The current version of the calculator does not allow you to evaluate the installation of a heat pump in a
+    home that currently uses electric resistance (baseboard) heat.  That feature will be available
+    shortly.
+    ''')),
    
     LabeledSection('General', [
         LabeledInput('Building Name', 'bldg_name', size=50),
@@ -170,7 +198,7 @@ app.layout = html.Div(className='container', children=[
                     ])
             ], id='div-man-adv', style={'display': 'none'}),
             dcc.Checklist(
-                options=[{'label': 'Run Analysis ignoring PCE Assistance', 'value': 'no_pce'}],
+                options=[{'label': 'Run Analysis ignoring PCE Electric Rate Assistance', 'value': 'no_pce'}],
                 values=[],
                 id='no_pce_chks'
             ),
@@ -189,7 +217,7 @@ app.layout = html.Div(className='container', children=[
                 options=make_options(BLDG_TYPE), value='res'),
         LabeledRadioItems('Does the Community typically use all of its Community Building PCE allotment?',
                 'commun_all_pce', 
-                'Select Yes if, in most months, all of the Community Building PCE is used up by the community.  If so, there will be no extra PCE is available for the heat pump kWh.',
+                'Select Yes if, in most months, all of the Community Building PCE is used up by the community.  If so, there will be no extra PCE available for the heat pump kilowatt-hours.',
                 options=make_options(YES_NO), value=True,
                 labelStyle={'display': 'inline-block'}),
         LabeledInput('Building Floor Area, excluding garage (square feet):', 'bldg_floor_area', 
@@ -204,9 +232,9 @@ app.layout = html.Div(className='container', children=[
                 options=make_options(WALL_TYPE), value = '2x6'),
         LabeledDropdown('Select existing Space Heating Fuel type:', 'exist_heat_fuel_id',
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()]),
-        LabeledChecklist('Besides Space Heating, what other Appliances use this Fuel?', 'end_uses_chks',
+        LabeledChecklist('Besides Space Heating, what other Appliances use this Fuel type?', 'end_uses_chks',
                 options=make_options(END_USES), values=[]),
-        LabeledInput('Number of Occupants in Building using Above End Uses:', 'occupant_count',
+        LabeledInput('Number of Occupants in Building using the above Appliances:', 'occupant_count',
                 'people', value=3),
         LabeledInput('Fuel Price Per Unit:', 'exist_unit_fuel_cost'), 
         LabeledRadioItems('Efficiency of Existing Heating System:','heat_effic', max_width=500),
@@ -215,15 +243,15 @@ app.layout = html.Div(className='container', children=[
                     mark_gap=10, step=1, value=80),
         LabeledRadioItems('Auxiliary electricity use (fans/pumps/controls) from existing heating system:', 
                 'aux_elec', 
-                options=make_options(AUX_ELEC_TYPE), value='toyo',
-                help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use by that system.',
+                options=make_options(AUX_ELEC_TYPE), value='boiler',
+                help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use for fans/pumps/controls of that system.',
                 ),
-		LabeledInput('Annual Fuel Use for building including heating and any other uses identified above (Optional, but very helpful!):', 'exist_fuel_use', 
-                help_text='This value is optional and may be left blank. If left blank, size and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
+		LabeledInput('Annual Fuel Use for the building including space heating and any other appliances that use that same fuel. (Optional, but very helpful!):', 'exist_fuel_use', 
+                help_text='This value is optional and may be left blank, but it is a big help in making an accurate estimate of the savings from the heat pump. If left blank, size and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
         LabeledInput('Whole Building Electricity Use (without heat pump) in January:', 'elec_use_jan', 'kWh', 
-                help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
+                help_text="This defaults to the value found for this City, please don't adjust unless you have your utility bill with actual numbers."),
         LabeledInput('Whole Building Electricity Use (without heat pump) in May:', 'elec_use_may', 'kWh', 
-                help_text='This defaults to the value found for this City, please don\'t adjust unless you have your utility bill with actual numbers.'),
+                help_text="This defaults to the value found for this City, please don't adjust unless you have your utility bill with actual numbers."),
         html.Br(),
         LabeledSlider(app, 'Heating Temperature Setpoint:', 'indoor_heat_setpoint',
                       60, 80, '°F',
@@ -232,24 +260,26 @@ app.layout = html.Div(className='container', children=[
     LabeledSection('Heat Pump Info', [
         
         LabeledRadioItems('Type of Heat Pump: Single- or Multi-zone', 'hp_zones',
-                'Select the number of Indoor Units (heads) installed on the Heat Pump.',
+                'Select the number of Indoor Units (heads) you expect to install with the Heat Pump.',
                 options=make_options(HP_ZONES), value=1),
-        LabeledChecklist('Show Most Efficient Units Only?', 'efficient_only',
-                options=[{'label': 'Efficient Only', 'value': 'efficient'}],
+        LabeledChecklist('In the List Below, Show Most Efficient Models Only?', 'efficient_only',
+                options=[{'label': 'Most Efficient Only', 'value': 'efficient'}],
                 values=['efficient']),
         LabeledDropdown('Heat Pump Manufacturer', 'hp_manuf_id',
                 options=[],
                 max_width=300,
                 placeholder='Select Heat Pump Manufacturer'),   
-        LabeledDropdown('Heat Pump Model', 'hp_model_id',
+        LabeledDropdown('Heat Pump Model. See Help Question Mark for detail on Info Presented in the List.', 'hp_model_id',
+                "Shown for each model is the model's heat output at 5 °F Outdoor Temperature; the HSPF, which is a measure of the system's heating efficiency; and model numbers for the system's outdoor and indoor units",
                 options=[],
                 max_width=1000,   # wide as possible
                 placeholder='Select Heat Pump Model',
                 style={'fontSize': 14}),
         LabeledInput('Installed Cost of Heat Pump, $', 'capital_cost', '$', 
-                'Include all equipment and labor costs.', value=4500),
+                'Include all equipment and labor costs.  If this is new construction or your existing heating system needs replacement, only enter the extra cost of the heat pump relative to the alternative heating system.',
+                value=4500),
         LabeledInput('Rebates Received for Heat Pump, $', 'rebate_dol', '$',
-                'Enter the dollar amount of any rebates received for installation of the heat pump.',
+                'Enter the dollar amount of any rebates you will receive for installation of the heat pump.',
                 value=0),
         LabeledSlider(app, '% of Heat Pump Purchase Financed with a Loan', 'pct_financed', 
                 0, 100, '%', 
@@ -264,14 +294,13 @@ app.layout = html.Div(className='container', children=[
                     step=1, value=10),
             LabeledSlider(app, 'Loan Interest Rate', 'loan_interest',
                     0, 12, '%',
-                    'Numbers of Years to pay off Loan.',
                     mark_gap=1, max_width=700,
                     step=0.1, value=4),
         ], id='div-loan', style={'display': 'none'}),
         LabeledSlider(app, 'Heat Pump is Turned Off below this Outdoor Temperature:', 
                 'low_temp_cutoff', 
                 -20, 20, '°F', 
-                'Please enter the lowest outdoor temperature at which the heat pump will continue to operate. The turn off of the heat pump can either be due to technical limits of the heat pump, or due to the homeowner choosing to not run the heat pump in cold temperatures due to poor efficiency.', 
+                'Please enter the lowest outdoor temperature at which the heat pump will be operated. Turning off the heat pump at low temperatures can either be due to technical limits of the heat pump, or due to you choosing to not run the heat pump in cold temperatures due to poor efficiency or low heat output.', 
                 mark_gap=5, step=1, value=5, max_width=600),
         html.Hr(),
         html.P(dedent('''
@@ -282,16 +311,16 @@ app.layout = html.Div(className='container', children=[
         LabeledSlider(app, 'Percentage of the Home that is Openly Exposed to the Heat Pump Indoor Units:', 
                 'pct_exposed_to_hp', 
                 0, 100, '%', 
-                'Include all the rooms that are open to the Indoor Units, but not connected via a door', 
+                'Include all the rooms that are openly exposed to the Indoor Units, not connected through a door.', 
                 max_width=700, mark_gap=10, step=1, value=46),
-        LabeledRadioItems('What is your Tolerance for Cooler Bedroom Temperatures?',
+        LabeledRadioItems('What is your Tolerance for Cooler Bedroom and Back Room Temperatures?',
                 'bedroom_temp_tolerance',
                 options=make_options(TEMPERATURE_TOLERANCE), value='med',
                 max_width=600),
-        LabeledRadioItems('Are Doors typically open to the Rooms adjacent to Spaces where the Heat Pump Indoor Units are Mounted?',
+        LabeledRadioItems('Are Doors typically open to the Bedrooms and Back rooms that do not have a Heat Pump Indoor Unit?',
                 'doors_open_to_adjacent', 
-                'For those rooms that are adjacent to the spaces where the Heat Pump Indoor Units are located, are the doors generally left open to those spaces?  These normally would be bedrooms and bathrooms.',
-                options=make_options(OPEN_DOORS), value=False,
+                'For those rooms that are adjacent to the spaces where the Heat Pump Indoor Units are located, are the doors to those spaces generally left open?',
+                options=make_options(OPEN_DOORS), value=True,
                 max_width=600, labelStyle={'display': 'inline-block'})
     ]),
 
@@ -310,11 +339,11 @@ app.layout = html.Div(className='container', children=[
                             mark_gap=1, step=0.1, value=2),
                 LabeledSlider(app, 'Heating Fuel Price Inflation Rate:', 'fuel_esc_rate',
                             0, 8, '%/year',
-                            'Select the predicted annual increase in the price of the chosen heating fuel at this location.',
+                            'Select the predicted annual increase in the price of the chosen heating fuel at this location.  This rate is a nominal rate *not* adjusted for inflation.',
                             mark_gap=1, step=0.1, value=3),    
                 LabeledSlider(app, 'Electricity Price Inflation Rate:', 'elec_esc_rate',
                             0, 8, '%/year',
-                            'Select the predicted annual increase in the price of electricity at this location.',
+                            'Select the predicted annual increase in the price of electricity at this location.  This rate is a nominal rate *not* adjusted for inflation.',
                             mark_gap=1, step=0.1, value=2),        
                 LabeledSlider(app, 'Discount Rate:', 'discount_rate',
                             3, 12, '%/year',
@@ -326,7 +355,7 @@ app.layout = html.Div(className='container', children=[
                             mark_gap=2, step=1, value=14),    
                 LabeledInput('Increase in the heating systems Operation/Maintenance Cost due to Heat Pump install:', 'op_cost_chg', 
                             '$/year', 
-                            'Enter a positive value if the cost of maintaining the heating systems with the heat pump is higher than the cost of maintaining the previous system.'),
+                            'Enter a positive value if the cost of maintaining the heating systems with the heat pump is higher than the cost of maintaining the previous system.  Enter a negative number if overall O&M costs are expected to decline.'),
             ])
         ])
 
@@ -353,11 +382,13 @@ app.layout = html.Div(className='container', children=[
 
     html.Hr(),
 
-    html.Footer(dcc.Markdown('''This calculator was created in partnership with [Analysis North](http://www.analysisnorth.com), [The Cold Climate Housing Research Center](http://cchrc.org), and Arctic Energy Systems. &nbsp;
-	
-The underlying code for this calculator is Open Source and available on [Github](https://github.com/alanmitchell/heat-pump-calc). &nbsp;
-
-Questions and comments may be sent to Alan Mitchell <alan@analysisnorth.com> ''')),
+    html.Footer(dcc.Markdown(dedent('''
+    This calculator was created by [Analysis North](http://www.analysisnorth.com), 
+    [The Cold Climate Housing Research Center](http://cchrc.org), and Arctic Energy Systems.
+    The underlying code for this calculator is Open Source and available on 
+    [Github](https://github.com/alanmitchell/heat-pump-calc). Questions and comments may be sent 
+    to Alan Mitchell <alan@analysisnorth.com>. 
+    '''))),
 
     # Storage controls needed for control purposes
 
