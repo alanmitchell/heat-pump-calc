@@ -182,7 +182,7 @@ class HP_model:
         sim.calculate()
         s.df_mo_en_hp = sim.monthly_results()
         s.df_hourly = sim.df_hourly
-        
+
         # record design heat load
         s.summary['design_heat_load'], s.summary['design_heat_temp'] = sim.design_heat_load()
         
@@ -284,8 +284,10 @@ class HP_model:
         ann_chg = ann_hp - ann_base
         initial_cost = np.zeros(s.hp_life+1)
         
-        initial_cost[0] = -s.capital_cost * (1 + s.sales_tax) * (1 - s.pct_financed) + s.rebate_dol
-        loan_pmt = np.pmt(s.loan_interest, s.loan_term, s.capital_cost * (1 + s.sales_tax) * s.pct_financed)
+        # Am not automatically adding sales tax to the initial cost as the user was
+        # supposed to includes sales tax in their input.
+        initial_cost[0] = -s.capital_cost * (1 - s.pct_financed) + s.rebate_dol
+        loan_pmt = np.pmt(s.loan_interest, s.loan_term, s.capital_cost * s.pct_financed)
         loan_cost = [0.0] + [loan_pmt] * s.loan_term + [0.0] * (s.hp_life -  s.loan_term)
         loan_cost = np.array(loan_cost)
         op_cost = -s.op_cost_chg * make_pattern(s.inflation_rate, s.hp_life)

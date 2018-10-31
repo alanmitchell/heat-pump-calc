@@ -275,8 +275,8 @@ app.layout = html.Div(className='container', children=[
                 max_width=1000,   # wide as possible
                 placeholder='Select Heat Pump Model',
                 style={'fontSize': 14}),
-        LabeledInput('Installed Cost of Heat Pump, $', 'capital_cost', '$', 
-                'Include all equipment and labor costs.  If this is new construction or your existing heating system needs replacement, only enter the extra cost of the heat pump relative to the alternative heating system.',
+        LabeledInput('Installed Cost of Heat Pump (include applicable sales tax), $', 'capital_cost', '$', 
+                'Include all equipment, labor, and applicable sales tax costs.  If this is new construction or your existing heating system needs replacement, only enter the extra cost of the heat pump relative to the alternative heating system.',
                 value=4500),
         LabeledInput('Rebates Received for Heat Pump, $', 'rebate_dol', '$',
                 'Enter the dollar amount of any rebates you will receive for installation of the heat pump.',
@@ -328,7 +328,7 @@ app.layout = html.Div(className='container', children=[
 
         LabeledSlider(app, 'Sales Tax:', 'sales_tax',
                     0, 10, '%',
-                    'Select your city/state sales tax.  This will be applied to the heat pump installed cost and to electricity and fuel prices',
+                    'Select your city/state sales tax.  This will be applied to the electricity and fuel prices',
                     mark_gap=1, step=0.1, value=0.0),
         html.Details(style={'maxWidth': 550}, children=[
             html.Summary('Click Here to change Advanced Economic Inputs'),
