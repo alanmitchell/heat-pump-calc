@@ -598,4 +598,16 @@ def create_results(input_values):
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
+    comps.append(html.Hr())
+
+    # Debug information
+    debug = html.Details(style={'maxWidth': 550}, children=[
+        html.Summary('Click Here for Debug Output'),
+        html.Div(style={'marginTop': '3rem'}, children=[
+            dcc.Markdown(f"```\n{mod}\n```"),
+        ])
+    ])
+
+    comps.append(debug)
+
     return comps

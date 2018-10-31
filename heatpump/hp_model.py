@@ -1,6 +1,7 @@
 """Provides a class to model the impact of a heat pump on
 energy use and cost.
 """
+from pprint import pformat
 import inspect
 import pandas as pd
 import numpy as np
@@ -89,7 +90,7 @@ class HP_model:
         """
         s = ''
         for attr in self.__dict__:
-            val = repr(self.__dict__[attr])[:1000]
+            val = pformat(self.__dict__[attr])[:1000]
             if len(val)>70:
                 s+=f'\n{attr}:\n{val}\n\n'
             else:

@@ -372,12 +372,6 @@ app.layout = html.Div(className='container', children=[
             id='div-calculating'
         ),
         html.Div(id='div-results'),
-        html.Details(style={'maxWidth': 550, 'marginTop': '3rem'}, children=[
-            html.Summary('Click Here to view Debug Output'),
-            html.Div(style={'marginTop': '3rem'}, children=[
-                dcc.Markdown(id='md-debug'),
-            ]),
-        ]),
     ]),
 
     html.Hr(),
@@ -686,30 +680,6 @@ def update_results(clicks, *args):
     if clicks is None:
         raise PreventUpdate
     return create_results_display.create_results(args)
-
-@app.callback(Output('md-debug', 'children'), 
-    ui_helper.calc_input_objects())
-def debug_output(*args):
-    # Displays debug output
-    _, vars, extra_vars = ui_helper.inputs_to_vars(args)
-
-    # The utility Pandas Series messes up formatting if
-    # left in the vars dictionary.  So pull it out and convert
-    # it to a dictionary before displaying.
-    util = vars.pop('utility', pd.Series()).to_dict()
-
-    return dedent(f'''
-    ```
-    Variables:
-    {pformat(vars)}
-
-    Extra Variables:
-    {pformat(extra_vars)}
-
-    Utility:
-    {pformat(util)}
-    ```
-    ''')
 
 # -------------------------------------- MAIN ---------------------------------------------
 
