@@ -181,6 +181,8 @@ class HP_model:
         sim.no_heat_pump_use = False
         sim.calculate()
         s.df_mo_en_hp = sim.monthly_results()
+        s.df_hourly = sim.df_hourly
+        
         # record design heat load
         s.summary['design_heat_load'], s.summary['design_heat_temp'] = sim.design_heat_load()
         

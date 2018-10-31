@@ -140,10 +140,10 @@ class HomeHeatModel(object):
         dfh['day_of_year'] = dfh.index.dayofyear
         dfh['month'] = dfh.index.month
 
-        # Determine days that the heat pump is running.  Look at the minimum
+        # Determine days that the heat pump is running.  Look at the 20th percentile
         # temperature for the day, and ensure that it is above the low 
         # temperature cutoff.
-        hp_is_running = lambda x: (x.min() > self.low_temp_cutoff)
+        hp_is_running = lambda x: (x.quantile(0.2) > self.low_temp_cutoff)
         dfh['running'] = dfh.groupby('day_of_year')['db_temp'].transform(hp_is_running)
 
         # Determine a heat pump COP for each hour. To adjust for the actual indoor
