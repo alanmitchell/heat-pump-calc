@@ -96,8 +96,14 @@ def create_results(input_values):
         ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
+    # formatted fuel savings
+    if smy['fuel_savings'] < 50:
+        smy['fuel_savings_fmt'] = '{fuel_savings:.2f}'.format(**smy)
+    else:
+        smy['fuel_savings_fmt'] = '{fuel_savings:,.0f}'.format(**smy)
+
     md_tmpl = dedent('''
-    #### Annual Heating Fuel Savings: **{fuel_savings:,.3g} {fuel_unit}** of {fuel_desc}
+    #### Annual Heating Fuel Savings: **{fuel_savings_fmt} {fuel_unit}** of {fuel_desc}
 
     This shows how much heating fuel is saved each year by use of the heat pump. The heat pump
     achieves these savings by **serving {hp_load_frac:.0f}%** of the building's space heating
