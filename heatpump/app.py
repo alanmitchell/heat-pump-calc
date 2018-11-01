@@ -10,7 +10,7 @@ import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from .components import LabeledInput, LabeledSlider, LabeledSection, \
     LabeledDropdown, LabeledRadioItems, LabeledChecklist
@@ -143,6 +143,9 @@ app.layout = html.Div(className='container', children=[
     'additional help for the input is available.  Hover your mouse over the symbol to see the pop-up help.'
     ]),
     dcc.Markdown(dedent('''
+    If you would like to reset all inputs to their default values and start over, click
+    the Refresh button in your web browser.
+
     The calculator was primarily built to evaluate retrofitting a mini-split heat pump into
     an existing home with an existing heating system.  However, it can be used to compare
     use of a heat pump in a new home to use of a different heating fuel.  To do a fair economic
@@ -234,8 +237,10 @@ app.layout = html.Div(className='container', children=[
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()]),
         LabeledChecklist('Besides Space Heating, what other Appliances use this Fuel type?', 'end_uses_chks',
                 options=make_options(END_USES), values=[]),
-        LabeledInput('Number of Occupants in Building using the above Appliances:', 'occupant_count',
-                'people', value=3),
+        html.Div([
+            LabeledInput('Number of Occupants in Building using the above Appliances:', 'occupant_count',
+                    'people', value=3),
+        ], id='div-occupants', style={'display': 'none'}),
         LabeledInput('Fuel Price Per Unit:', 'exist_unit_fuel_cost'), 
         LabeledRadioItems('Efficiency of Existing Heating System:','heat_effic', max_width=500),
         LabeledSlider(app, 'Efficiency of Existing Heating System:', 'heat_effic_slider',
@@ -313,15 +318,21 @@ app.layout = html.Div(className='container', children=[
                 0, 100, '%', 
                 'Include all the rooms that are openly exposed to the Indoor Units, not connected through a door.', 
                 max_width=700, mark_gap=10, step=1, value=46),
-        LabeledRadioItems('What is your Tolerance for Cooler Bedroom and Back Room Temperatures?',
-                'bedroom_temp_tolerance',
-                options=make_options(TEMPERATURE_TOLERANCE), value='med',
-                max_width=600),
-        LabeledRadioItems('Are Doors typically open to the Bedrooms and Back rooms that do not have a Heat Pump Indoor Unit?',
-                'doors_open_to_adjacent', 
-                'For those rooms that are adjacent to the spaces where the Heat Pump Indoor Units are located, are the doors to those spaces generally left open?',
-                options=make_options(OPEN_DOORS), value=True,
-                max_width=600, labelStyle={'display': 'inline-block'})
+        html.Div([
+            html.P(dedent('''
+                For those rooms that are not openly exposed to the heat pump indoor units, the following
+                two questions help determine when the heat pump can successfully provide heat to those rooms.
+                ''')),
+            LabeledRadioItems('What is your Tolerance for Cooler Bedroom and Back Room Temperatures?',
+                    'bedroom_temp_tolerance',
+                    options=make_options(TEMPERATURE_TOLERANCE), value='med',
+                    max_width=600),
+            LabeledRadioItems('Are Doors typically open to the Bedrooms and Back rooms that do not have a Heat Pump Indoor Unit?',
+                    'doors_open_to_adjacent', 
+                    'For those rooms that are adjacent to the spaces where the Heat Pump Indoor Units are located, are the doors to those spaces generally left open?',
+                    options=make_options(OPEN_DOORS), value=True,
+                    max_width=600, labelStyle={'display': 'inline-block'})
+        ], id='div-bedrooms'),
     ]),
 
     LabeledSection('Economic Inputs', [
@@ -407,6 +418,13 @@ def find_util(city_id):
     utils = lib.city_from_id(city_id).ElecUtilities
     return [{'label': util_name, 'value': util_id} for util_name, util_id in utils]
     
+# Found that when options change need to explicitly set a value
+@app.callback(Output('utility_id', 'value'),
+    [Input('utility_id', 'options')])
+def set_util_value(options):
+    # If option list changes, unselect the value
+    return None
+
 @app.callback(Output('div-schedule', 'style'), 
     [Input('elec_input','value')])
 def electricalinputs(elec_input):
@@ -458,6 +476,14 @@ def commun_pce_vis(bldg_type):
     # If Community Building, show this input, although it is irrelevant if there is
     # no PCE in this community.
     if bldg_type == 'commun':
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+@app.callback(Output('div-occupants', 'style'),
+    [Input('end_uses_chks', 'values')])
+def set_occupants_vis(end_uses):
+    if len(end_uses) > 0:
         return {'display': 'block'}
     else:
         return {'display': 'none'}
@@ -547,12 +573,26 @@ def hp_brands(zones, effic_check_list):
     manuf_list = lib.heat_pump_manufacturers(zone_type, 'efficient' in effic_check_list)
     return [{'label': brand, 'value': brand} for brand in manuf_list]
 
+# Found that when options change need to explicitly set a value
+@app.callback(Output('hp_manuf_id', 'value'),
+    [Input('hp_manuf_id', 'options')])
+def set_manuf_value(options):
+    # If option list changes, unselect the value
+    return None
+
 @app.callback(Output('hp_model_id', 'options'), 
               [Input('hp_manuf_id', 'value'), Input('hp_zones', 'value'), Input('efficient_only', 'values')])
 def hp_models(manuf, zones, effic_check_list):
     zone_type = 'Single' if zones==1 else 'Multi'
     model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)
     return [{'label': lbl, 'value': id} for lbl, id in model_list]
+
+# Found that when options change need to explicitly set a value
+@app.callback(Output('hp_model_id', 'value'),
+    [Input('hp_model_id', 'options')])
+def set_model_value(options):
+    # If option list changes, unselect the value
+    return None
 
 @app.callback(Output('div-loan', 'style'), 
     [Input('pct_financed','value')])
@@ -580,6 +620,14 @@ def set_capital_cost(zones, city_id):
         # Assume highest level (level 5) is 1.6 x lowest level.
         cost_mult = 1.6 ** 0.25
         return round(cost * cost_mult ** (cost_level - 1), 0)
+
+@app.callback(Output('div-bedrooms', 'style'),
+    [Input('pct_exposed_to_hp', 'value')])
+def set_bedroom_vis(pct_exposed):
+    if pct_exposed == 100:
+        return {'display': 'none'}
+    else:
+        return {'display': 'block'}
 
 @app.callback(Output('sales_tax', 'value'),
     [Input('city_id', 'value')])
@@ -629,12 +677,12 @@ def list_errors(*args):
     return error_md
 
 @app.callback(Output('div-calculate', 'style'),
-    [Input('md-errors', 'children'), 
-     Input('store-calc-ts', 'modified_timestamp'),
-     Input('store-inputs-ts', 'modified_timestamp')
-    ])
-def set_calc_visibility(md_error_children, ts_calc, ts_inputs):
+    [Input('store-calc-ts', 'modified_timestamp'),
+     Input('store-inputs-ts', 'modified_timestamp')],
+    [State('md-errors', 'children')])
+def set_calc_visibility(ts_calc, ts_inputs, md_error_children):
     # Sets visibility of Calculate Button
+    # print('here', md_error_children, ts_calc, ts_inputs)
     if md_error_children is None or len(md_error_children)>0:
         return {'display': 'none'}
     else:

@@ -3,6 +3,7 @@ and convert the values from the components associated with those objects
 into variables suitable for passing to energy models.  Only inputs that 
 are used in the Energy Model are addressed here.
 """
+import numbers
 import numpy as np
 from dash.dependencies import Input, State
 from . import library as lib
@@ -45,6 +46,7 @@ input_info = [
     ('elec_use_jan', 'January Electric Use', 'float,greater-than-zero'),
     ('elec_use_may', 'May Electric Use', 'float,greater-than-zero'),
     ('indoor_heat_setpoint', 'Heating Thermostat'),
+    ('hp_manuf_id', 'Heat Pump Manufacturer', 'extra'),    # needed to get a callback to fire
     ('hp_model_id', 'Heat Pump Model'),
     ('capital_cost', 'Installed Heat Pump Cost', 'float'),
     ('rebate_dol', 'Heat Pump Rebate', 'null-ok,null-to-zero,float'),
@@ -146,8 +148,9 @@ def inputs_to_vars(input_vals):
                     val = int(val)
                 except:
                     errors.append(f'{desc} must be an integer number.')
-            if cc['greater-than-zero'] and val <= 0:
-                errors.append(f'{desc} must be greater than zero.')
+            if cc['greater-than-zero']:
+                if not isinstance(val, numbers.Number) or val <= 0:
+                    errors.append(f'{desc} must be greater than zero.')
 
         if cc['extra']:
             extras[var] = val
