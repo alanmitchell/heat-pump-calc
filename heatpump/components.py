@@ -6,12 +6,13 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import numpy as np
 
-def make_label(label, help_text, trailing_item=None):
+def make_label(label, id, help_text, trailing_item=None):
     """This function returns a HTML Paragraph that contains a text
     label ('label'), possibly a help icon with pop-up help ('help_text'), and possibly
-    another HTML component ('trailing_item').
+    another HTML component ('trailing_item').  The 'id' is used to assign
+    an id of 'label-{id}' to the Span holding the label.
     """
-    label_items = [label]
+    label_items = [html.Span(label, id=f'label-{id}')]
     if len(help_text.strip()):
         label_items.append(html.I(className="fas fa-question-circle"))
     if trailing_item:
@@ -51,7 +52,7 @@ def LabeledInput(label, id, units='', help_text='', size=7, **kwargs):
     """
 
     # make the paragraph element holding the label, help icon, and units suffix.
-    para = make_label(label, help_text, html.Span(units, id=f'units-{id}', className='label-units'))
+    para = make_label(label, id, help_text, html.Span(units, id=f'units-{id}', className='label-units'))
 
     # now insert the actual input control into the correct spot in the children list
     para.children.insert(-1, 
@@ -89,7 +90,7 @@ def LabeledSlider(app, label, id, min_val, max_val, units='', help_text='', max_
     component = html.Div(id=f'div-{id}', 
                          style={'maxWidth': max_width, 'marginBottom': '4rem'},
                          children=[
-                             make_label(label, help_text, html.Span('', id=f'cur-val-{id}', style={'marginLeft': 5})),
+                             make_label(label, id, help_text, html.Span('', id=f'cur-val-{id}', style={'marginLeft': 5})),
                              dcc.Slider(id=id,
                                         marks=final_marks,
                                         min=min_val, max=max_val,
@@ -108,7 +109,7 @@ def LabeledDropdown(label, id, help_text='', max_width=400, **kwargs):
         
     return html.Div(className='labeled-comp', id=f'div-{id}', style={'maxWidth': max_width},
                     children=[
-                        make_label(label, help_text),
+                        make_label(label, id, help_text),
                         dcc.Dropdown(id=id, **kwargs)
                     ])
 
@@ -118,7 +119,7 @@ def LabeledRadioItems(label, id, help_text='', max_width=400, **kwargs):
         
     return html.Div(className='labeled-comp', id=f'div-{id}', style={'maxWidth': max_width},
                     children=[
-                        make_label(label, help_text),
+                        make_label(label, id, help_text),
                         dcc.RadioItems(id=id, **kwargs)
                     ])
 
@@ -128,6 +129,6 @@ def LabeledChecklist(label, id, help_text='', max_width=400, **kwargs):
         
     return html.Div(className='labeled-comp', id=f'div-{id}', style={'maxWidth': max_width},
                     children=[
-                        make_label(label, help_text),
+                        make_label(label, id, help_text),
                         dcc.Checklist(id=id, **kwargs)
                     ])

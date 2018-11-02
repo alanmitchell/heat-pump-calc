@@ -491,8 +491,15 @@ def set_occupants_vis(end_uses):
 @app.callback(Output('exist_unit_fuel_cost', 'value'),
     [Input('exist_heat_fuel_id', 'value'), Input('city_id','value')])
 def find_fuel_price(fuel_id, city_id):
+
     if fuel_id is None or city_id is None:
         raise PreventUpdate
+
+    # check for Electricity, and then just blank the fuel price because
+    # it is irrelevant
+    if fuel_id == 1:
+        return None
+        
     the_fuel = lib.fuel_from_id(fuel_id)
     price_col = the_fuel['price_col']
     the_city = lib.city_from_id(city_id)

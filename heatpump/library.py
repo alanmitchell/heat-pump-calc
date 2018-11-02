@@ -129,9 +129,7 @@ def fuels():
     """Returns a list of (fuel name, fuel ID) for all fuels.
     """
     fuel_list = list(zip(df_fuel.desc, df_fuel.index))
-    # Temporarily stopping the inclusion of the Electricity in the list because
-    # replacing Electric Heat is not complete.
-    return fuel_list[1:]
+    return fuel_list
 
 def fuel_from_id(fuel_id):
     """Returns a Pandas Series of fuel information for the fuel with
