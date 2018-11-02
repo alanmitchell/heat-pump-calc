@@ -545,6 +545,16 @@ def update_price_units(fuel_id):
         raise PreventUpdate
     fuel = lib.fuel_from_id(fuel_id)
     return f'$ / {fuel.unit}'
+
+@app.callback(Output('aux_elec', 'value'),
+    [Input('exist_heat_fuel_id', 'value')])
+def set_aux_elec(fuel_id):
+    # Force No Aux use with Electric Heat, otherwise don't 
+    # change setting.
+    if fuel_id == ui_helper.ELECTRIC_ID:
+        return 'no-fan'
+    else:
+        raise PreventUpdate
     
 @app.callback(Output('elec_use_jan','value'),
     [Input('city_id','value'), Input('exist_heat_fuel_id', 'value')])
