@@ -46,8 +46,8 @@ input_info = [
     ('heat_effic_slider', 'Custom-entered Heating System Efficiency', 'extra'),
     ('aux_elec', 'Auxiliary Electric Use', 'extra'),
     ('exist_fuel_use', 'Existing Heating Fuel Use', 'null-ok,float,greater-than-zero'),
-    ('elec_use_jan', 'January Electric Use', 'float,greater-than-zero'),
-    ('elec_use_may', 'May Electric Use', 'float,greater-than-zero'),
+    ('elec_use_jan', 'January Electric Use', 'null-ok,float,greater-than-zero'),
+    ('elec_use_may', 'May Electric Use', 'null-ok,float,greater-than-zero'),
     ('indoor_heat_setpoint', 'Heating Thermostat'),
     ('hp_manuf_id', 'Heat Pump Manufacturer', 'extra'),    # needed to get a callback to fire
     ('hp_model_id', 'Heat Pump Model'),
@@ -179,6 +179,14 @@ def inputs_to_vars(input_vals):
     # but otherwise, a fuel price is required.
     if vars['exist_heat_fuel_id'] != ELECTRIC_ID and is_null(vars['exist_unit_fuel_cost']):
         errors.append('The Heating Fuel Price per Unit must be entered.')
+        return errors, vars, extras
+
+    # January and May electric is required if the Heating Fuel is not Electric
+    if vars['exist_heat_fuel_id'] != ELECTRIC_ID and is_null(vars['elec_use_jan']):
+        errors.append('The January Electricity use must be entered.')
+        return errors, vars, extras
+    if vars['exist_heat_fuel_id'] != ELECTRIC_ID and is_null(vars['elec_use_may']):
+        errors.append('The May Electricity use must be entered.')
         return errors, vars, extras
 
     if vars['loan_term'] > vars['hp_life']:

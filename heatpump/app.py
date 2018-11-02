@@ -546,18 +546,24 @@ def update_price_units(fuel_id):
     fuel = lib.fuel_from_id(fuel_id)
     return f'$ / {fuel.unit}'
     
-@app.callback(Output('elec_use_jan','value'),[Input('city_id','value')])
-def whole_bldg_jan(city_id):
+@app.callback(Output('elec_use_jan','value'),
+    [Input('city_id','value'), Input('exist_heat_fuel_id', 'value')])
+def whole_bldg_jan(city_id, fuel_id):
     if city_id is None:
         raise PreventUpdate
+    if fuel_id == ui_helper.ELECTRIC_ID:
+        return ''   # Blank it out so no errors can occur once it is hidden
     jan_elec = lib.city_from_id(city_id).avg_elec_usage[0]
     jan_elec = np.round(jan_elec, 0)
     return jan_elec
     
-@app.callback(Output('elec_use_may','value'),[Input('city_id','value')])
-def whole_bldg_may(city_id):
+@app.callback(Output('elec_use_may','value'),
+    [Input('city_id','value'), Input('exist_heat_fuel_id', 'value')])
+def whole_bldg_may(city_id, fuel_id):
     if city_id is None:
         raise PreventUpdate
+    if fuel_id == ui_helper.ELECTRIC_ID:
+        return ''   # Blank it out so no errors can occur once it is hidden
     may_elec = lib.city_from_id(city_id).avg_elec_usage[4]
     may_elec = np.round(may_elec, 0)
     return may_elec
