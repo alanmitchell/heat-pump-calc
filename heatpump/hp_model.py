@@ -90,7 +90,7 @@ class HP_model:
         """
         s = ''
         for attr in self.__dict__:
-            val = pformat(self.__dict__[attr])[:1000]
+            val = pformat(self.__dict__[attr])[:1500]
             if len(val)>70:
                 s+=f'\n{attr}:\n{val}\n\n'
             else:

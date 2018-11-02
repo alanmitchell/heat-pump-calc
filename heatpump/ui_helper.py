@@ -9,6 +9,9 @@ from dash.dependencies import Input, State
 from . import library as lib
 from .utils import is_null
 
+# Some Constants
+ELECTRIC_ID = 1    # The fuel ID for Electricity
+
 input_info = [
     ('city_id', 'City'),
     ('elec_input', 'Type of Electric Rate input', 'extra'),
@@ -38,7 +41,7 @@ input_info = [
     ('exist_heat_fuel_id', 'Heating Fuel Type'),
     ('end_uses_chks', 'End Uses using Heating Fuel', 'extra'),
     ('occupant_count', 'Number of Occupants', 'null-ok,null-to-zero,int,greater-than-zero'),
-    ('exist_unit_fuel_cost', 'Heating Fuel Price', 'float,greater-than-zero'),
+    ('exist_unit_fuel_cost', 'Heating Fuel Price', 'null-ok,float,greater-than-zero'),
     ('heat_effic', 'Heating System Efficiency', 'extra'),
     ('heat_effic_slider', 'Custom-entered Heating System Efficiency', 'extra'),
     ('aux_elec', 'Auxiliary Electric Use', 'extra'),
@@ -172,6 +175,12 @@ def inputs_to_vars(input_vals):
     vars['pct_exposed_to_hp'] /= 100.
 
     # ------------------- Some Other Input Checks -------------------------
+    # If existing heating fuel type is electric, no fuel price needs to be entered,
+    # but otherwise, a fuel price is required.
+    if vars['exist_heat_fuel_id'] != ELECTRIC_ID and is_null(vars['exist_unit_fuel_cost']):
+        errors.append('The Heating Fuel Price per Unit must be entered.')
+        return errors, vars, extras
+
     if vars['loan_term'] > vars['hp_life']:
         errors.append('The Term of the Loan cannot be longer than the Life of the Heat Pump.  The Heat Pump Life can be changed in the Advanced Economic Inputs section.')
         return errors, vars, extras
