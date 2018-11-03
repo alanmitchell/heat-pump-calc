@@ -698,8 +698,8 @@ def list_errors(*args):
 
 @app.callback(Output('div-calculate', 'style'),
     [Input('store-calc-ts', 'modified_timestamp'),
-     Input('store-inputs-ts', 'modified_timestamp')],
-    [State('md-errors', 'children')])
+     Input('store-inputs-ts', 'modified_timestamp'),
+     Input('md-errors', 'children')])
 def set_calc_visibility(ts_calc, ts_inputs, md_error_children):
     # Sets visibility of Calculate Button
     # print('here', md_error_children, ts_calc, ts_inputs)
