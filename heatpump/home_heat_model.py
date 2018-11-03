@@ -3,6 +3,8 @@ import inspect
 import numpy as np
 
 from . import library as lib
+from . import ui_helper
+from .utils import chg_nonnum
 
 def temp_depression(ua_per_ft2, 
                     balance_point, 
@@ -269,17 +271,25 @@ class HomeHeatModel(object):
         dfh['secondary_fuel_mmbtu'] = dfh.secondary_load_mmbtu / s.exist_heat_effic
         dfh['secondary_kwh'] = dfh.secondary_load_mmbtu * s.exist_kwh_per_mmbtu  # auxiliary electric use
 
+        # if this is electric heat as the secondary fuel, move the secondary fuel use into
+        # the secondary kWh column and blank out the secondary fuel MMBtu.
+        if s.exist_heat_fuel_id  == ui_helper.ELECTRIC_ID:
+            dfh.secondary_kwh += dfh.secondary_fuel_mmbtu * 1e6 / s.exist_heat_fuel.btus
+            dfh['secondary_fuel_mmbtu'] = 0.0
+
         # Store annual and monthly totals.
         # Annual totals is a Pandas Series.
         total_cols = ['hp_load_mmbtu', 'secondary_load_mmbtu', 'hp_kwh', 'secondary_fuel_mmbtu', 'secondary_kwh']
         s.df_monthly = dfh.groupby('month')[total_cols].sum()
         dfm = s.df_monthly    # shortcut variable
         
-        # Add in a column for the peak heat pump demand during the month
+        # Add in columns for the peak electrical demand during the month
         dfm['hp_kw'] = dfh.groupby('month')[['hp_kwh']].max()
-        
+        dfm['secondary_kw'] = dfh.groupby('month')[['secondary_kwh']].max()
+        dfm['total_kw'] = dfm.hp_kw + dfm.secondary_kw
+
         # physical units for secondary fuel
-        fuel = self.exist_heat_fuel
+        fuel = s.exist_heat_fuel
         dfm['secondary_fuel_units'] = dfm['secondary_fuel_mmbtu'] / fuel.btus * 1e6
 
         # COP by month
@@ -289,7 +299,7 @@ class HomeHeatModel(object):
         dfm['total_kwh'] = dfm.hp_kwh + dfm.secondary_kwh
                     
         # Total lbs of CO2 per month, counting electricity and fuel
-        dfm['co2_lbs'] = dfm.total_kwh * s.co2_lbs_per_kwh + dfm.secondary_fuel_mmbtu * fuel.co2
+        dfm['co2_lbs'] = dfm.total_kwh * s.co2_lbs_per_kwh + dfm.secondary_fuel_mmbtu * chg_nonnum(fuel.co2, 0.0)
 
         # Change index to Month labels
         s.df_monthly.index = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
