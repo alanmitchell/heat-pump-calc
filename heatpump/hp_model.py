@@ -168,16 +168,25 @@ class HP_model:
             
             # Remove the energy use from the other end uses that use the fuel
             space_fuel_use = s.exist_fuel_use - s.fuel_other_uses - s.lights_other_elec
-            
+
             sim.no_heat_pump_use = True
             sim.calculate()
-            fuel_use1 = sim.annual_results().secondary_fuel_units
+            if is_electric:
+                # For electric heat, electric use for space heat is in secondary_kwh
+                fuel_use1 = sim.annual_results().secondary_kwh
+            else:
+                fuel_use1 = sim.annual_results().secondary_fuel_units
             
             # scale the UA linearly to attempt to match the target fuel use
             ua_true_up = space_fuel_use / fuel_use1
             sim.ua_true_up = ua_true_up
             sim.calculate()
-            fuel_use2 = sim.annual_results().secondary_fuel_units
+
+            if is_electric:
+                # For electric heat, electric use for space heat is in secondary_kwh
+                fuel_use2 = sim.annual_results().secondary_kwh
+            else:
+                fuel_use2 = sim.annual_results().secondary_fuel_units
             
             # In case it wasn't linear, inter/extrapolate to the final ua_true_up
             slope = (fuel_use2 - fuel_use1)/(ua_true_up - 1.0)
