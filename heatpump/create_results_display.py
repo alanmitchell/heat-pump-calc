@@ -75,7 +75,8 @@ def create_results(input_values):
 
     The Net Present Value of installing an air-source heat pump is estimated to 
     be **{npv_fmt}**. This means that over the course of the life of the equipment you 
-    will {npv_indicator} a total of **\${npv_abs:,.0f}** in today's dollars.
+    will {npv_indicator} a total of **\${npv_abs:,.0f}** in today's dollars.  Any value
+    more than 0 means you have paid back your investment with interest.
     ''')
 
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))

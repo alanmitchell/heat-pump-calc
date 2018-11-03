@@ -505,6 +505,14 @@ def find_fuel_price(fuel_id, city_id):
     
     return price 
 
+@app.callback(Output('div-exist_unit_fuel_cost', 'style'),
+    [Input('exist_heat_fuel_id', 'value')])
+def hide_fuel_cost(fuel_id):
+    if fuel_id == ui_helper.ELECTRIC_ID:
+        return {'display': 'none'}
+    else:
+        return {'display': 'block'}
+
 @app.callback(Output('heat_effic','options'), 
     [Input('exist_heat_fuel_id', 'value')])
 def effic_choices(fuel_id):
@@ -537,7 +545,7 @@ def update_use_units(fuel_id):
     if fuel_id is None:
         raise PreventUpdate
     fuel = lib.fuel_from_id(fuel_id)
-    return fuel.unit  
+    return fuel.unit + ' per year' 
 
 @app.callback(Output('units-exist_unit_fuel_cost', 'children'),[Input('exist_heat_fuel_id','value')])
 def update_price_units(fuel_id):
@@ -555,7 +563,23 @@ def set_aux_elec(fuel_id):
         return 'no-fan'
     else:
         raise PreventUpdate
-    
+
+@app.callback(Output('div-aux_elec', 'style'),
+    [Input('exist_heat_fuel_id', 'value')])
+def hide_aux_elec(fuel_id):
+    if fuel_id == ui_helper.ELECTRIC_ID:
+        return {'display': 'none'}
+    else:
+        return {'display': 'block'}
+
+@app.callback(Output('label-exist_fuel_use', 'children'),
+    [Input('exist_heat_fuel_id', 'value')])
+def label_fuel_use(fuel_id):
+    if fuel_id == ui_helper.ELECTRIC_ID:
+        return 'Total Annual Electricity Use of the building, including all uses of electricity.  (Optional, but very helpful!):'
+    else:
+        return 'Annual Fuel Use of the building including space heating and any other appliances that use that same fuel. (Optional, but very helpful!):'
+
 @app.callback(Output('elec_use_jan','value'),
     [Input('city_id','value'), Input('exist_heat_fuel_id', 'value')])
 def whole_bldg_jan(city_id, fuel_id):
@@ -577,6 +601,22 @@ def whole_bldg_may(city_id, fuel_id):
     may_elec = lib.city_from_id(city_id).avg_elec_usage[4]
     may_elec = np.round(may_elec, 0)
     return may_elec
+
+@app.callback(Output('div-elec_use_jan', 'style'),
+    [Input('exist_heat_fuel_id', 'value')])
+def hide_jan_use(fuel_id):
+    if fuel_id == ui_helper.ELECTRIC_ID:
+        return {'display': 'none'}
+    else:
+        return {'display': 'block'}
+
+@app.callback(Output('div-elec_use_may', 'style'),
+    [Input('exist_heat_fuel_id', 'value')])
+def hide_may_use(fuel_id):
+    if fuel_id == ui_helper.ELECTRIC_ID:
+        return {'display': 'none'}
+    else:
+        return {'display': 'block'}
 
 @app.callback(Output('div-garage_heated_by_hp', 'style'), 
     [Input('garage_stall_count','value')])
