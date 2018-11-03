@@ -277,16 +277,20 @@ class HomeHeatModel(object):
             dfh.secondary_kwh += dfh.secondary_fuel_mmbtu * 1e6 / s.exist_heat_fuel.btus
             dfh['secondary_fuel_mmbtu'] = 0.0
 
+        # Make a column for total kWh.  Do this at the hourly level because it is
+        # needed to accurately account for coincident peak demand.
+        dfh['total_kwh'] = dfh.hp_kwh + dfh.secondary_kwh
+
         # Store annual and monthly totals.
         # Annual totals is a Pandas Series.
-        total_cols = ['hp_load_mmbtu', 'secondary_load_mmbtu', 'hp_kwh', 'secondary_fuel_mmbtu', 'secondary_kwh']
+        total_cols = ['hp_load_mmbtu', 'secondary_load_mmbtu', 'hp_kwh', 'secondary_fuel_mmbtu', 'secondary_kwh', 'total_kwh']
         s.df_monthly = dfh.groupby('month')[total_cols].sum()
         dfm = s.df_monthly    # shortcut variable
         
         # Add in columns for the peak electrical demand during the month
         dfm['hp_kw'] = dfh.groupby('month')[['hp_kwh']].max()
         dfm['secondary_kw'] = dfh.groupby('month')[['secondary_kwh']].max()
-        dfm['total_kw'] = dfm.hp_kw + dfm.secondary_kw
+        dfm['total_kw'] = dfh.groupby('month')[['total_kwh']].max()  # can't add the above cuz of coincidence
 
         # physical units for secondary fuel
         fuel = s.exist_heat_fuel
@@ -295,22 +299,22 @@ class HomeHeatModel(object):
         # COP by month
         dfm['cop'] = dfm.hp_load_mmbtu / (dfm.hp_kwh * 0.003412)   
 
-        # Total kWh, heat pump + auxiliary of secondary system
-        dfm['total_kwh'] = dfm.hp_kwh + dfm.secondary_kwh
-                    
         # Total lbs of CO2 per month, counting electricity and fuel
         dfm['co2_lbs'] = dfm.total_kwh * s.co2_lbs_per_kwh + dfm.secondary_fuel_mmbtu * chg_nonnum(fuel.co2, 0.0)
 
         # Change index to Month labels
         s.df_monthly.index = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
         
-        s.ser_annual = s.df_monthly.sum().drop(['cop'])
-        # Add the seasonal COP to the annual results
-        tot = s.ser_annual
+        s.ser_annual = s.df_monthly.sum()
+        # Fix the seasonal COP and the peak demand values
+        tot = s.ser_annual      # shortcut
         if tot.hp_kwh:
-            s.ser_annual['cop'] =  tot.hp_load_mmbtu * 1e6 / tot.hp_kwh / 3412.
+            tot['cop'] =  tot.hp_load_mmbtu * 1e6 / tot.hp_kwh / 3412.
         else:
-            s.ser_annual['cop'] = np.nan
+            tot['cop'] = np.nan
+        tot['hp_kw'] = dfm['hp_kw'].max()    # maximum across all the months
+        tot['secondary_kw'] = dfm['secondary_kw'].max()
+        tot['total_kw'] = dfm['total_kw'].max()
         
     def monthly_results(self):
         """Returns a DataFrame of monthly results.
