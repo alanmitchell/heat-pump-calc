@@ -337,7 +337,7 @@ app.layout = html.Div(className='container', children=[
 
     LabeledSection('Economic Inputs', [
 
-        LabeledSlider(app, 'Sales Tax:', 'sales_tax',
+        LabeledSlider(app, 'Sales Tax (applies to heating fuel and electricity costs):', 'sales_tax',
                     0, 10, '%',
                     'Select your city/state sales tax.  This will be applied to the electricity and fuel prices',
                     mark_gap=1, step=0.1, value=0.0),

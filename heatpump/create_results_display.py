@@ -78,28 +78,52 @@ def create_results(input_values):
     #### Net Present Value:  **{npv_fmt}**
 
     The Net Present Value of installing an air-source heat pump is estimated to 
-    be **{npv_fmt}**. This means that over the course of the life of the equipment you 
-    will {npv_indicator} a total of **\${npv_abs:,.0f}** in today's dollars.  Any value
-    more than $0 means you have paid back your investment with interest.
+    be **{npv_fmt}**.
+    ''') 
+    if smy['npv'] > 0:
+        md_tmpl += dedent('''
+        This means that over the life of the equipment you 
+        will earn a total of **\${npv_abs:,.0f}** in today's dollars beyond your
+        initial investment accounting for interest.
+        ''')
+    else:
+        md_tmpl += dedent('''
+        This means that over the life of the equipment you were
+        **\${npv_abs:,.0f}** short of paying back your intitial investment
+        with interest.
+        ''')
+    md_tmpl += dedent('''
+    This only includes economic costs and benefits and does not include any
+    environmental or social benefits of the heat pump.
     ''')
+
+    
 
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
     
     if np.isnan(smy['irr']):
         md_tmpl = dedent('''
-        #### Internal Rate of Return:  Not Available
+        #### Rate of Return:  Not Available
 
         The heat pump does not save enough money to allow for a calculation of the
-        internal rate of return.
+        rate of return.
         ''')
     else:
         md_tmpl = dedent('''
-        #### Internal Rate of Return:  **{irr:.1f}%**
+        #### Rate of Return:  **{irr:.1f}%**
 
-        The internal rate of return on the investment is estimated to be **{irr:.1f}%**. 
-        Compare this tax-free investment to your other investment options.
+        The rate of return on the investment is estimated to be **{irr:.1f}%**. 
+        Compare this *tax-free* return to the rate of return or interest
+        of your other investment options.
         ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+    if inputs['pct_financed'] > 0:
+        md = dedent('''
+        Note that this rate of return is a return calculated on the amount that
+        you contribute as a down-payment for the loan.
+        ''')
+        comps.append(dcc.Markdown(md))
 
     if not is_electric:
         # formatted fuel savings
@@ -113,7 +137,12 @@ def create_results(input_values):
 
         This shows how much heating fuel is saved each year by use of the heat pump. The heat pump
         achieves these savings by **serving {hp_load_frac:.0f}%** of the building's space heating
-        load.
+        load.  The amount of load served by the heat pump is affected by:
+        
+        * your choices concerning lower temperatures in the bedrooms and
+        whether doors are open to those rooms,
+        * the Outdoor Temperature cutoff below which the heat pump doesn't run,
+        * the maximum heating capacity available for the heat pump selected.
         ''')
         comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
@@ -136,11 +165,11 @@ def create_results(input_values):
         comps.append(dcc.Markdown(md))
 
     md_tmpl = dedent('''
-    #### Seasonal Average Heat Pump COP: **{cop:.2f}**
+    #### Seasonal Average Heat Pump COP: **{cop:.1f}**
 
     The Seasonal Average Heat Pump COP indicates the annual average efficiency of the heat pump.
-    Conventional Electric Resistance heat (e.g. electric baseboard) would have a COP of 1.0.
-    Heat Pumps generally have COPs in excess of 2.0.
+    Conventional Electric Resistance heat (e.g. electric baseboard) would have a COP of 1.0 (100%).
+    Heat Pumps generally have COPs in excess of 2.0 (200%).
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
@@ -148,17 +177,18 @@ def create_results(input_values):
         md_tmpl = dedent('''
         #### Electricity and Fuel Prices
 
-        The average cost for the *additional* electricity needed for the heat pump was 
-        was **${elec_rate_incremental:.4f}/kWh**.  This accounts for any block rates and 
-        PCE limits that may be present. The fuel price for the fuel saved was 
-        **${fuel_price_incremental:.4g}/{fuel_unit}**.  These values include sales taxes.
+        The average cost for the *additional* electricity needed for the heat pump is
+        **${elec_rate_incremental:.4f}/kWh**.  This accounts for any block rates and 
+        PCE (Rural Power Cost Assistance) limits that may be present. The fuel price for 
+        the fuel saved is **${fuel_price_incremental:.4g}/{fuel_unit}**.
+        These values include sales taxes.
         ''')
     else:
         md_tmpl = dedent('''
         #### Electricity Price
 
-        The average rate for the electricity that was saved was **${elec_rate_incremental:.4f}/kWh**. 
-        This accounts for any block rates and PCE limits that may be present.
+        The average rate for the electricity that is saved is **${elec_rate_incremental:.4f}/kWh**. 
+        This accounts for any block rates and PCE (Rural Power Cost Assistance) limits that may be present.
         ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
@@ -178,9 +208,9 @@ def create_results(input_values):
     ### Cash Flow Results
 
     The graph below shows how the heat pump project impacts cash flow in each of the years
-    during the life of the heat pump.  Negative, red, values indicate a net outflow of cash
-    due to installing the heat pump, and positive, black, values indicate an net inflow of
-    cash due to the heat pump installation.  All values  in this section include sales taxes.
+    during the life of the heat pump.  Negative, red, values indicate a net outflow of cash,
+    and positive, black, values indicate an net inflow of
+    cash.  Sales taxes are included where applicable.
     # ''')))
 
     # Cash Flow Graph
@@ -229,8 +259,8 @@ def create_results(input_values):
 
     comps.append(dcc.Markdown(dedent('''
     The graph below shows the running total of cash flow over the life of the heat pump.
-    The total cash flow exceeds zero (turns black), the heat pump investment has paid itself
-    back with interest. (The graph technically shows cumulative, discounted cash flow).
+    If the total cash flow exceeds zero (turns black), your portion of the heat pump investment 
+    has paid itself back with interest. (The graph technically shows cumulative, discounted cash flow).
     ''')))
 
     df_cash_flow['cum_negative_flow'] = np.where(df_cash_flow.cum_disc_cash_flow < 0, df_cash_flow.cum_disc_cash_flow, 0)
@@ -259,7 +289,7 @@ def create_results(input_values):
     )
 
     layout = go.Layout(
-        title='Heat Pump Lifetime Cumulative Discounted Cash Flow',
+        title='Cumulative Cash Flow',
         xaxis=dict(title='Year', fixedrange=True,),
         yaxis=dict(
             title='Annual Discounted Cash Flow ($)', 
@@ -284,7 +314,7 @@ def create_results(input_values):
     # Cash Flow Table
 
     comps.append(dcc.Markdown(dedent('''
-    The table below breakdowns the cash flow impacts into components.  All values are dollars.
+    The table below breakdowns the cash flow impacts into categories.  All values are dollars.
     Positive numbers indicate a beneficial impact (inflow of cash); negative values indicate
     a detrimental impact (outflow of cash).
     ''')))
@@ -308,6 +338,57 @@ def create_results(input_values):
     comps.append(generate_table(dfc))
 
     comps.append(dcc.Markdown('.\n\n### Results by Month'))
+
+    md_tmpl = dedent('''
+    ##### Monthly Space Heating Load
+
+    This graph shows how the space heating load of the building varies
+    across the months, and it shows what portion of that load is served by
+    the heat pump versus the existing heating system.  The units are total 
+    MMBtu of heating load placed
+    on the building's heating system.  Not all of this load may be served
+    by the heat pump, due to heat distribution, low-temperature cut-off,
+    and capacity limitations of
+    the heat pump. This figure does *not* include Domestic Hot Water or any
+    other uses of the fuel.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+    hp_load = go.Bar(
+        x=df_mo_en_hp.index,
+        y=df_mo_en_hp.hp_load_mmbtu, 
+        name='Heat Pump Load',
+        hoverinfo='y',
+    )
+
+    exist_load = go.Bar(
+        x=df_mo_en_hp.index,
+        y=df_mo_en_hp.secondary_load_mmbtu, 
+        name='Load on Existing System',
+        hoverinfo='y',
+    )
+
+    layout = go.Layout(
+        title='Monthly Space Heating Load',
+        xaxis=dict(title='Month', fixedrange=True,),
+        yaxis=dict(
+            title='Estimated Space Heating Load, MMBtu', 
+            hoverformat=',.1f',
+            fixedrange=True,
+        ),
+        barmode='stack',
+        hovermode= 'closest',
+    )
+
+    gph = dcc.Graph(
+        figure=go.Figure(
+            data=[hp_load, exist_load],
+            layout=layout,
+        ),
+        config=my_config,
+        id='gph-3',
+    )
+    comps.append(gph)
 
     md_tmpl = dedent('''
     ##### Monthly Energy Cost Impacts
@@ -390,56 +471,6 @@ def create_results(input_values):
     gph = dcc.Graph(
         figure=go.Figure(
             data=[hp_cost, cost_savings, cost_increases, no_hp_costs],
-            layout=layout,
-        ),
-        config=my_config,
-        id='gph-3',
-    )
-    comps.append(gph)
-
-    md_tmpl = dedent('''
-    ##### Monthly Space Heating Load
-
-    This graph shows how the space heating load of the building varies
-    across the months, and it shows what portion of that load is served by
-    the heat pump versus the existing heating system.  The units are total 
-    MMBtu of heating load placed
-    on the building's heating system.  Not all of this load may be served
-    by the heat pump, due to heat distribution and capacity limitations of
-    the heat pump. This figure does *not* include Domestic Hot Water or any
-    other uses of the fuel used for heating.
-    ''')
-    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
-
-    hp_load = go.Bar(
-        x=df_mo_en_hp.index,
-        y=df_mo_en_hp.hp_load_mmbtu, 
-        name='Heat Pump Load',
-        hoverinfo='y',
-    )
-
-    exist_load = go.Bar(
-        x=df_mo_en_hp.index,
-        y=df_mo_en_hp.secondary_load_mmbtu, 
-        name='Load on Existing System',
-        hoverinfo='y',
-    )
-
-    layout = go.Layout(
-        title='Monthly Space Heating Load',
-        xaxis=dict(title='Month', fixedrange=True,),
-        yaxis=dict(
-            title='Estimated Space Heating Load, MMBtu', 
-            hoverformat=',.1f',
-            fixedrange=True,
-        ),
-        barmode='stack',
-        hovermode= 'closest',
-    )
-
-    gph = dcc.Graph(
-        figure=go.Figure(
-            data=[hp_load, exist_load],
             layout=layout,
         ),
         config=my_config,
