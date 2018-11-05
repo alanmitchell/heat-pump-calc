@@ -54,6 +54,10 @@ def create_results(input_values):
     df_mo_dol_base = mod.df_mo_dol_base
     df_mo_dol_hp = mod.df_mo_dol_hp
 
+    # Lots of special formatting for electric heat so make a variable
+    # indicating whether electric heat is being analyzed.
+    is_electric = (mod.exist_heat_fuel_id == ui_helper.ELECTRIC_ID)
+
     # This will be the list of children that is returned.  For each graph
     # or Markdown block, and item is added to this list.
     comps = []
@@ -97,28 +101,39 @@ def create_results(input_values):
         ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
-    # formatted fuel savings
-    if smy['fuel_savings'] < 50:
-        smy['fuel_savings_fmt'] = '{fuel_savings:.2f}'.format(**smy)
+    if not is_electric:
+        # formatted fuel savings
+        if smy['fuel_savings'] < 50:
+            smy['fuel_savings_fmt'] = '{fuel_savings:.2f}'.format(**smy)
+        else:
+            smy['fuel_savings_fmt'] = '{fuel_savings:,.0f}'.format(**smy)
+
+        md_tmpl = dedent('''
+        #### Annual Heating Fuel Savings: **{fuel_savings_fmt} {fuel_unit}** of {fuel_desc}
+
+        This shows how much heating fuel is saved each year by use of the heat pump. The heat pump
+        achieves these savings by **serving {hp_load_frac:.0f}%** of the building's space heating
+        load.
+        ''')
+        comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+        md_tmpl = dedent('''
+        #### Annual Increase in Electricity Use: **{elec_use_chg:,.0f} kWh**
+
+        Use of the heat pump adds to the electric use of the building.  Shown here is 
+        the annual increase in electricity use.
+        ''')
+        comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
     else:
-        smy['fuel_savings_fmt'] = '{fuel_savings:,.0f}'.format(**smy)
+        # Electric Heat.  Heat Pump saves electricity.
+        md = dedent(f'''
+        #### Annual Savings in Electricity Use: **{-smy["elec_use_chg"]:,.0f} kWh**
 
-    md_tmpl = dedent('''
-    #### Annual Heating Fuel Savings: **{fuel_savings_fmt} {fuel_unit}** of {fuel_desc}
-
-    This shows how much heating fuel is saved each year by use of the heat pump. The heat pump
-    achieves these savings by **serving {hp_load_frac:.0f}%** of the building's space heating
-    load.
-    ''')
-    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
-
-    md_tmpl = dedent('''
-    #### Annual Increase in Electricity Use: **{elec_use_chg:,.0f} kWh**
-
-    Use of the heat pump adds to the electric use of the building.  Shown here is 
-    the annual increase in electricity use.
-    ''')
-    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+        Because the heat pump is more efficient than conventional electric heat, the 
+        electricity use of the buildings is reduced by this amount per year.
+        ''')
+        comps.append(dcc.Markdown(md))
 
     md_tmpl = dedent('''
     #### Seasonal Average Heat Pump COP: **{cop:.2f}**
@@ -129,14 +144,22 @@ def create_results(input_values):
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
-    md_tmpl = dedent('''
-    #### Electricity and Fuel Prices
+    if not is_electric:
+        md_tmpl = dedent('''
+        #### Electricity and Fuel Prices
 
-    The average cost for the *additional* electricity needed for the heat pump was 
-    was **${elec_rate_incremental:.4f}/kWh**.  This accounts for any block rates, and 
-    PCE limits that may be present. The fuel price for the fuel saved was 
-    **${fuel_price_incremental:.4g}/{fuel_unit}**.  These values include sales taxes.
-    ''')
+        The average cost for the *additional* electricity needed for the heat pump was 
+        was **${elec_rate_incremental:.4f}/kWh**.  This accounts for any block rates and 
+        PCE limits that may be present. The fuel price for the fuel saved was 
+        **${fuel_price_incremental:.4g}/{fuel_unit}**.  These values include sales taxes.
+        ''')
+    else:
+        md_tmpl = dedent('''
+        #### Electricity Price
+
+        The average rate for the electricity that was saved was **${elec_rate_incremental:.4f}/kWh**. 
+        This accounts for any block rates and PCE limits that may be present.
+        ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
     md_tmpl = dedent('''
@@ -205,11 +228,9 @@ def create_results(input_values):
     # Cumulative Cash Flow Graph
 
     comps.append(dcc.Markdown(dedent('''
-    The graph below also shows cash flow but it shows the cumlative impact of the cash
-    flow over the life of the heat pump.  A running total of the cash flow impact is
-    shown, adjusted for the time-value of money (interest).  When the cumulative cash
-    flow exceeds zero (turns black), the heat pump invested has paid itself back 
-    with interest.
+    The graph below shows the running total of cash flow over the life of the heat pump.
+    The total cash flow exceeds zero (turns black), the heat pump investment has paid itself
+    back with interest. (The graph technically shows cumulative, discounted cash flow).
     ''')))
 
     df_cash_flow['cum_negative_flow'] = np.where(df_cash_flow.cum_disc_cash_flow < 0, df_cash_flow.cum_disc_cash_flow, 0)
@@ -268,15 +289,18 @@ def create_results(input_values):
     a detrimental impact (outflow of cash).
     ''')))
 
-    cols = (
+    cols = [
         ('initial_cost', 'Initial Cost'),
         ('loan_cost', 'Loan Payments'),
         ('op_cost', 'Operating Cost'),
-        ('fuel_cost', 'Heating Fuel Cost'),
+    ]
+    if not is_electric:
+        cols += [('fuel_cost', 'Heating Fuel Cost')]
+    cols += [
         ('elec_cost', 'Electricity Cost'),	
         ('cash_flow', 'Net Cash Flow'),
         ('cum_disc_cash_flow', 'Cumulative Discounted Cash Flow')
-    )
+    ]
     old_cols, new_cols = zip(*cols)
     dfc = df_cash_flow[list(old_cols)].copy()
     dfc.columns = new_cols
@@ -423,84 +447,136 @@ def create_results(input_values):
     )
     comps.append(gph)
 
-    md_tmpl = dedent('''
-    ##### Monthly Electricity and Fuel, Before/After
+    if not is_electric:
+        md_tmpl = dedent('''
+        ##### Monthly Electricity and Fuel, Before/After
 
-    This graph shows electricity use and fuel use before and after installation of the heat pump.
-    This is total electricity and fuel use, including energy uses beyond just space heating.
-    ''')
-    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+        This graph shows electricity use and fuel use before and after installation of the heat pump.
+        This is total electricity and fuel use, including energy uses beyond just space heating.
+        ''')
+        comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
-    elec_no_hp = go.Scatter(
-        x=df_mo_dol_base.index,
-        y=df_mo_dol_base.elec_kwh,
-        name='Monthly kWh (no Heat Pump)',
-        line=dict(
-            color='#92c5de',
-            width=2,
-            dash='dash'
-        ),
-        hoverinfo='y',
-    )
+        elec_no_hp = go.Scatter(
+            x=df_mo_dol_base.index,
+            y=df_mo_dol_base.elec_kwh,
+            name='Monthly kWh (no Heat Pump)',
+            line=dict(
+                color='#92c5de',
+                width=2,
+                dash='dash'
+            ),
+            hoverinfo='y',
+        )
 
-    elec_w_hp = go.Scatter(
-        x=df_mo_dol_hp.index,
-        y=df_mo_dol_hp.elec_kwh,
-        name='Monthly kWh (with Heat Pump)',
-        mode='lines+markers',
-        marker=dict(color='#0571b0'),
-        hoverinfo='y',
-    )
+        elec_w_hp = go.Scatter(
+            x=df_mo_dol_hp.index,
+            y=df_mo_dol_hp.elec_kwh,
+            name='Monthly kWh (with Heat Pump)',
+            mode='lines+markers',
+            marker=dict(color='#0571b0'),
+            hoverinfo='y',
+        )
 
-    fuel_no_hp = go.Scatter(
-        x=df_mo_dol_base.index,
-        y=df_mo_dol_base.secondary_fuel_units,
-        name='Monthly Fuel Usage (no Heat Pump)',
-        line=dict(color='#f4a582',
-            width=2,
-            dash='dash',
-        ),
-        hoverinfo='y',
-    )
+        fuel_no_hp = go.Scatter(
+            x=df_mo_dol_base.index,
+            y=df_mo_dol_base.secondary_fuel_units,
+            name='Monthly Fuel Usage (no Heat Pump)',
+            line=dict(color='#f4a582',
+                width=2,
+                dash='dash',
+            ),
+            hoverinfo='y',
+        )
 
-    fuel_w_hp = go.Scatter(
-        x=df_mo_dol_hp.index,
-        y=df_mo_dol_hp.secondary_fuel_units,
-        name='Monthly Fuel Usage (with Heat Pump)',
-        mode='lines+markers',
-        marker=dict(color='#ca0020'),
-        hoverinfo='y',
-    )
+        fuel_w_hp = go.Scatter(
+            x=df_mo_dol_hp.index,
+            y=df_mo_dol_hp.secondary_fuel_units,
+            name='Monthly Fuel Usage (with Heat Pump)',
+            mode='lines+markers',
+            marker=dict(color='#ca0020'),
+            hoverinfo='y',
+        )
 
-    fig = tools.make_subplots(rows=2, cols=1)
+        fig = tools.make_subplots(rows=2, cols=1)
 
-    fig.append_trace(elec_no_hp, 1, 1)
-    fig.append_trace(elec_w_hp, 1, 1)
-    fig.append_trace(fuel_no_hp, 2, 1)
-    fig.append_trace(fuel_w_hp, 2, 1)
+        fig.append_trace(elec_no_hp, 1, 1)
+        fig.append_trace(elec_w_hp, 1, 1)
+        fig.append_trace(fuel_no_hp, 2, 1)
+        fig.append_trace(fuel_w_hp, 2, 1)
 
-    fig['layout'].update(title='Energy Usage: Heat Pump vs. Baseline')
+        fig['layout'].update(title='Energy Usage: Heat Pump vs. Baseline')
 
-    fig['layout']['xaxis1'].update(title='Month', fixedrange=True)
-    fig['layout']['xaxis2'].update(title='Month', fixedrange=True)
-    fig['layout']['yaxis1'].update(
-        title='Electricity Use (kWh)', 
-        hoverformat=',.0f',
-        fixedrange=True,
-    )
-    yaxis2_title = 'Fuel Use (%s)' % (smy['fuel_unit'])
-    fig['layout']['yaxis2'].update(
-        title=yaxis2_title, 
-        hoverformat='.3g',
-        fixedrange=True,
-    )
-    fig['layout']['hovermode'] = 'closest'
+        fig['layout']['xaxis1'].update(title='Month', fixedrange=True)
+        fig['layout']['xaxis2'].update(title='Month', fixedrange=True)
+        fig['layout']['yaxis1'].update(
+            title='Electricity Use (kWh)', 
+            hoverformat=',.0f',
+            fixedrange=True,
+        )
+        yaxis2_title = 'Fuel Use (%s)' % (smy['fuel_unit'])
+        fig['layout']['yaxis2'].update(
+            title=yaxis2_title, 
+            hoverformat='.3g',
+            fixedrange=True,
+        )
+        fig['layout']['hovermode'] = 'closest'
 
-    gph = dcc.Graph(
-        figure=fig,
-        config=my_config,
-        id='gph-5',
-    )
+        gph = dcc.Graph(
+            figure=fig,
+            config=my_config,
+            id='gph-5',
+        )
+
+    else:
+        # Electric Heat Case
+        md_tmpl = dedent('''
+        ##### Monthly Electricity Use Before and After
+
+        This graph shows electricity use before and after installation of the heat pump.
+        This is total electricity use, including all uses of electricity, not just space heating.
+        ''')
+        comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+        elec_no_hp = go.Scatter(
+            x=df_mo_dol_base.index,
+            y=df_mo_dol_base.elec_kwh,
+            name='Monthly kWh (no Heat Pump)',
+            line=dict(
+                color='#92c5de',
+                width=2,
+                dash='dash'
+            ),
+            hoverinfo='y',
+        )
+
+        elec_w_hp = go.Scatter(
+            x=df_mo_dol_hp.index,
+            y=df_mo_dol_hp.elec_kwh,
+            name='Monthly kWh (with Heat Pump)',
+            mode='lines+markers',
+            marker=dict(color='#0571b0'),
+            hoverinfo='y',
+        )
+        layout = go.Layout(
+            title='Monthly Electricity Use, Before/After',
+            xaxis=dict(title='Month', fixedrange=True,),
+            yaxis=dict(
+                title='Electricity (kWh)', 
+                hoverformat=',.0f',
+                fixedrange=True,
+            ),
+            hovermode= 'closest',
+        )
+
+        gph = dcc.Graph(
+            figure=go.Figure(
+                data=[elec_no_hp, elec_w_hp],
+                layout=layout,
+            ),
+            config=my_config,
+            id='gph-5',
+        )
+    
     comps.append(gph)
 
     md_tmpl = dedent('''
@@ -544,27 +620,28 @@ def create_results(input_values):
     comps.append(gph)
 
     md_tmpl = dedent('''
-    ##### Monthly Heat Pump Peak Demand
+    ##### Monthly Change in Electricity Peak Demand
 
-    This graph shows the maximum electrical demand of the heat pump in each
-    month of the year.  Units are kilowatts are reflective of the point during
-    the month when the heat pumps electrical draw is at its maximum.
+    This graph shows how much the peak electricity demand in each month is affected
+    by the heat pump.  The heat pump will normally increase the peak demand, except
+    when the heat pump is used to avoid conventional electric heat; in that case peak
+    demand will decrease and values in the graph below will be negative. Units are kilowatts.
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
     peak_demand = [go.Scatter(
         x=df_mo_en_hp.index,
-        y=df_mo_en_hp.hp_kw, 
+        y=(df_mo_en_hp.total_kw - df_mo_en_base.total_kw), 
         name='Peak Demand',
         mode='lines+markers',
         hoverinfo='y',
     )]
 
     layout = go.Layout(
-        title='Monthly Heat Pump Peak Demand, kW',
+        title='Change in Electricity Peak Demand, kW',
         xaxis=dict(title='Month', fixedrange=True,),
         yaxis=dict(
-            title='Peak Demand, kW', 
+            title='Peak Demand Change, kW', 
             hoverformat=',.2f',
             fixedrange=True,
         ),
