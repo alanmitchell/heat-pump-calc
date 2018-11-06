@@ -154,10 +154,6 @@ app.layout = html.Div(className='container', children=[
     less expensive.  This same approach should be used if you are in need of *replacing* your
     existing heating system; enter the additional cost of the heat pump install relative to 
     replacing the existing system.
-     
-    The current version of the calculator does not allow you to evaluate the installation of a heat pump in a
-    home that currently uses electric resistance (baseboard) heat.  That feature will be available
-    shortly.
     ''')),
    
     LabeledSection('General', [
