@@ -18,7 +18,7 @@ import numpy as np
 from . import library as lib
 from . import ui_helper
 from . import create_results_display
-from .utils import chg_nonnum
+from .utils import chg_nonnum, is_null, to_float
 
 app = dash.Dash(__name__)
 server = app.server             # this is the underlying Flask app
@@ -130,7 +130,6 @@ app.layout = html.Div(className='container', children=[
         alt='sponsors: Northwest Arctic Borough, Homer Electric, Alaska Energy Authority, AHFC, NANA, NAB, Tagiugmiullu Nunamiullu Housing Authority, AVEC, Alaska Power & Telephone',
         src=app.get_asset_url('sponsors.png')
     ),
-    html.H3('------- Beta Version -------', style={'text-align': 'center'}),
 
     dcc.Markdown(dedent('''
     This calculator allows you to evaluate the possible energy and cost savings from use of a
@@ -200,11 +199,12 @@ app.layout = html.Div(className='container', children=[
                     html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv', type='text', style={'maxWidth': 100}), ' /mo'])] ),
                     ])
             ], id='div-man-adv', style={'display': 'none'}),
-            dcc.Checklist(
-                options=[{'label': 'Run Analysis ignoring PCE Electric Rate Assistance', 'value': 'no_pce'}],
-                values=[],
-                id='no_pce_chks'
-            ),
+            html.Div([
+                dcc.Checklist(
+                    options=[{'label': 'Run Analysis ignoring PCE Electric Rate Assistance', 'value': 'no_pce'}],
+                    values=[],
+                    id='no_pce_chks'),
+            ], id='div-ignore-pce', style={'display': 'none'}),
             html.P('.'),
             LabeledSlider(app, 'Pounds of CO2 released per kWh of additional electricity generation:', 'co2_lbs_per_kwh', 
                 0, 3.3, 'pounds/kWh',
@@ -469,6 +469,47 @@ def setblockkwh3(blk2_kwh):
         return f'{int(blk2_kwh) + 1} -'
     except:
         return None
+
+@app.callback(Output('co2_lbs_per_kwh', 'value'),
+    [Input('utility_id', 'value')])
+def set_co2(utility_id):
+    if utility_id is None:
+        raise PreventUpdate
+    else:
+        util = lib.util_from_id(utility_id)
+        if is_null(util.CO2):
+            return 1.6
+        else:
+            return round(util.CO2, 1)
+
+@app.callback(Output('div-ignore-pce', 'style'),
+    [Input('elec_input', 'value'),
+     Input('utility_id', 'value'),
+     Input('pce_ez', 'value'),
+     Input('pce_adv', 'value')])
+def set_ignore_pce_vis(elec_input, utility_id, pce_ez, pce_adv):
+
+    if is_null(elec_input):
+        raise PreventUpdate
+
+    if elec_input == 'util':
+        if is_null(utility_id):
+            raise PreventUpdate
+        util = lib.util_from_id(utility_id)
+        if chg_nonnum(util.PCE, 0.0) == 0.0:
+            return {'display': 'none'}
+        else:
+            return {'display': 'block', 'marginTop': '1rem'}
+    elif elec_input == 'ez':
+        if to_float(pce_ez, 0.0) == 0.0:
+            return {'display': 'none'}
+        else:
+            return {'display': 'block', 'marginTop': '1rem'}
+    elif elec_input == 'adv':
+        if to_float(pce_adv, 0.0) == 0.0:
+            return {'display': 'none'}
+        else:
+            return {'display': 'block', 'marginTop': '1rem'}
 
 @app.callback(Output('div-commun_all_pce', 'style'),
     [Input('bldg_type', 'value')])
