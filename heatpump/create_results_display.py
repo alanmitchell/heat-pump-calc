@@ -313,12 +313,6 @@ def create_results(input_values):
 
     # Cash Flow Table
 
-    comps.append(dcc.Markdown(dedent('''
-    The table below breakdowns the cash flow impacts into categories.  All values are dollars.
-    Positive numbers indicate a beneficial impact (inflow of cash); negative values indicate
-    a detrimental impact (outflow of cash).
-    ''')))
-
     cols = [
         ('initial_cost', 'Initial Cost'),
         ('loan_cost', 'Loan Payments'),
@@ -335,7 +329,18 @@ def create_results(input_values):
     dfc = df_cash_flow[list(old_cols)].copy()
     dfc.columns = new_cols
     dfc.index.name = 'Year'
-    comps.append(generate_table(dfc))
+    cash_tbl = html.Details(style={'maxWidth': 600, 'marginTop': '2em'}, children=[
+        html.Summary('Click Here for Detailed Cash Flow Table'),
+        html.Div(style={'marginTop': '3rem'}, children=[
+            dcc.Markdown(dedent('''
+            The table below breakdowns the cash flow impacts into categories.  All values are dollars.
+            Positive numbers indicate a beneficial impact (inflow of cash); negative values indicate
+            a detrimental impact (outflow of cash).
+            ''')),
+            generate_table(dfc),
+        ])
+    ])
+    comps.append(cash_tbl)
 
     comps.append(dcc.Markdown('.\n\n### Results by Month'))
 
