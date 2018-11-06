@@ -189,7 +189,7 @@ def inputs_to_vars(input_vals):
         errors.append('The May Electricity use must be entered.')
         return errors, vars, extras
 
-    if vars['loan_term'] > vars['hp_life']:
+    if (vars['loan_term'] > vars['hp_life']) and (vars['pct_financed'] > 0):
         errors.append('The Term of the Loan cannot be longer than the Life of the Heat Pump.  The Heat Pump Life can be changed in the Advanced Economic Inputs section.')
         return errors, vars, extras
 

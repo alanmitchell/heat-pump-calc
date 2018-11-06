@@ -363,8 +363,11 @@ class HP_model:
         # supposed to includes sales tax in their input.
         initial_cost[0] = -s.capital_cost * (1 - s.pct_financed) + s.rebate_dol
         loan_pmt = np.pmt(s.loan_interest, s.loan_term, s.capital_cost * s.pct_financed)
-        loan_cost = [0.0] + [loan_pmt] * s.loan_term + [0.0] * (s.hp_life -  s.loan_term)
-        loan_cost = np.array(loan_cost)
+        if loan_pmt < -0.01:   # loan payment is negative
+            loan_cost = [0.0] + [loan_pmt] * s.loan_term + [0.0] * (s.hp_life -  s.loan_term)
+            loan_cost = np.array(loan_cost)
+        else:
+            loan_cost = 0.0
         op_cost = -s.op_cost_chg * make_pattern(s.inflation_rate, s.hp_life)
         fuel_cost = -ann_chg.secondary_fuel_dol * make_pattern(s.fuel_esc_rate, s.hp_life)
         elec_cost = -ann_chg.elec_dol * make_pattern(s.elec_esc_rate, s.hp_life)
