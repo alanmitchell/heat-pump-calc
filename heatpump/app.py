@@ -247,6 +247,11 @@ app.layout = html.Div(className='container', children=[
                 options=make_options(AUX_ELEC_TYPE), value='boiler',
                 help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use for fans/pumps/controls of that system.',
                 ),
+        LabeledRadioItems("Is All of the Building's Heat Provided by one Space Heater like a Toyostove or Wood Stove?",
+                'point_source',
+                options=make_options(YES_NO), value=False,
+                help_text="Answer Yes if one point-source heating system such as a Toyostove or Wood Stove provides All of the Building's heat.  This can be true for small, well-insulated buildings with good heat distribution.",
+                ),
 		LabeledInput('Annual Fuel Use for the building including space heating and any other appliances that use that same fuel. (Optional, but very helpful!):', 'exist_fuel_use', 
                 help_text='This value is optional and may be left blank, but it is a big help in making an accurate estimate of the savings from the heat pump. If left blank, size and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
         LabeledInput('Whole Building Electricity Use (without heat pump) in January:', 'elec_use_jan', 'kWh', 
@@ -303,32 +308,34 @@ app.layout = html.Div(className='container', children=[
                 -20, 20, '°F', 
                 'Please enter the lowest outdoor temperature at which the heat pump will be operated. Turning off the heat pump at low temperatures can either be due to technical limits of the heat pump, or due to you choosing to not run the heat pump in cold temperatures due to poor efficiency or low heat output.', 
                 mark_gap=5, step=1, value=5, max_width=600),
-        html.Hr(),
-        html.P(dedent('''
-            These next questions will help determine how much of the building's 
-            heat load can actually be reached by the Heat Pump.  Often the Heat Pump's indoor units do not
-            fully serve all of the spaces in the building.
-            ''')),
-        LabeledSlider(app, 'Percentage of the Home that is Openly Exposed to the Heat Pump Indoor Units:', 
-                'pct_exposed_to_hp', 
-                0, 100, '%', 
-                'Include all the rooms that are openly exposed to the Indoor Units, not connected through a door.', 
-                max_width=700, mark_gap=10, step=1, value=46),
         html.Div([
+            html.Hr(),
             html.P(dedent('''
-                For those rooms that are not openly exposed to the heat pump indoor units, the following
-                two questions help determine when the heat pump can successfully provide heat to those rooms.
+                These next questions will help determine how much of the building's 
+                heat load can actually be reached by the Heat Pump.  Often the Heat Pump's indoor units do not
+                fully serve all of the spaces in the building.
                 ''')),
-            LabeledRadioItems('What is your Tolerance for Cooler Bedroom and Back Room Temperatures?',
-                    'bedroom_temp_tolerance',
-                    options=make_options(TEMPERATURE_TOLERANCE), value='med',
-                    max_width=600),
-            LabeledRadioItems('Are Doors typically open to the Bedrooms and Back rooms that do not have a Heat Pump Indoor Unit?',
-                    'doors_open_to_adjacent', 
-                    'For those rooms that are adjacent to the spaces where the Heat Pump Indoor Units are located, are the doors to those spaces generally left open?',
-                    options=make_options(OPEN_DOORS), value=True,
-                    max_width=600, labelStyle={'display': 'inline-block'})
-        ], id='div-bedrooms'),
+            LabeledSlider(app, 'Percentage of the Home that is Openly Exposed to the Heat Pump Indoor Units:', 
+                    'pct_exposed_to_hp', 
+                    0, 100, '%', 
+                    'Include all the rooms that are openly exposed to the Indoor Units, not connected through a door.', 
+                    max_width=700, mark_gap=10, step=1, value=46),
+            html.Div([
+                html.P(dedent('''
+                    For those rooms that are not openly exposed to the heat pump indoor units, the following
+                    two questions help determine when the heat pump can successfully provide heat to those rooms.
+                    ''')),
+                LabeledRadioItems('What is your Tolerance for Cooler Bedroom and Back Room Temperatures?',
+                        'bedroom_temp_tolerance',
+                        options=make_options(TEMPERATURE_TOLERANCE), value='med',
+                        max_width=600),
+                LabeledRadioItems('Are Doors typically open to the Bedrooms and Back rooms that do not have a Heat Pump Indoor Unit?',
+                        'doors_open_to_adjacent', 
+                        'For those rooms that are adjacent to the spaces where the Heat Pump Indoor Units are located, are the doors to those spaces generally left open?',
+                        options=make_options(OPEN_DOORS), value=True,
+                        max_width=600, labelStyle={'display': 'inline-block'})
+            ], id='div-bedrooms'),
+        ], id='div-heat-dist'),
     ]),
 
     LabeledSection('Economic Inputs', [
@@ -609,6 +616,14 @@ def hide_aux_elec(fuel_id):
     else:
         return {'display': 'block'}
 
+@app.callback(Output('div-heat-dist', 'style'),
+    [Input('point_source', 'value')])
+def hide_heat_dist(point_source):
+    if point_source:
+        return {'display': 'none'}
+    else:
+        return {'display': 'block'}
+
 @app.callback(Output('label-exist_fuel_use', 'children'),
     [Input('exist_heat_fuel_id', 'value')])
 def label_fuel_use(fuel_id):
@@ -700,9 +715,12 @@ def loan_inputs(pct_financed):
         return {'display': 'none'}
 
 @app.callback(Output('pct_exposed_to_hp', 'value'),
-    [Input('hp_zones', 'value')])
-def set_pct_exposed(zones):
-    return (46, 66, 86, 100)[zones - 1]  # corresponding to 1 - 4 zones
+    [Input('hp_zones', 'value'), Input('point_source', 'value')])
+def set_pct_exposed(zones, point_source):
+    if point_source:
+        return 100
+    else:
+        return (46, 66, 86, 100)[zones - 1]  # corresponding to 1 - 4 zones
 
 @app.callback(Output('capital_cost', 'value'),
     [Input('hp_zones', 'value'), Input('city_id', 'value')])
