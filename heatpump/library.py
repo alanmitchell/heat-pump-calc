@@ -89,7 +89,7 @@ def effic_cutoff(zone_type):
     as efficient or not. 'zone_type' is 'Single' for 'Multi', which affects the
     cutoff.
     """
-    return 12.0 if zone_type=='Single' else 11.0
+    return 12.5 if zone_type=='Single' else 11.0
 
 def heat_pump_manufacturers(zones, efficient_only=False):
     """Returns the list of heat pump manufacturers, sorted alphabetically.
