@@ -74,33 +74,12 @@ def create_results(input_values):
     smy['co2_driving_miles_saved_life'] = smy['co2_driving_miles_saved'] * inputs['hp_life']
     smy['hp_load_frac'] *= 100.   # convert to %
 
-    md_tmpl = dedent('''
-    #### Net Present Value:  **{npv_fmt}**
-
-    The Net Present Value of installing an air-source heat pump is estimated to 
-    be **{npv_fmt}**.
-    ''') 
-    if smy['npv'] > 0:
-        md_tmpl += dedent('''
-        This means that over the life of the equipment you 
-        will earn a total of **\${npv_abs:,.0f}** in today's dollars beyond your
-        initial investment accounting for interest.
-        ''')
+    if smy['max_hp_reached']:
+        smy['max_hp_str'] = '*did* deliver its maximum output capacity at some'
     else:
-        md_tmpl += dedent('''
-        This means that over the life of the equipment you were
-        **\${npv_abs:,.0f}** short of paying back your intitial investment
-        with interest.
-        ''')
-    md_tmpl += dedent('''
-    This only includes economic costs and benefits and does not include any
-    environmental or social benefits of the heat pump.
-    ''')
+        smy['max_hp_str'] =  '*did not* need to deliver its maximum output capacity at any'
 
-    
 
-    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
-    
     if np.isnan(smy['irr']):
         md_tmpl = dedent('''
         #### Rate of Return:  Not Available
@@ -125,6 +104,34 @@ def create_results(input_values):
         ''')
         comps.append(dcc.Markdown(md))
 
+    md_tmpl = dedent('''
+    #### Net Present Value:  **{npv_fmt}**
+
+    The Net Present Value of installing an air-source heat pump is estimated to 
+    be **{npv_fmt}**.
+    ''') 
+    if smy['npv'] > 0:
+        md_tmpl += dedent('''
+        This means that over the life of the equipment you 
+        will earn a total of **\${npv_abs:,.0f}** in today's dollars beyond your
+        initial investment accounting for interest.
+        ''')
+    else:
+        md_tmpl += dedent('''
+        This means that over the life of the equipment you were
+        **\${npv_abs:,.0f}** short of paying back your intitial investment
+        with interest.
+        ''')
+    md_tmpl += dedent('''
+    If you are trying out different heat pumps or different operating procedures
+    for the heat pump, you should try to pick the combination that maximizes this
+    net present value figure.
+    Note that this only includes economic costs and benefits and does not include any
+    environmental or social benefits of the heat pump.
+    ''')
+
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+    
     if not is_electric:
         # formatted fuel savings
         if smy['fuel_savings'] < 50:
@@ -163,6 +170,25 @@ def create_results(input_values):
         electricity use of the buildings is reduced by this amount per year.
         ''')
         comps.append(dcc.Markdown(md))
+
+    md_tmpl = dedent('''
+        #### Heat Pump Sizing
+
+        This energy model shows that the heat pump {max_hp_str} point during the year.
+    ''')
+    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+
+    if smy['max_hp_reached']:
+        txt = dedent('''
+        You might try larger heat pump sizes in the model to see if the Net Present 
+        Value benefit of the heat pump increases.
+        ''')
+    else:
+        txt = dedent('''
+        You might try smaller heat pump sizes in the model to see if the Net Present 
+        Value benefit of the heat pump increases.
+        ''')
+    comps.append(dcc.Markdown(txt))
 
     md_tmpl = dedent('''
     #### Seasonal Average Heat Pump COP: **{cop:.1f}**
@@ -204,7 +230,11 @@ def create_results(input_values):
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
-    comps.append(dcc.Markdown(dedent('''
+    # Gather the cash flow results components to display in an Advanced Details 
+    # components.
+    cash_comps = []
+
+    cash_comps.append(dcc.Markdown(dedent('''
     ### Cash Flow Results
 
     The graph below shows how the heat pump project impacts cash flow in each of the years
@@ -253,11 +283,11 @@ def create_results(input_values):
         config=my_config,
         id='gph-1',
     )
-    comps.append(gph)
+    cash_comps.append(gph)
 
     # Cumulative Cash Flow Graph
 
-    comps.append(dcc.Markdown(dedent('''
+    cash_comps.append(dcc.Markdown(dedent('''
     The graph below shows the running total of cash flow over the life of the heat pump.
     If the total cash flow exceeds zero (turns black), your portion of the heat pump investment 
     has paid itself back with interest. (The graph technically shows cumulative, discounted cash flow).
@@ -309,7 +339,7 @@ def create_results(input_values):
         config=my_config,
         id='gph-2',
     )
-    comps.append(gph)
+    cash_comps.append(gph)
 
     # Cash Flow Table
 
@@ -329,20 +359,22 @@ def create_results(input_values):
     dfc = df_cash_flow[list(old_cols)].copy()
     dfc.columns = new_cols
     dfc.index.name = 'Year'
-    cash_tbl = html.Details(style={'maxWidth': 600, 'marginTop': '2em'}, children=[
-        html.Summary('Click Here for Detailed Cash Flow Table'),
-        html.Div(style={'marginTop': '3rem'}, children=[
-            dcc.Markdown(dedent('''
-            The table below breakdowns the cash flow impacts into categories.  All values are dollars.
-            Positive numbers indicate a beneficial impact (inflow of cash); negative values indicate
-            a detrimental impact (outflow of cash).
-            ''')),
-            generate_table(dfc),
-        ])
-    ])
-    comps.append(cash_tbl)
+    cash_comps.append(
+        dcc.Markdown(dedent('''
+        The table below breakdowns the cash flow impacts into categories.  All values are dollars.
+        Positive numbers indicate a beneficial impact (inflow of cash); negative values indicate
+        a detrimental impact (outflow of cash).
+        '''))
+    )
+    cash_comps.append(generate_table(dfc))
 
-    comps.append(dcc.Markdown('.\n\n### Results by Month'))
+    cash_results = html.Details(style={'maxWidth': 600, 'marginTop': '2em'}, children=[
+        html.Summary('Click Here for Year-by-Year Cash Flow Information'),
+        html.Div(style={'marginTop': '3rem'}, children=cash_comps)
+    ])
+    comps.append(cash_results)
+
+    comps.append(dcc.Markdown('### Results by Month'))
 
     md_tmpl = dedent('''
     ##### Monthly Space Heating Load
@@ -405,8 +437,10 @@ def create_results(input_values):
     a green bar drops from the dot down to the new level of energy cost for the
     month.  If the heat pump raises costs in the month (e.g. the added electricity
     cost is more than the fuel cost savings), a red bar extends from the current
-    cost dot to the new, higher, energy cost level.  All energy uses are inlcuded
-    in the costs, not just space heating.
+    cost dot to the new, higher, energy cost level.  It would be more economical to
+    shut off the heat pump in these months.
+    
+    All energy uses are included in the costs, not just space heating.
     ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
@@ -483,6 +517,10 @@ def create_results(input_values):
     )
     comps.append(gph)
 
+    # These components will be part of the more detailed monthly components
+    # presented.
+    monthly_comps = []
+
     if not is_electric:
         md_tmpl = dedent('''
         ##### Monthly Electricity and Fuel, Before/After
@@ -490,7 +528,7 @@ def create_results(input_values):
         This graph shows electricity use and fuel use before and after installation of the heat pump.
         This is total electricity and fuel use, including energy uses beyond just space heating.
         ''')
-        comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+        monthly_comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
         elec_no_hp = go.Scatter(
             x=df_mo_dol_base.index,
@@ -613,7 +651,7 @@ def create_results(input_values):
             id='gph-5',
         )
     
-    comps.append(gph)
+    monthly_comps.append(gph)
 
     md_tmpl = dedent('''
     ##### Monthly Heat Pump Efficiency
@@ -624,7 +662,7 @@ def create_results(input_values):
     efficient.  The heat pump's efficiency improves as the temperature outside
     warms.
     ''')
-    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+    monthly_comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
     efficiency = [go.Scatter(
         x=df_mo_en_hp.index,
@@ -653,7 +691,7 @@ def create_results(input_values):
         config=my_config,
         id='gph-6',
     )
-    comps.append(gph)
+    monthly_comps.append(gph)
 
     md_tmpl = dedent('''
     ##### Monthly Change in Electricity Peak Demand
@@ -663,7 +701,7 @@ def create_results(input_values):
     when the heat pump is used to avoid conventional electric heat; in that case peak
     demand will decrease and values in the graph below will be negative. Units are kilowatts.
     ''')
-    comps.append(dcc.Markdown(md_tmpl.format(**smy)))
+    monthly_comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
     peak_demand = [go.Scatter(
         x=df_mo_en_hp.index,
@@ -692,14 +730,15 @@ def create_results(input_values):
         config=my_config,
         id='gph-7',
     )
-    comps.append(gph)
+    monthly_comps.append(gph)
+
+    monthly_results = html.Details(style={'maxWidth': 600, 'marginTop': '2em', 'marginBottom': '2em'}, children=[
+        html.Summary('Click Here for More Detailed Monthly Information'),
+        html.Div(style={'marginTop': '3rem'}, children=monthly_comps)
+    ])
+    comps.append(monthly_results)
 
     # Design Heat Load Info
-
-    if smy['max_hp_reached']:
-        smy['max_hp_str'] = '*did* deliver its maximum output capacity at some'
-    else:
-        smy['max_hp_str'] =  '*did not* need to deliver its maximum output capacity at any'
 
     md_tmpl = dedent('''
     ##### Design Heating Load Information
