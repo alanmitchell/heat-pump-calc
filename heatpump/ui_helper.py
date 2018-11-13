@@ -49,8 +49,10 @@ input_info = [
     ('elec_use_jan', 'January Electric Use', 'null-ok,float,greater-than-zero'),
     ('elec_use_may', 'May Electric Use', 'null-ok,float,greater-than-zero'),
     ('indoor_heat_setpoint', 'Heating Thermostat'),
-    ('hp_manuf_id', 'Heat Pump Manufacturer', 'extra'),    # needed to get a callback to fire
-    ('hp_model_id', 'Heat Pump Model'),
+    ('hp_zones', 'Number of Heat Pump Zones', 'extra'),
+    ('hp_selection', 'Heat Pump Selection Method', 'extra'),
+    ('hp_manuf_id', 'Heat Pump Manufacturer', 'null-ok,extra'),    # needed to get a callback to fire
+    ('hp_model_id', 'Heat Pump Model', 'null-ok'),
     ('capital_cost', 'Installed Heat Pump Cost', 'float'),
     ('rebate_dol', 'Heat Pump Rebate', 'null-ok,null-to-zero,float'),
     ('pct_financed', '% of Heat Pump Financed'),
@@ -188,6 +190,16 @@ def inputs_to_vars(input_vals):
     if vars['exist_heat_fuel_id'] != ELECTRIC_ID and is_null(vars['elec_use_may']):
         errors.append('The May Electricity use must be entered.')
         return errors, vars, extras
+
+    if extras['hp_selection'] == 'advanced':
+         if is_null(vars['hp_model_id']):
+             errors.append('You must Select a Heat Pump Model.')
+             return errors, vars, extras
+    else:
+        # simple selection.  Substitute a Generic ID for the Heat Pump Model
+        # based on the number of zones served.  Use negative numbers for generic
+        # IDs.
+        vars['hp_model_id'] = -extras['hp_zones']
 
     if (vars['loan_term'] > vars['hp_life']) and (vars['pct_financed'] > 0):
         errors.append('The Term of the Loan cannot be longer than the Life of the Heat Pump.  The Heat Pump Life can be changed in the Advanced Economic Inputs section.')

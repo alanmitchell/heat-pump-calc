@@ -121,9 +121,47 @@ def heat_pump_models(manufacturer, zones, efficient_only=False):
 
 def heat_pump_from_id(hp_id):
     """Returns a Pandas series containing information about the heat pump identified by
-    the ID of 'hp_id'.
+    the ID of 'hp_id'.  If 'hp_id' is a negative value, this method returns the characteristics
+    of a generic heat pump that serves -hp_id heads.  So, if 'hp_id' is -2, characteristics
+    of a two-head heat pump is returned.  These generic characteristics have been chosen to
+    be close to best-in-class.
     """
-    return df_heatpumps.loc[hp_id]
+    if hp_id >= 0:
+        return df_heatpumps.loc[hp_id]
+    else:
+        # return generic heat pump.  first get a Pandas series object to fill
+        # out
+        gen_hp = df_heatpumps.iloc[0].copy()
+        gen_hp['brand'] =  'Generic'
+        gen_hp['ahri_num'] = 0
+        gen_hp['zones'] =  'Single' if hp_id == -1 else 'Multi'
+        gen_hp['outdoor_model'] =  'Generic'
+        gen_hp['indoor_model'] =  'Generic'
+        for prop in ('hspf', 'in_pwr_5F_max', 'capacity_5F_max', 'in_pwr_47F_min',
+                    'cop_5F_max', 'cop_17F_max', 'cop_47F_max'):
+            gen_hp[prop] = np.nan
+        if hp_id == -1:
+            # Fujitsu 12RLS3
+            gen_hp['hspf'] = 14.0
+            gen_hp['in_pwr_5F_max'] = 2.1
+            gen_hp['capacity_5F_max'] =  16500.0
+        elif hp_id == -2:
+            # Gree MULTI36HP230V1CO
+            gen_hp['hspf'] = 11.5
+            gen_hp['in_pwr_5F_max'] = 3.12
+            gen_hp['capacity_5F_max'] =  21356.0
+        elif hp_id == -3:
+            # Mitsubishi Electric PUMY-P36NKMU1
+            gen_hp['hspf'] = 11.5
+            gen_hp['in_pwr_5F_max'] = 3.695
+            gen_hp['capacity_5F_max'] =  29000.0
+        elif hp_id == -4:
+            # Mitsubishi Electric PUMY-P48NKMU1
+            gen_hp['hspf'] = 11.7
+            gen_hp['in_pwr_5F_max'] = 4.849
+            gen_hp['capacity_5F_max'] =  36400.0
+
+        return gen_hp
 
 def fuels():
     """Returns a list of (fuel name, fuel ID) for all fuels.

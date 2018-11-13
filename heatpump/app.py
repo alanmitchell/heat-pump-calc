@@ -110,6 +110,11 @@ HP_ZONES = (
     ('Multi Zone: 4 zones installed', 4),
 )
 
+HP_SELECTION = (
+    ('Simple (Heat Pump Model is Automatically Selected)', 'simple'),
+    ('Advanced (You select Manufacturer/Model)', 'advanced'),
+)
+
 OPEN_DOORS = (
     ('Open Doors', True),
     ('Closed Doors', False),
@@ -266,21 +271,29 @@ app.layout = html.Div(className='container', children=[
     LabeledSection('Heat Pump Info', [
         
         LabeledRadioItems('Type of Heat Pump: Single- or Multi-zone', 'hp_zones',
-                'Select the number of Indoor Units (heads) you expect to install with the Heat Pump.',
+                'Select the number of Indoor Units (heads) you expect to install with the Heat Pump.  Note that Single Zone systems are more efficient and less expensive than Multi Zone systems, but may not be able to serve all of the heating load of your building.',
                 options=make_options(HP_ZONES), value=1),
-        LabeledChecklist('In the List Below, Show Most Efficient Models Only?', 'efficient_only',
-                options=[{'label': 'Most Efficient Only', 'value': 'efficient'}],
-                values=['efficient']),
-        LabeledDropdown('Heat Pump Manufacturer', 'hp_manuf_id',
-                options=[],
-                max_width=300,
-                placeholder='Select Heat Pump Manufacturer'),   
-        LabeledDropdown('Heat Pump Model. See Help Question Mark for detail on Info Presented in the List.', 'hp_model_id',
-                "Shown for each model is the model's heat output at 5 °F Outdoor Temperature; the HSPF, which is a measure of the system's heating efficiency; and model numbers for the system's outdoor and indoor units",
-                options=[],
-                max_width=1000,   # wide as possible
-                placeholder='Select Heat Pump Model',
-                style={'fontSize': 14}),
+        LabeledRadioItems('Heat Pump Selection Method', 'hp_selection',
+                'With Simple selection, the calculator models an efficient heat pump sized roughly for your application. With Advanced Selection, you pick the Manufacturer and Model of heat pump.',
+                options=make_options(HP_SELECTION), value='simple'),
+        html.Div([
+            dcc.Markdown('Generic Heat Pump Info Here', id='md-hp-simple'),
+        ], id='div-hp-simple', style={'marginTop': '2em', 'marginBottom': '2em'}),
+        html.Div([
+            LabeledChecklist('In the List Below, Show Most Efficient Heat Pump Models Only?', 'efficient_only',
+                    options=[{'label': 'Most Efficient Only', 'value': 'efficient'}],
+                    values=['efficient']),
+            LabeledDropdown('Heat Pump Manufacturer', 'hp_manuf_id',
+                    options=[],
+                    max_width=300,
+                    placeholder='Select Heat Pump Manufacturer'),   
+            LabeledDropdown('Heat Pump Model. See Help Question Mark for detail on Info Presented in the List.', 'hp_model_id',
+                    "Shown for each model is the model's heat output at 5 °F Outdoor Temperature; the HSPF, which is a measure of the system's heating efficiency; and model numbers for the system's outdoor and indoor units",
+                    options=[],
+                    max_width=1000,   # wide as possible
+                    placeholder='Select Heat Pump Model',
+                    style={'fontSize': 14}),
+        ], id='div-hp-advanced', style={'display': 'none'}),
         LabeledInput('Installed Cost of Heat Pump (include applicable sales tax), $', 'capital_cost', '$', 
                 'Include all equipment, labor, and applicable sales tax costs.  If this is new construction or your existing heating system needs replacement, only enter the extra cost of the heat pump relative to the alternative heating system.',
                 value=4500),
@@ -677,6 +690,35 @@ def garage_heated(stalls):
         return {'display': 'block'}
     else:
         return {'display': 'none'}
+
+@app.callback(Output('div-hp-simple', 'style'),
+    [Input('hp_selection', 'value')])
+def show_simple_hp(hp_selection):
+    if hp_selection=='simple':
+        return {'display': 'block', 'marginTop': '2em', 'marginBottom': '3em'}
+    else:
+        return {'display': 'none'}
+
+@app.callback(Output('md-hp-simple', 'children'),
+    [Input('hp_zones', 'value')])
+def show_simple_model(hp_zones):
+    if is_null(hp_zones):
+        return ''
+    else:
+        # The library knows how to return generic models for 1 through 4
+        # zones by passing the negative zone count.
+        hpmod = lib.heat_pump_from_id(-hp_zones)
+        return dedent(f'''
+        **Heat Pump Characteristics Used in Calculator:**
+
+        *HSPF (a Rating of Heating Efficiency):* **{hpmod.hspf:.1f}**  
+        *Maximum Heat Output at 5 °F:* **{hpmod.capacity_5F_max:,.0f} BTUs per hour**
+        ''')
+
+@app.callback(Output('div-hp-advanced', 'style'),
+    [Input('hp_selection', 'value')])
+def show_advanced_hp(hp_selection):
+    return {'display': 'block'} if hp_selection=='advanced' else {'display': 'none'}
 
 @app.callback(Output('hp_manuf_id', 'options'), 
     [Input('hp_zones', 'value'), Input('efficient_only', 'values')])
