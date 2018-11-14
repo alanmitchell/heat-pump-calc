@@ -197,6 +197,16 @@ class HomeHeatModel(object):
         balance_point_garage = HomeHeatModel.GARAGE_HEATING_SETPT - htg_effect[s.insul_level - 1] / s.ua_true_up
         #print(balance_point_home, s.ua_true_up, s.ua_home)
 
+        # Determine a true-up factor to limit the maximum capacity at 5 F to the
+        # manufacturer's specification, in case the approach of using the COP at 5 F
+        # times the maximum power produces a higher number for this model.
+        cop_5F = np.interp(5.0, HomeHeatModel.TEMPS_FIT, HomeHeatModel.COPS_FIT)
+        max_from_curve = cop_5F * s.hp_model.in_pwr_5F_max * 3412.
+        if s.hp_model.capacity_5F_max < max_from_curve:
+            max_capacity_true_up = s.hp_model.capacity_5F_max / max_from_curve
+        else:
+            max_capacity_true_up = 1.0
+
         # BTU loads in the hour for the heat pump and for the secondary system.
         hp_load = []
         secondary_load = []
@@ -218,7 +228,7 @@ class HomeHeatModel(object):
             else:
                 # Build up the possible heat pump load, and then limit it to 
                 # maximum available from the heat pump.
-                max_hp_output = s.hp_model.in_pwr_5F_max * h.cop * 3412.
+                max_hp_output = s.hp_model.in_pwr_5F_max * h.cop * 3412. * max_capacity_true_up
 
                 # Start with all of the load in the spaces exposed to heat pump indoor
                 # units.
