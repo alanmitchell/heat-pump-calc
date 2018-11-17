@@ -259,10 +259,27 @@ app.layout = html.Div(className='container', children=[
                 ),
 		LabeledInput('Annual Fuel Use (see callback for label)', 'exist_fuel_use', 
                 help_text='This value is optional and may be left blank, but it is a big help in making an accurate estimate of the savings from the heat pump. If left blank, size and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
-        LabeledInput('Whole Building Electricity Use (without heat pump) in January:', 'elec_use_jan', 'kWh', 
-                help_text="This defaults to the value found for this City, please don't adjust unless you have your utility bill with actual numbers."),
-        LabeledInput('Whole Building Electricity Use (without heat pump) in May:', 'elec_use_may', 'kWh', 
-                help_text="This defaults to the value found for this City, please don't adjust unless you have your utility bill with actual numbers."),
+        html.Div([
+            html.Hr(),
+            dcc.Markdown(dedent('''
+            The following inputs asking for January and May electricity use are important in two situations:
+
+            * Your home or building is in Rural Alaska and receives Power Cost Equalization (PCE) limited to 500 kilowatt-hours per month.
+            * Your utility has a "block" rate structure where the electricity rate varies depending on how much you use.
+
+            If either one of those is true, review the Video Help below and take time to accurately fill out these inputs.
+            Otherwise, these inputs have no effect on the financial payback of a heat pump (although they do affect
+            some of the total energy cost graphs in the results section).
+            ''')),
+            html.A('Video Help for Finding Electricity Usage on Your Bill',
+                href='https://soapbox.wistia.com/videos/lheK3bAob2',
+                target='_blank'),
+            LabeledInput('Whole Building Electricity Use (without heat pump) in January:', 'elec_use_jan', 'kWh', 
+                    help_text="This defaults to the value found for this City, don't adjust unless you have your utility bill with actual numbers."),
+            LabeledInput('Whole Building Electricity Use (without heat pump) in May:', 'elec_use_may', 'kWh', 
+                    help_text="This defaults to the value found for this City, don't adjust unless you have your utility bill with actual numbers."),
+            html.Hr(),
+        ], id='div-jan-may'),
         html.Br(),
         LabeledSlider(app, 'Heating Temperature Setpoint:', 'indoor_heat_setpoint',
                       60, 80, '°F',
@@ -667,17 +684,9 @@ def whole_bldg_may(city_id, fuel_id):
     may_elec = np.round(may_elec, 0)
     return may_elec
 
-@app.callback(Output('div-elec_use_jan', 'style'),
+@app.callback(Output('div-jan-may', 'style'),
     [Input('exist_heat_fuel_id', 'value')])
 def hide_jan_use(fuel_id):
-    if fuel_id == ui_helper.ELECTRIC_ID:
-        return {'display': 'none'}
-    else:
-        return {'display': 'block'}
-
-@app.callback(Output('div-elec_use_may', 'style'),
-    [Input('exist_heat_fuel_id', 'value')])
-def hide_may_use(fuel_id):
     if fuel_id == ui_helper.ELECTRIC_ID:
         return {'display': 'none'}
     else:
