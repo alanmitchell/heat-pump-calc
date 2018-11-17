@@ -257,7 +257,7 @@ app.layout = html.Div(className='container', children=[
                 options=make_options(YES_NO), value=False,
                 help_text="Answer Yes if one point-source heating system such as a Toyostove or Wood Stove provides All of the Building's heat.  This can be true for small, well-insulated buildings with good heat distribution.",
                 ),
-		LabeledInput('Annual Fuel Use for the building including space heating and any other appliances that use that same fuel. (Optional, but very helpful!):', 'exist_fuel_use', 
+		LabeledInput('Annual Fuel Use (see callback for label)', 'exist_fuel_use', 
                 help_text='This value is optional and may be left blank, but it is a big help in making an accurate estimate of the savings from the heat pump. If left blank, size and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
         LabeledInput('Whole Building Electricity Use (without heat pump) in January:', 'elec_use_jan', 'kWh', 
                 help_text="This defaults to the value found for this City, please don't adjust unless you have your utility bill with actual numbers."),
@@ -643,7 +643,7 @@ def label_fuel_use(fuel_id):
     if fuel_id == ui_helper.ELECTRIC_ID:
         return 'Total Annual Electricity Use of the building, including all uses of electricity.  (Optional, but very helpful!):'
     else:
-        return 'Annual Fuel Use of the building including space heating and any other appliances that use that same fuel. (Optional, but very helpful!):'
+        return 'Annual Fuel Use for the building including space heating and any other appliances that use that same fuel. (Optional, but very helpful for an accurate estimate of heat pump savings, particularly if your building is super-efficient or very inefficient.):'
 
 @app.callback(Output('elec_use_jan','value'),
     [Input('city_id','value'), Input('exist_heat_fuel_id', 'value')])
