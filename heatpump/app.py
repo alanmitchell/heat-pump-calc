@@ -176,8 +176,9 @@ app.layout = html.Div(className='container', children=[
                           'Choose "Select Utility Rate Schedule" if you would like to select a utility based on your location. Select "Manual Entry" if you would like to manually enter utility and PCE rates. Finally, select "Manual Entry (Advanced)" if you would like to enter block rates. * A copy of your utility bill will be necessary for both manual entry options.',
                           options=make_options(ELEC_INPUT_METHOD), value='util'),
         html.Div([
-            LabeledDropdown('Select your Utility and Rate Schedule','utility_id', options=[],placeholder='Select Utility Company'),
-            ],id='div-schedule', style={'display': 'none'}),
+            LabeledDropdown('Select your Utility and Rate Schedule','utility_id', options=[], placeholder='Select Utility Company'),
+            dcc.Markdown('', id='util-rate-elements'),
+        ], id='div-schedule', style={'display': 'none'}),
 
         html.Div([html.Table(
             [
@@ -185,7 +186,7 @@ app.layout = html.Div(className='container', children=[
                 html.Tr( [html.Td(html.Label('PCE Rate (only if eligible building):')), html.Td(['$ ', dcc.Input(id='pce_ez', type='text', style={'maxWidth': 100}), ' /kWh'])] ),
                 html.Tr( [html.Td(html.Label('Customer Charge:')), html.Td(['$ ', dcc.Input(id='customer_chg_ez', type='text', style={'maxWidth': 100}), ' /month'])] ),                    
             ]
-        ),],id='div-man-ez', style={'display': 'none'}),
+        )],id='div-man-ez', style={'display': 'none'}),
         
         html.Div([
                 html.Label('Enter block rates:'),
@@ -201,6 +202,7 @@ app.layout = html.Div(className='container', children=[
                     ])
             ], id='div-man-adv', style={'display': 'none'}),
             html.Div([
+                html.Hr(),
                 dcc.Checklist(
                     options=[{'label': 'Run Analysis ignoring PCE Electric Rate Assistance', 'value': 'no_pce'}],
                     values=[],
@@ -543,6 +545,38 @@ def set_ignore_pce_vis(elec_input, utility_id, pce_ez, pce_adv):
             return {'display': 'none'}
         else:
             return {'display': 'block', 'marginTop': '1rem'}
+
+@app.callback(Output('util-rate-elements', 'children'),
+    [Input('utility_id', 'value')])
+def show_rate_elements(util_id):
+
+    if util_id is None:
+        return ''
+
+    util = lib.util_from_id(util_id)
+    
+    s = dedent(f'''
+    **Electric Rate Elements for this Utility:**
+
+    Monthly Customer Charge: ${chg_nonnum(util.CustomerChg, 0.0):.2f} /month  
+    Demand Charge: ${chg_nonnum(util.DemandCharge, 0.0):.2f} /kW/month  
+    Power Cost Equalization: ${chg_nonnum(util.PCE, 0.0):.4f} /kWh  
+
+    *kWh Energy Charges:*  
+    ''')
+    bottom = 1
+    for top, rate in util.Blocks:
+        if np.isnan(top):
+            top_fmt = 'all'
+        else:
+            top_fmt = '%.0f' % top 
+        s += f"{bottom} - {top_fmt} kWh: ${rate:.4f} /kWh  \n"
+        if np.isnan(top):
+            break
+        else:
+            bottom = int(top) + 1
+    
+    return s
 
 @app.callback(Output('div-commun_all_pce', 'style'),
     [Input('bldg_type', 'value')])
