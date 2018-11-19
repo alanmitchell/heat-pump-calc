@@ -42,6 +42,7 @@ class HomeHeatModel(object):
                  exist_kwh_per_mmbtu,     # Boiler: 5.5, Toyo: 3, Oil Furnace: 8.75 - 15
                  co2_lbs_per_kwh,
                  low_temp_cutoff,
+                 off_months,
                  garage_stall_count,
                  garage_heated_by_hp,
                  bldg_floor_area,
@@ -147,6 +148,10 @@ class HomeHeatModel(object):
         # temperature cutoff.
         hp_is_running = lambda x: (x.quantile(0.2) > self.low_temp_cutoff)
         dfh['running'] = dfh.groupby('day_of_year')['db_temp'].transform(hp_is_running)
+
+        # Also consider whether the user has selected the month as an Off month.
+        off_mask = dfh.month.isin(s.off_months)
+        dfh.loc[off_mask, 'running'] = False
 
         # Determine a heat pump COP for each hour. To adjust for the actual indoor
         # setpoint, adjust the

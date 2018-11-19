@@ -115,6 +115,15 @@ HP_SELECTION = (
     ('Advanced (You select Manufacturer/Model)', 'advanced'),
 )
 
+OFF_MONTHS = (
+    ('October', 10),
+    ('November', 11),
+    ('December', 12),
+    ('January', 1),
+    ('February', 2),
+    ('March', 3),
+)
+
 OPEN_DOORS = (
     ('Open Doors', True),
     ('Closed Doors', False),
@@ -340,6 +349,8 @@ app.layout = html.Div(className='container', children=[
                 -20, 20, '°F', 
                 'Please enter the lowest outdoor temperature at which the heat pump will be operated. Turning off the heat pump at low temperatures can either be due to technical limits of the heat pump, or due to you choosing to not run the heat pump in cold temperatures due to poor efficiency or low heat output.', 
                 mark_gap=5, step=1, value=5, max_width=600),
+        LabeledChecklist('Select Months when Heat Pump is Turned Off for Entire Month:', 'off_months_chks',
+            options=make_options(OFF_MONTHS), values=[], max_width=500),
         html.Div([
             html.Hr(),
             html.P(dedent('''

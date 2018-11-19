@@ -59,6 +59,7 @@ input_info = [
     ('loan_term', 'Length/Term of Loan'),
     ('loan_interest', 'Loan Interest Rate'),
     ('low_temp_cutoff', 'Low Temperature Cutoff of Heat Pump'),
+    ('off_months_chks', 'Months when Heat Pump is Off'),
     ('pct_exposed_to_hp', 'Percent of Home Open to Heat Pump'),
     ('bedroom_temp_tolerance', 'Bedroom Temperature Tolerance'),
     ('doors_open_to_adjacent', 'Doors Open to Adjacent Spaces'),
