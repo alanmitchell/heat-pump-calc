@@ -1,6 +1,8 @@
 # don't include the update script
 update
 
+*.json
+
 # Visual Studio settings
 .vscode
 
