@@ -400,7 +400,10 @@ class HP_model:
         s.summary['fuel_use_base'] = ann_base.secondary_fuel_units
         s.summary['fuel_use_hp'] =  ann_hp.secondary_fuel_units
         s.summary['fuel_use_chg'] = ann_chg.secondary_fuel_units
-        s.summary['fuel_price_incremental'] = ann_chg.secondary_fuel_dol / ann_chg.secondary_fuel_units
+        if ann_chg.secondary_fuel_units != 0.0:
+            s.summary['fuel_price_incremental'] = ann_chg.secondary_fuel_dol / ann_chg.secondary_fuel_units
+        else:
+            s.summary['fuel_price_incremental'] = np.nan
         s.summary['elec_use_base'] = ann_base.elec_kwh
         s.summary['elec_use_hp'] =  ann_hp.elec_kwh
         s.summary['elec_use_chg'] = ann_chg.elec_kwh
