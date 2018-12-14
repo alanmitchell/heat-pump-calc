@@ -821,7 +821,7 @@ def set_pct_exposed(zones, point_source):
 @app.callback(Output('capital_cost', 'value'),
     [Input('hp_zones', 'value'), Input('city_id', 'value')])
 def set_capital_cost(zones, city_id):
-    cost = (4000, 5500, 7500, 9500)[zones - 1]
+    cost = (4000, 6200, 8200, 10200)[zones - 1]
     if city_id is None:
         return cost
     else:
