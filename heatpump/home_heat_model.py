@@ -1,3 +1,6 @@
+"""Holds the class 'HomeHeatModel' that simulates the space heating 
+energy use of the home either with or without the heat pump.
+"""
 import inspect
 
 import numpy as np
@@ -33,6 +36,10 @@ def temp_depression(ua_per_ft2,
     return temp_depress
 
 class HomeHeatModel(object):
+    """Class to simulate the space heating energy use of the home, either
+    with our without a heat pump.  'calculate' is the method used to 
+    initiate the calculation.
+    """
     
     def __init__(self,
                  city_id,                 # ID of City being modeled

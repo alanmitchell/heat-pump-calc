@@ -1,4 +1,4 @@
-"""Provides a class to model the impact of a heat pump on
+"""Provides a class, HP_model, to model the impact of a heat pump on
 energy use and cost.
 """
 from pprint import pformat
@@ -47,6 +47,11 @@ def convert_co2_to_miles_driven(co2_saved):
 
 
 class HP_model:
+    """This is the class that orchestrates the heat pump analysis, running the home
+    energy model with and without the heat pump.  The class performs the economic
+    analysis and stores all results as object attributes.  The main method that
+    is run to perform the analysis is "run()".
+    """
 
     # Some of inputs parameters are documented in the home_heat_model.HomeHeatModel class constructor;
     # those inputs are marked as such below.
@@ -115,6 +120,9 @@ class HP_model:
         return s
         
     def run(self):
+        """This method performs all of the modeling and analysis, storing
+        results as object attributes.
+        """
         
         # shortcut for self
         s = self
