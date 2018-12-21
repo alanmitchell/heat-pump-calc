@@ -48,45 +48,47 @@ def convert_co2_to_miles_driven(co2_saved):
 
 class HP_model:
 
+    # Some of inputs parameters are documented in the home_heat_model.HomeHeatModel class constructor;
+    # those inputs are marked as such below.
     def __init__(self,
-                 city_id,
-                 utility,
-                 pce_limit,
-                 co2_lbs_per_kwh,
-                 exist_heat_fuel_id,
-                 exist_unit_fuel_cost,
-                 exist_fuel_use,
-                 exist_heat_effic,
-                 exist_kwh_per_mmbtu,
-                 includes_dhw,
-                 includes_dryer,
-                 includes_cooking,
-                 occupant_count,
-                 elec_use_jan,
-                 elec_use_may,
-                 hp_model_id,
-                 low_temp_cutoff,
-                 off_months_chks,
-                 garage_stall_count,
-                 garage_heated_by_hp,
-                 bldg_floor_area,
-                 indoor_heat_setpoint,
-                 insul_level,  
-                 pct_exposed_to_hp,
-                 doors_open_to_adjacent,
-                 bedroom_temp_tolerance,
-                 capital_cost,
-                 rebate_dol,
-                 pct_financed,
-                 loan_term,
-                 loan_interest,
-                 hp_life,
-                 op_cost_chg,
-                 sales_tax,
-                 discount_rate,
-                 inflation_rate,
-                 fuel_esc_rate,
-                 elec_esc_rate,
+                 city_id,                # see home_heat_model.HomeHeatModel
+                 utility,                # The full Pandas Series describing the Electric Utility
+                 pce_limit,              # The maximum kWh in a month subsidized by PCE (0 will mean no PCE subsidy)
+                 co2_lbs_per_kwh,        # see home_heat_model.HomeHeatModel
+                 exist_heat_fuel_id,     # see home_heat_model.HomeHeatModel
+                 exist_unit_fuel_cost,   # Cost per physical unit (e.g. gallon, CCF) of the existing space heating fuel.
+                 exist_fuel_use,         # Annual existing fuel use for Space Heating and the other end uses identified using that fuel. None if not available.
+                 exist_heat_effic,       # see home_heat_model.HomeHeatModel
+                 exist_kwh_per_mmbtu,    # see home_heat_model.HomeHeatModel
+                 includes_dhw,           # True if the existing Space Heating Fuel type also is used for DHW.
+                 includes_dryer,         # True if the existing Space Heating Fuel type also is used for Clothes Drying.
+                 includes_cooking,       # True if the existing Space Heating Fuel type also is used for Cooking.
+                 occupant_count,         # Number of occupants using DHW, Clothes Drying, Cooking
+                 elec_use_jan,           # The electric use in January, prior to heat pump installation, kWh.
+                 elec_use_may,           # The electric use in May, prior to heat pump installation, kWh.
+                 hp_model_id,            # see home_heat_model.HomeHeatModel
+                 low_temp_cutoff,        # see home_heat_model.HomeHeatModel
+                 off_months_chks,        # see home_heat_model.HomeHeatModel, parameter 'off_months' there
+                 garage_stall_count,     # see home_heat_model.HomeHeatModel
+                 garage_heated_by_hp,    # see home_heat_model.HomeHeatModel
+                 bldg_floor_area,        # see home_heat_model.HomeHeatModel
+                 indoor_heat_setpoint,   # see home_heat_model.HomeHeatModel
+                 insul_level,            # see home_heat_model.HomeHeatModel
+                 pct_exposed_to_hp,      # see home_heat_model.HomeHeatModel
+                 doors_open_to_adjacent, # see home_heat_model.HomeHeatModel
+                 bedroom_temp_tolerance, # see home_heat_model.HomeHeatModel
+                 capital_cost,           # Initial cost of the heat pump installation
+                 rebate_dol,             # Rebate $ received for heat pump installation
+                 pct_financed,           # fraction (0 - 1.0) of heat pump installation cost financed by a loan.
+                 loan_term,              # Length of loan in years.
+                 loan_interest,          # interest rate of loan, expressed as fraction, i.e. 0.1 for 10%.
+                 hp_life,                # life of heat pump in years
+                 op_cost_chg,            # operating cost increase associated with heat pump (negative if decrease)
+                 sales_tax,              # sales tax, expressed as a fraction (0.05 for 5%/yr) that applies to electricity and fuel costs
+                 discount_rate,          # economic discount rate, expressed as a fraction, per year. Nominal, not adjusted for inflation.
+                 inflation_rate,         # general inflation rate expressed as a fraction, per year.
+                 fuel_esc_rate,          # price escalation rate of fuel used for existing heating system, fraction/year, nominal
+                 elec_esc_rate,          # price escalation rate of electricity, fraction/year, nominal
                 ):
 
         # Store all of these input parameters as object attributes.
