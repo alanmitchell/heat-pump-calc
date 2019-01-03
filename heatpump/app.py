@@ -437,8 +437,10 @@ app.layout = html.Div(className='container', children=[
     This calculator was created by [Analysis North](http://www.analysisnorth.com), 
     [The Cold Climate Housing Research Center](http://cchrc.org), and Arctic Energy Systems.
     The underlying code for this calculator is Open Source and available on 
-    [Github](https://github.com/alanmitchell/heat-pump-calc). Questions and comments may be sent 
-    to Alan Mitchell <alan@analysisnorth.com>. 
+    [Github](https://github.com/alanmitchell/heat-pump-calc). The calculator was built entirely
+    in the [Python](https://www.python.org/) programming language through use of the
+    [Dash by Plotly](https://plot.ly/products/dash/) framework. Questions and comments may be 
+    sent to Alan Mitchell <alan@analysisnorth.com>. 
     '''))),
 
     # Storage controls needed for control purposes
