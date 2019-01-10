@@ -183,6 +183,12 @@ def tmy_from_id(tmy_id):
     df = get_df(f'wx/tmy3/proc/{tmy_id}.pkl')
     return df
 
+def heating_design_temp(tmy_id):
+    """Returns the heating design temperature (deg F) for the TMY3 site
+    identified by 'tmy_id'.
+    """
+    return df_tmy_meta.loc[tmy_id].heating_design_temp
+    
 # -----------------------------------------------------------------
 # Key datasets are read in here and are available as module-level
 # variables for use in the functions above.

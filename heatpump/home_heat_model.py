@@ -353,7 +353,7 @@ class HomeHeatModel(object):
         Return values are Btu/hour and deg F. 
         """
         # get the 1% outdoor temperature
-        design_temp = self.df_hourly.db_temp.quantile(0.01)
+        design_temp = lib.heating_design_temp(self.city.TMYid)
         design_load = self.ua_home * (self.indoor_heat_setpoint - design_temp) + \
                       self.ua_garage * (HomeHeatModel.GARAGE_HEATING_SETPT - design_temp)
         return design_load, design_temp
