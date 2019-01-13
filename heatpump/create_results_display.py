@@ -85,7 +85,7 @@ def create_results(input_values):
         #### Rate of Return:  Not Available
 
         The heat pump does not save enough money to allow for a calculation of the
-        rate of return.
+        rate of return (or the installed cost input is zero or less).
         ''')
     else:
         md_tmpl = dedent('''
@@ -93,7 +93,8 @@ def create_results(input_values):
 
         The rate of return on the investment is estimated to be **{irr:.1f}%**. 
         Compare this *tax-free* return to the rate of return or interest
-        of your other investment options.
+        of your other investment options.  Usually a value greater than 4%
+        indicates a cost-effective investment. 
         ''')
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
@@ -114,7 +115,8 @@ def create_results(input_values):
         md_tmpl += dedent('''
         This means that over the life of the equipment you 
         will earn a total of **\${npv_abs:,.0f}** in today's dollars beyond your
-        initial investment accounting for interest.
+        initial investment accounting for interest.  Any value greater than zero
+        indicates a cost-effective investment.
         ''')
     else:
         md_tmpl += dedent('''
@@ -123,6 +125,8 @@ def create_results(input_values):
         with interest.
         ''')
     md_tmpl += dedent('''
+    You can change the default heat pump life of 14 years in the Advanced 
+    Economic Inputs section.
     If you are trying out different heat pumps or different operating procedures
     for the heat pump, you should try to pick the combination that maximizes this
     net present value figure.

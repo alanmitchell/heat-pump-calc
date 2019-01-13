@@ -210,21 +210,26 @@ app.layout = html.Div(className='container', children=[
                     html.Tr( [html.Td('Customer Charge in $/month', colSpan='2'), html.Td(['$ ', dcc.Input(id='customer_chg_adv', type='text', style={'maxWidth': 100}), ' /mo'])] ),
                     ])
             ], id='div-man-adv', style={'display': 'none'}),
-            html.Div([
-                html.Hr(),
-                dcc.Checklist(
-                    options=[{'label': 'Run Analysis ignoring PCE Electric Rate Assistance', 'value': 'no_pce'}],
-                    values=[],
-                    id='no_pce_chks'),
-            ], id='div-ignore-pce', style={'display': 'none'}),
-            html.P('.'),
-            LabeledSlider(app, 'Pounds of CO2 released per kWh of additional electricity generation:', 'co2_lbs_per_kwh', 
-                0, 3.3, 'pounds/kWh',
-                help_text='This is used to determine how much CO2 is released due to the electricity consumed by the heat pump.  Pick the type of generation that will be used to produce more electricity in your community.',
-                max_width = 800,
-                marks = {0: 'Renewables/Wood', 1.1: 'Natural Gas', 1.7: 'Lg Diesel', 2: 'Sm Diesel', 2.9: 'Coal' },
-                step=0.1, value= 1.7,
-                ),
+        html.Details(style={'maxWidth': 550}, children=[
+            html.Summary('Click Here to change Advanced Utility Inputs'),
+            html.Div(style={'marginTop': '3rem'}, children=[
+                html.Div([
+                    html.Hr(),
+                    dcc.Checklist(
+                        options=[{'label': 'Run Analysis ignoring PCE Electric Rate Assistance', 'value': 'no_pce'}],
+                        values=[],
+                        id='no_pce_chks'),
+                ], id='div-ignore-pce', style={'display': 'none'}),
+                html.P('.'),
+                LabeledSlider(app, 'Pounds of CO2 released per kWh of additional electricity generation:', 'co2_lbs_per_kwh', 
+                    0, 3.3, 'pounds/kWh',
+                    help_text='This is used to determine how much CO2 is released due to the electricity consumed by the heat pump.  Pick the type of generation that will be used to produce more electricity in your community. A reasonable default value is provided based on your utility; only change if you have better information.',
+                    max_width = 800,
+                    marks = {0: 'Renewables/Wood', 1.1: 'Natural Gas', 1.7: 'Lg Diesel', 2: 'Sm Diesel', 2.9: 'Coal' },
+                    step=0.1, value= 1.7,
+                    ),
+            ]),
+        ]),
     ]),
 
     LabeledSection('Building Info', [
