@@ -171,8 +171,8 @@ app.layout = html.Div(className='container', children=[
     ''')),
    
     LabeledSection('General', [
-        LabeledInput('Building Name', 'bldg_name', size=50),
-        html.P('Enter in any Notes you want to be shown when you print this page.'),
+        LabeledInput('Building Name (optional)', 'bldg_name', size=50),
+        html.P('Enter in any Notes you want shown when you print this page (optional).'),
         html.Textarea(style={'width': '100%'}),
     ]),
 
@@ -268,11 +268,6 @@ app.layout = html.Div(className='container', children=[
                 options=make_options(AUX_ELEC_TYPE), value='boiler',
                 help_text='Choose the type of heating system you currently have installed. This input will be used to estimate the electricity use for fans/pumps/controls of that system.',
                 ),
-        LabeledRadioItems("Is All of the Building's Heat Provided by one Space Heater like a Toyostove or Wood Stove?",
-                'point_source',
-                options=make_options(YES_NO), value=False,
-                help_text="Answer Yes if one point-source heating system such as a Toyostove or Wood Stove provides All of the Building's heat.  This can be true for small, well-insulated buildings with good heat distribution.",
-                ),
 		LabeledInput('Annual Fuel Use (see callback for label)', 'exist_fuel_use', 
                 help_text='This value is optional and may be left blank, but it is a big help in making an accurate estimate of the savings from the heat pump. If left blank, size and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
         html.Div([
@@ -356,13 +351,18 @@ app.layout = html.Div(className='container', children=[
                 mark_gap=5, step=1, value=5, max_width=600),
         LabeledChecklist('Select Months when Heat Pump is Turned Off for Entire Month:', 'off_months_chks',
             options=make_options(OFF_MONTHS), values=[], max_width=500),
+        html.Hr(),
+        html.P(dedent('''
+            These next questions will help determine how much of the building's 
+            heat load can actually be reached by the Heat Pump.  Often the Heat Pump's indoor units do not
+            fully serve all of the spaces in the building.
+            ''')),
+        LabeledRadioItems("Is All of the Building's Heat currently Provided by one Space Heater like a Toyostove or Wood Stove?",
+                'point_source',
+                options=make_options(YES_NO), value=False,
+                help_text="Answer Yes if one point-source heating system such as a Toyostove or Wood Stove provides All of the Building's heat.  This can be true for small, well-insulated buildings with good heat distribution.",
+                ),
         html.Div([
-            html.Hr(),
-            html.P(dedent('''
-                These next questions will help determine how much of the building's 
-                heat load can actually be reached by the Heat Pump.  Often the Heat Pump's indoor units do not
-                fully serve all of the spaces in the building.
-                ''')),
             LabeledSlider(app, 'Percentage of the Home that is Openly Exposed to the Heat Pump Indoor Units:', 
                     'pct_exposed_to_hp', 
                     0, 100, '%', 
