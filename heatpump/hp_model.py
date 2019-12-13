@@ -3,6 +3,11 @@ energy use and cost.
 """
 from pprint import pformat
 import inspect
+from pathlib import Path
+import pickle
+import time
+import gzip
+
 import pandas as pd
 import numpy as np
 
@@ -56,6 +61,8 @@ class HP_model:
     # Some of inputs parameters are documented in the home_heat_model.HomeHeatModel class constructor;
     # those inputs are marked as such below.
     def __init__(self,
+                 bldg_name,              # name of the building
+                 notes,                  # notes about the building
                  city_id,                # see home_heat_model.HomeHeatModel
                  utility,                # The full Pandas Series describing the Electric Utility
                  pce_limit,              # The maximum kWh in a month subsidized by PCE (0 will mean no PCE subsidy)
@@ -96,6 +103,8 @@ class HP_model:
                  elec_esc_rate,          # price escalation rate of electricity, fraction/year, nominal
                 ):
 
+        print(bldg_name, notes)
+        
         # Store all of these input parameters as object attributes.
         args, _, _, values = inspect.getargvalues(inspect.currentframe())
         for arg in args[1:]:
@@ -246,7 +255,12 @@ class HP_model:
         # Create a multi-year Cash Flow DataFrame and summary economic measures.
         # Results are stored as object attributes.
         self.calc_cash_flow()
-            
+
+        # Save a gzipped pickle of this object using Unix time as the file name.
+        # make a directory to hold the files
+        Path('saved_runs').mkdir(exist_ok=True)
+        pickle.dump(self, gzip.open(f'saved_runs/{time.time():.2f}.pkl.gz', 'wb'))
+
     def calc_monthly_cash(self):
         """Calculates two DataFrames, s.df_mo_dol_base and s.df_mo_dol_hp, that contain
         the fuel and electricity costs in the base case (no heat pump) scenario and the

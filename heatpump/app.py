@@ -173,7 +173,7 @@ app.layout = html.Div(className='container', children=[
     LabeledSection('General', [
         LabeledInput('Building Name (optional)', 'bldg_name', size=50),
         html.P('Enter in any Notes you want shown when you print this page (optional).'),
-        html.Textarea(style={'width': '100%'}),
+        dcc.Textarea(id='notes', style={'width': '100%'}),
     ]),
 
     LabeledSection('Location Info', [

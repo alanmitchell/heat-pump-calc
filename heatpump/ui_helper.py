@@ -13,6 +13,8 @@ from .utils import is_null
 ELECTRIC_ID = 1    # The fuel ID for Electricity
 
 input_info = [
+    ('bldg_name', 'Building Name', 'null-ok'),
+    ('notes', 'Notes', 'null-ok'),
     ('city_id', 'City'),
     ('elec_input', 'Type of Electric Rate input', 'extra'),
     ('utility_id', 'Utility', 'null-ok,extra'),
