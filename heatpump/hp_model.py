@@ -258,8 +258,9 @@ class HP_model:
 
         # Save a gzipped pickle of this object using Unix time as the file name.
         # make a directory to hold the files
-        Path('hpcalc_runs').mkdir(exist_ok=True)
-        pickle.dump(self, gzip.open(f'saved_runs/{time.time():.2f}.pkl.gz', 'wb'))
+        save_dir = 'hpcalc_runs'
+        Path(save_dir).mkdir(exist_ok=True)
+        pickle.dump(self, gzip.open(f'{save_dir}/{time.time():.2f}.pkl.gz', 'wb'))
 
     def calc_monthly_cash(self):
         """Calculates two DataFrames, s.df_mo_dol_base and s.df_mo_dol_hp, that contain
