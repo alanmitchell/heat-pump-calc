@@ -425,8 +425,13 @@ app.layout = html.Div(className='container', children=[
 
     LabeledSection('Results', [
         dcc.Markdown(id='md-errors'),
-        html.Div(
+        html.Div([
             html.Button('Calculate Results', id='but-calculate'),
+            html.P(dedent('''
+            Please note that the inputs and results from your Calculator run will be saved to
+            be used to improve the Calculator in the future and to provide data for research
+            purposes.  No individual runs will be published, only aggregated results.
+            '''))],
             id='div-calculate'
         ),
         html.Div(

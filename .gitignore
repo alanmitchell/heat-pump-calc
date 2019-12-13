@@ -1,7 +1,7 @@
 # don't include the update script
 update
 
-saved_runs/
+hpcalc_runs/
 *.json
 
 # Visual Studio settings
