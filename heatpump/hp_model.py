@@ -104,7 +104,7 @@ class HP_model:
                 ):
 
         print(bldg_name, notes)
-        
+
         # Store all of these input parameters as object attributes.
         args, _, _, values = inspect.getargvalues(inspect.currentframe())
         for arg in args[1:]:
@@ -258,7 +258,7 @@ class HP_model:
 
         # Save a gzipped pickle of this object using Unix time as the file name.
         # make a directory to hold the files
-        Path('saved_runs').mkdir(exist_ok=True)
+        Path('hpcalc_runs').mkdir(exist_ok=True)
         pickle.dump(self, gzip.open(f'saved_runs/{time.time():.2f}.pkl.gz', 'wb'))
 
     def calc_monthly_cash(self):
