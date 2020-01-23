@@ -636,7 +636,6 @@ def find_fuel_price(fuel_id, city_id):
 
     # Situations where there is no price to fill in
     if fuel_id is None or fuel_id == ui_helper.ELECTRIC_ID or city_id is None:
-        print('here')
         return ''
 
     the_fuel = lib.fuel_from_id(fuel_id)
