@@ -766,6 +766,7 @@ def create_results(input_values):
     comps.append(dcc.Markdown(md_tmpl.format(**smy)))
 
     comps.append(html.Hr())
+    comps.append(html.P(f'File: {mod.file_name}'))
 
     # Debug information
     debug = html.Details(style={'maxWidth': 550}, children=[
