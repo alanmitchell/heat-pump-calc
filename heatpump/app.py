@@ -92,7 +92,12 @@ WALL_TYPE = (
 END_USES = (
     ('Domestic Water Heater', 'dhw'),
     ('Clothes Dryer', 'drying'),
-    ('Range or Oven', 'cooking')
+    ('Range or Oven', 'cooking'),
+)
+
+ELEC_USES_INCLUDED = (
+    ('Just Space Heating', 'space'),
+    ('Space Heating, Lights, and Appliances', 'all')
 )
 
 AUX_ELEC_TYPE = (
@@ -270,6 +275,12 @@ app.layout = html.Div(className='container', children=[
                 ),
 		LabeledInput('Annual Fuel Use (see callback for label)', 'exist_fuel_use', 
                 help_text='This value is optional and may be left blank, but it is a big help in making an accurate estimate of the savings from the heat pump. If left blank, size and construction will be used to estimate existing fuel use. Please use physical units ex: gallons, CCF, etc.'),
+        html.Div([
+            LabeledRadioItems("Does this include Lights and Electrical Appliances, or is this just Space Heating use?",
+                    'elec_uses',
+                    options=make_options(ELEC_USES_INCLUDED), value='all', max_width=700,
+                    ),
+        ], id='div-elec-uses', style={'display': 'none'}),
         html.Div([
             html.Hr(),
             dcc.Markdown(dedent('''
@@ -654,6 +665,14 @@ def effic_choices(fuel_id):
     choices += [{'label': 'Manual Entry', 'value': 'manual'}]
     return choices
 
+@app.callback(Output('div-elec-uses', 'style'),
+    [Input('exist_heat_fuel_id', 'value'), Input('exist_fuel_use', 'value')])
+def hide_elec_uses_included(fuel_id, exist_use):
+    if fuel_id == ui_helper.ELECTRIC_ID and exist_use != '' and exist_use != None:
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
 @app.callback(Output('heat_effic','value'), [Input('heat_effic','options')])
 def options(ht_eff):
     if len(ht_eff)>2:
@@ -715,7 +734,7 @@ def hide_heat_dist(point_source):
     [Input('exist_heat_fuel_id', 'value')])
 def label_fuel_use(fuel_id):
     if fuel_id == ui_helper.ELECTRIC_ID:
-        return 'Total Annual Electricity Use of the building, including all uses of electricity.  (Optional, but very helpful!):'
+        return 'Total Annual Electricity Use of the building.  (Optional, but very helpful!):'
     else:
         return 'Annual Fuel Use for the building including space heating and any other appliances that use that same fuel. (Optional, but very helpful for an accurate estimate of heat pump savings, particularly if your building is super-efficient or very inefficient.):'
 

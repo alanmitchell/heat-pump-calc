@@ -70,6 +70,7 @@ class HP_model:
                  exist_heat_fuel_id,     # see home_heat_model.HomeHeatModel
                  exist_unit_fuel_cost,   # Cost per physical unit (e.g. gallon, CCF) of the existing space heating fuel.
                  exist_fuel_use,         # Annual existing fuel use for Space Heating and the other end uses identified using that fuel. None if not available.
+                 elec_uses,              # 'all' if Annual Electric Use given by user includes lights & appliances, or 'space' if it is just Space Heating use.
                  exist_heat_effic,       # see home_heat_model.HomeHeatModel
                  exist_kwh_per_mmbtu,    # see home_heat_model.HomeHeatModel
                  includes_dhw,           # True if the existing Space Heating Fuel type also is used for DHW.
@@ -102,8 +103,6 @@ class HP_model:
                  fuel_esc_rate,          # price escalation rate of fuel used for existing heating system, fraction/year, nominal
                  elec_esc_rate,          # price escalation rate of electricity, fraction/year, nominal
                 ):
-
-        print(bldg_name, notes)
 
         # Store all of these input parameters as object attributes.
         args, _, _, values = inspect.getargvalues(inspect.currentframe())
@@ -187,8 +186,15 @@ class HP_model:
         # the UA true up factor.
         if not is_null(s.exist_fuel_use):
             
-            # Remove the energy use from the other end uses that use the fuel
-            space_fuel_use = s.exist_fuel_use - s.fuel_other_uses - s.lights_other_elec
+            # Remove the energy use from the other end uses that use the fuel, unless
+            # this is electric heat and the user indicated that the entered value is
+            # just space heating.
+            if is_electric and s.elec_uses=='space':
+                # user explicitly indicated that the entered annual usage value is
+                # just space heating.
+                space_fuel_use = s.exist_fuel_use
+            else:
+                space_fuel_use = s.exist_fuel_use - s.fuel_other_uses - s.lights_other_elec
 
             sim.no_heat_pump_use = True
             sim.calculate()
@@ -211,7 +217,9 @@ class HP_model:
             
             # In case it wasn't linear, inter/extrapolate to the final ua_true_up
             slope = (fuel_use2 - fuel_use1)/(ua_true_up - 1.0)
+            # print(space_fuel_use, fuel_use1, fuel_use2, ua_true_up)
             ua_true_up = 1.0 + (space_fuel_use - fuel_use1) / slope
+            # print(ua_true_up)
 
         else:
             ua_true_up = 1.0
@@ -227,6 +235,7 @@ class HP_model:
         sim.calculate()
         s.df_mo_en_base = sim.monthly_results()
         s.ann_en_base = sim.annual_results()
+        # print(s.ann_en_base.secondary_kwh)
         
         # Run the model with the heat pump and record energy results
         sim.no_heat_pump_use = False
@@ -260,7 +269,9 @@ class HP_model:
         # make a directory to hold the files
         save_dir = 'hpcalc_runs'
         Path(save_dir).mkdir(exist_ok=True)
-        pickle.dump(self, gzip.open(f'{save_dir}/{time.time():.2f}.pkl.gz', 'wb'))
+        fname = f'{time.time():.2f}.pkl.gz'
+        s.file_name = fname
+        pickle.dump(self, gzip.open(f'{save_dir}/{fname}', 'wb'))
 
     def calc_monthly_cash(self):
         """Calculates two DataFrames, s.df_mo_dol_base and s.df_mo_dol_hp, that contain

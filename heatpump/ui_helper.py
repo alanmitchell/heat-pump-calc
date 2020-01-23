@@ -48,6 +48,7 @@ input_info = [
     ('heat_effic_slider', 'Custom-entered Heating System Efficiency', 'extra'),
     ('aux_elec', 'Auxiliary Electric Use', 'extra'),
     ('exist_fuel_use', 'Existing Heating Fuel Use', 'null-ok,float,greater-than-zero'),
+    ('elec_uses', 'Electric Uses Included in Annual Use Entry'),
     ('elec_use_jan', 'January Electric Use', 'null-ok,float,greater-than-zero'),
     ('elec_use_may', 'May Electric Use', 'null-ok,float,greater-than-zero'),
     ('indoor_heat_setpoint', 'Heating Thermostat'),
