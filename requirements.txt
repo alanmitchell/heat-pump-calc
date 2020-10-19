@@ -4,4 +4,4 @@ dash-core-components==0.42.1
 dash-html-components==0.13.5
 dash-renderer==0.14.1
 pandas==0.24.2
-requests=2.22.0
+requests==2.22.0
