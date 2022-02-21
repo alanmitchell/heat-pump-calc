@@ -371,7 +371,7 @@ def create_results(input_values):
     )
     cash_comps.append(generate_table(dfc))
 
-    cash_results = html.Details(style={'maxWidth': 600, 'marginTop': '2em'}, children=[
+    cash_results = html.Details(style={'marginTop': '2em'}, children=[
         html.Summary('Click Here for Year-by-Year Cash Flow Information'),
         html.Div(style={'marginTop': '3rem'}, children=cash_comps)
     ])
@@ -739,7 +739,7 @@ def create_results(input_values):
     )
     monthly_comps.append(gph)
 
-    monthly_results = html.Details(style={'maxWidth': 600, 'marginTop': '2em', 'marginBottom': '2em'}, children=[
+    monthly_results = html.Details(style={'marginTop': '2em', 'marginBottom': '2em'}, children=[
         html.Summary('Click Here for More Detailed Monthly Information'),
         html.Div(style={'marginTop': '3rem'}, children=monthly_comps)
     ])
@@ -768,7 +768,7 @@ def create_results(input_values):
     comps.append(html.P(f'File: {mod.file_name}'))
 
     # Debug information
-    debug = html.Details(style={'maxWidth': 550}, children=[
+    debug = html.Details(style={}, children=[
         html.Summary('Click Here for Debug Output'),
         html.Div(style={'marginTop': '3rem'}, children=[
             dcc.Markdown(f"```\n{mod}\n```"),
