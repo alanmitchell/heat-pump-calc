@@ -8,8 +8,8 @@ import time
 
 import pandas as pd
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from .components import LabeledInput, LabeledSlider, LabeledSection, \
@@ -25,7 +25,7 @@ server = app.server             # this is the underlying Flask app
 
 # This is needed to assign callbacks prior to layout being loaded, which
 # is done in the LabeledSlider() component.
-app.config.supress_callback_exceptions = True
+app.config.suppress_callback_exceptions = True
 
 # Overriding the index template allows you to change the title of the
 # application and load external resources.
@@ -45,6 +45,7 @@ app.index_string = '''
         <footer>
             {%config%}
             {%scripts%}
+            {%renderer%}
         </footer>
     </body>
 </html>
@@ -176,7 +177,7 @@ app.layout = html.Div(className='container', children=[
     ''')),
    
     LabeledSection('General', [
-        LabeledInput('Building Name (optional)', 'bldg_name', size=50),
+        LabeledInput('Building Name (optional)', 'bldg_name', size="50"),
         html.P('Enter in any Notes you want shown when you print this page (optional).'),
         dcc.Textarea(id='notes', style={'width': '100%'}),
     ]),
@@ -222,7 +223,7 @@ app.layout = html.Div(className='container', children=[
                     html.Hr(),
                     dcc.Checklist(
                         options=[{'label': 'Run Analysis ignoring PCE Electric Rate Assistance', 'value': 'no_pce'}],
-                        values=[],
+                        value=[],
                         id='no_pce_chks'),
                 ], id='div-ignore-pce', style={'display': 'none'}),
                 html.P('.'),
@@ -246,7 +247,7 @@ app.layout = html.Div(className='container', children=[
                 options=make_options(YES_NO), value=True,
                 labelStyle={'display': 'inline-block'}),
         LabeledInput('Building Floor Area, excluding garage (square feet):', 'bldg_floor_area', 
-                units='ft2', size=6),
+                units='ft2', size="6"),
         LabeledRadioItems('Size of Garage:', 'garage_stall_count', 
                 options=make_options(GARAGE_SIZE), value=0),
         LabeledRadioItems('Will the Heat Pump be used to Heat the Garage?',
@@ -258,7 +259,7 @@ app.layout = html.Div(className='container', children=[
         LabeledDropdown('Select existing Space Heating Fuel type:', 'exist_heat_fuel_id',
                 options=[{'label': lbl, 'value': i} for lbl, i in lib.fuels()]),
         LabeledChecklist('Besides Space Heating, what other Appliances use this Fuel type?', 'end_uses_chks',
-                options=make_options(END_USES), values=[]),
+                options=make_options(END_USES), value=[]),
         html.Div([
             LabeledInput('Number of Occupants in Building using the above Appliances:', 'occupant_count',
                     'people', value=3),
@@ -321,7 +322,7 @@ app.layout = html.Div(className='container', children=[
         html.Div([
             LabeledChecklist('In the List Below, Show Most Efficient Heat Pump Models Only?', 'efficient_only',
                     options=[{'label': 'Most Efficient Only', 'value': 'efficient'}],
-                    values=['efficient']),
+                    value=['efficient']),
             LabeledDropdown('Heat Pump Manufacturer', 'hp_manuf_id',
                     options=[],
                     max_width=300,
@@ -361,7 +362,7 @@ app.layout = html.Div(className='container', children=[
                 'Please enter the lowest outdoor temperature at which the heat pump will be operated. Turning off the heat pump at low temperatures can either be due to technical limits of the heat pump, or due to you choosing to not run the heat pump in cold temperatures due to poor efficiency or low heat output.', 
                 mark_gap=5, step=1, value=5, max_width=600),
         LabeledChecklist('Select Months when Heat Pump is Turned Off for Entire Month:', 'off_months_chks',
-            options=make_options(OFF_MONTHS), values=[], max_width=500),
+            options=make_options(OFF_MONTHS), value=[], max_width=500),
         html.Hr(),
         html.P(dedent('''
             These next questions will help determine how much of the building's 
@@ -623,7 +624,7 @@ def commun_pce_vis(bldg_type):
         return {'display': 'none'}
 
 @app.callback(Output('div-occupants', 'style'),
-    [Input('end_uses_chks', 'values')])
+    [Input('end_uses_chks', 'value')])
 def set_occupants_vis(end_uses):
     if len(end_uses) > 0:
         return {'display': 'block'}
@@ -805,7 +806,7 @@ def show_advanced_hp(hp_selection):
     return {'display': 'block'} if hp_selection=='advanced' else {'display': 'none'}
 
 @app.callback(Output('hp_manuf_id', 'options'), 
-    [Input('hp_zones', 'value'), Input('efficient_only', 'values')])
+    [Input('hp_zones', 'value'), Input('efficient_only', 'value')])
 def hp_brands(zones, effic_check_list):
     zone_type = 'Single' if zones==1 else 'Multi'
     manuf_list = lib.heat_pump_manufacturers(zone_type, 'efficient' in effic_check_list)
@@ -819,7 +820,7 @@ def set_manuf_value(options):
     return None
 
 @app.callback(Output('hp_model_id', 'options'), 
-              [Input('hp_manuf_id', 'value'), Input('hp_zones', 'value'), Input('efficient_only', 'values')])
+              [Input('hp_manuf_id', 'value'), Input('hp_zones', 'value'), Input('efficient_only', 'value')])
 def hp_models(manuf, zones, effic_check_list):
     zone_type = 'Single' if zones==1 else 'Multi'
     model_list = lib.heat_pump_models(manuf, zone_type, 'efficient' in effic_check_list)

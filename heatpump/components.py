@@ -1,8 +1,8 @@
 """This file holds reusable Dash components that combine labels, help text, and
 other features with the standard Dash core components.
 """
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input, Output
 import numpy as np
 
@@ -43,7 +43,7 @@ def LabeledSection(label, children):
 # also displayed next to the label. Any extra keyword arguments passed to the
 # function are passed to the main Dash component wrapped by the function call.
 
-def LabeledInput(label, id, units='', help_text='', size=7, **kwargs):
+def LabeledInput(label, id, units='', help_text='', size="7", **kwargs):
     """ A labeled Input control.
     This control puts a units label after the Input control to hold strings like
     'kWh' or 'gallons'.  Pass the Units text to the 'units' parameter.  Also, this

@@ -5,11 +5,10 @@ from textwrap import dedent
 
 import numpy as np
 import pandas as pd
-
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 import plotly.graph_objs as go
-from plotly import tools
+from plotly import subplots
 
 from . import ui_helper
 from . import hp_model
@@ -579,7 +578,7 @@ def create_results(input_values):
             hoverinfo='y',
         )
 
-        fig = tools.make_subplots(rows=2, cols=1)
+        fig = subplots.make_subplots(rows=2, cols=1)
 
         fig.append_trace(elec_no_hp, 1, 1)
         fig.append_trace(elec_w_hp, 1, 1)

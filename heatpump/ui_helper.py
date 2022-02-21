@@ -81,13 +81,8 @@ input_objects = []
 state_objects = []
 for info in input_info:
     var_name = info[0]
-    if var_name.endswith('_chks'):
-        # this is a checklist component and the needed property is 'values'
-        input_objects.append(Input(var_name, 'values'))
-        state_objects.append(State(var_name, 'values'))
-    else:
-        input_objects.append(Input(var_name, 'value'))
-        state_objects.append(State(var_name, 'value'))
+    input_objects.append(Input(var_name, 'value'))
+    state_objects.append(State(var_name, 'value'))
 
 def calc_input_objects():
     """Return a set of Input objects that can be used in a callback
@@ -216,7 +211,7 @@ def inputs_to_vars(input_vals):
     # is selected, make a real utility object from the first one listed
     # for the community and set fields to default values.
     city = lib.city_from_id(vars['city_id'])
-    utility = lib.util_from_id(city.ElecUtilities[0][1])
+    utility = lib.util_from_id(city.ElecUtilities[0][1]).copy()
     utility.at['Name'] = 'Custom'
     utility.at['IsCommercial'] = False
     utility.at['DemandCharge'] = np.NaN

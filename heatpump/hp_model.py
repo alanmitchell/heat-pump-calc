@@ -10,6 +10,7 @@ import gzip
 
 import pandas as pd
 import numpy as np
+import numpy_financial as npf
 
 from . import library as lib
 from . import elec_cost
@@ -400,7 +401,7 @@ class HP_model:
         # Am not automatically adding sales tax to the initial cost as the user was
         # supposed to includes sales tax in their input.
         initial_cost[0] = -s.capital_cost * (1 - s.pct_financed) + s.rebate_dol
-        loan_pmt = np.pmt(s.loan_interest, s.loan_term, s.capital_cost * s.pct_financed)
+        loan_pmt = npf.pmt(s.loan_interest, s.loan_term, s.capital_cost * s.pct_financed)
         if loan_pmt < -0.01:   # loan payment is negative
             loan_cost = [0.0] + [loan_pmt] * s.loan_term + [0.0] * (s.hp_life -  s.loan_term)
             loan_cost = np.array(loan_cost)
@@ -429,8 +430,8 @@ class HP_model:
         s.df_cash_flow.index.name = 'year'
         
         # Calculate IRR and NPV for w/ and w/o PCE.
-        s.summary['irr'] = np.irr(s.df_cash_flow.cash_flow)
-        s.summary['npv'] = np.npv(s.discount_rate, s.df_cash_flow.cash_flow)
+        s.summary['irr'] = npf.irr(s.df_cash_flow.cash_flow)
+        s.summary['npv'] = npf.npv(s.discount_rate, s.df_cash_flow.cash_flow)
         
         # Add some summary fuel and electric usage  and unit cost info
         s.summary['fuel_use_base'] = ann_base.secondary_fuel_units
