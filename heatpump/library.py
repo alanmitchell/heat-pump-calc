@@ -79,11 +79,6 @@ def util_from_id(util_id):
     """
     return df_util.loc[util_id]
 
-def miscellaneous_info():
-    """Returns the Miscellaneous information stored in the AkWarm Library.
-    """
-    return misc_info
-
 def effic_cutoff(zone_type):
     """Returns the HSPF cutoff for determinig whether a heat pump is qualified
     as efficient or not. 'zone_type' is 'Single' for 'Multi', which affects the
@@ -211,9 +206,6 @@ def refresh_data():
     # Read in the other City and Utility Excel files.
     df_city = get_df('city-util/proc/city.pkl')
 
-    # Retrieve the Miscellaneous Information and store into a Pandas Series.
-    misc_info = get_df('city-util/proc/misc_info.pkl')
-
     # Retrive the list of utilities
     df_util = get_df('city-util/proc/utility.pkl')
 
@@ -242,7 +234,6 @@ def refresh_data():
 # See documentation for these variables in the refresh_data() routine.
 df_tmy_meta = None
 df_city = None
-misc_info = None
 df_util = None
 df_heatpumps = None
 df_fuel = None
