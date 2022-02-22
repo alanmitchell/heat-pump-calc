@@ -218,7 +218,12 @@ def refresh_data():
     # Retrieve list of Heat Pumps from a Google Sheet
     df_heatpumps = pd.read_csv('https://docs.google.com/spreadsheets/d/1kQTG81nBHGJn4ieC8ip6TlZbwRucipjSthEaNT85QFw/export?format=csv')
 
-    # Retrieve the Fuel information and store in a DataFrame
+    # Retrieve the Fuel information, modify into better format, and store in a DataFrame
+
+    # Determine the directory where the local data files are located
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    data_dir = os.path.join(this_dir, 'data')
+
     df_fuel = pd.read_excel(os.path.join(data_dir, 'Fuel.xlsx'), index_col='id')
     df_fuel['btus'] = df_fuel.btus.astype(float)
 
@@ -227,10 +232,6 @@ def refresh_data():
     df_fuel['effic_choices'] = df_fuel.effic_choices.apply(eval)
 
 # -----------------------------------------------
-
-# Determine the directory where the local data files are located
-this_dir = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(this_dir, 'data')
 
 # These are the module-level variables that hold the key datasets.
 # They are filled out via the refresh_data() routine below, which is called
