@@ -189,52 +189,60 @@ def heating_design_temp(tmy_id):
     """
     return df_tmy_meta.loc[tmy_id].heating_design_temp
     
-# -----------------------------------------------------------------
-# Key datasets are read in here and are available as module-level
-# variables for use in the functions above.
+def refresh_data():
+    """Key datasets are read in here and placed in module-level variables,
+    listed below this function.
+    """
+    global df_tmy_meta
+    global df_city
+    global misc_info
+    global df_util
+    global df_heatpumps
+    global df_fuel
 
-# import time
-# st = time.time()
+    # Key datasets are read in here and are available as module-level
+    # variables for use in the functions above.
+
+    # read in the DataFrame that describes the available TMY3 climate files.
+    df_tmy_meta = get_df('wx/tmy3/proc/tmy3_meta.pkl')
+
+    # Read in the other City and Utility Excel files.
+    df_city = get_df('city-util/proc/city.pkl')
+
+    # Retrieve the Miscellaneous Information and store into a Pandas Series.
+    misc_info = get_df('city-util/proc/misc_info.pkl')
+
+    # Retrive the list of utilities
+    df_util = get_df('city-util/proc/utility.pkl')
+
+    # Retrieve list of Heat Pumps from a Google Sheet
+    df_heatpumps = pd.read_csv('https://docs.google.com/spreadsheets/d/1kQTG81nBHGJn4ieC8ip6TlZbwRucipjSthEaNT85QFw/export?format=csv')
+
+    # Retrieve the Fuel information and store in a DataFrame
+    df_fuel = pd.read_excel(os.path.join(data_dir, 'Fuel.xlsx'), index_col='id')
+    df_fuel['btus'] = df_fuel.btus.astype(float)
+
+    # Change the Efficiency choices column into a Python list (it is a string
+    # right now.)
+    df_fuel['effic_choices'] = df_fuel.effic_choices.apply(eval)
+
+# -----------------------------------------------
 
 # Determine the directory where the local data files are located
 this_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = os.path.join(this_dir, 'data')
 
-# read in the DataFrame that describes the available TMY3 climate files.
-df_tmy_meta = get_df('wx/tmy3/proc/tmy3_meta.pkl')
+# These are the module-level variables that hold the key datasets.
+# They are filled out via the refresh_data() routine below, which is called
+# periodically so that any updates to the Internet-based datasets are 
+# reflected in the calculator.
+# See documentation for these variables in the refresh_data() routine.
+df_tmy_meta = None
+df_city = None
+misc_info = None
+df_util = None
+df_heatpumps = None
+df_fuel = None
 
-# Read in the other City and Utility Excel files.
-df_city = get_df('city-util/proc/city.pkl')
-
-# Retrieve the Miscellaneous Information and store into a Pandas Series.
-misc_info = get_df('city-util/proc/misc_info.pkl')
-
-# Retrive the list of utilities
-df_util = get_df('city-util/proc/utility.pkl')
-
-# Retrive list of Heat Pumps
-df_heatpumps = get_df('heat-pump/proc/hp_specs.pkl')
-
-# Retrieve the Fuel information and store in a DataFrame
-df_fuel = pd.read_excel(os.path.join(data_dir, 'Fuel.xlsx'), index_col='id')
-df_fuel['btus'] = df_fuel.btus.astype(float)
-
-# Change the Efficiency choices column into a Python list (it is a string
-# right now.)
-df_fuel['effic_choices'] = df_fuel.effic_choices.apply(eval)
-
-# -------------------------------------------------------------------------------------
-# For documentation of the remotely acquired DataFrames, see:
-# http://ak-energy-data.analysisnorth.com/
-
-# For the df_fuel DataFrame, here is a sample row:
-# The Index is the 'id' of fuel
-#
-# desc                                                   Natural Gas
-# unit                                                           ccf
-# btus                                                        103700
-# co2                                                            117
-# price_col                                                 GasPrice
-# effic_choices    [(Standard, 80), (High Efficiency Condensing, ...
-
-# print(time.time() - st)
+# fill out the data variables
+refresh_data()
