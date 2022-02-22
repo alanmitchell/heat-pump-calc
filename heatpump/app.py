@@ -476,6 +476,12 @@ app.layout = html.Div(className='container', children=[
     # Stores the time when the Results Div was updated.
     dcc.Store(id='store-results-ts'),
 
+    # Stores the time when the library datasets were last refreshed.
+    dcc.Store(id='store-lib-refresh-ts'),
+
+    # Interval control to refresh library datasets every 4 hours.
+    dcc.Interval(id='interval-refresh-lib', interval=4*3600*1000),
+
 ])
 
 # ------------------ CALLBACKS for Input Configuration ---------------------------
@@ -970,6 +976,12 @@ def update_results(clicks, *args):
     if clicks is None:
         raise PreventUpdate
     return create_results_display.create_results(args)
+
+@app.callback(Output('store-lib-refresh-ts', 'data'), 
+    Input('interval-refresh-lib', 'n_intervals'))
+def refresh_library(interval_ct):
+    lib.refresh_data()
+    return time.time()
 
 # -------------------------------------- MAIN ---------------------------------------------
 

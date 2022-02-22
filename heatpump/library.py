@@ -200,6 +200,8 @@ def refresh_data():
     global df_heatpumps
     global df_fuel
 
+    print('acquiring library data...')
+
     # Key datasets are read in here and are available as module-level
     # variables for use in the functions above.
 
