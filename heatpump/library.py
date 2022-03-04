@@ -190,7 +190,6 @@ def refresh_data():
     """
     global df_tmy_meta
     global df_city
-    global misc_info
     global df_util
     global df_heatpumps
     global df_fuel
@@ -212,7 +211,7 @@ def refresh_data():
     # Retrieve list of Heat Pumps from a Google Sheet
     df_heatpumps = pd.read_csv('https://docs.google.com/spreadsheets/d/1kQTG81nBHGJn4ieC8ip6TlZbwRucipjSthEaNT85QFw/export?format=csv')
 
-    # Retrieve the Fuel information, modify into better format, and store in a DataFrame
+    # Retrieve the Fuel characteristics, modify into better format, and store in a DataFrame
 
     # Determine the directory where the local data files are located
     this_dir = os.path.dirname(os.path.realpath(__file__))
