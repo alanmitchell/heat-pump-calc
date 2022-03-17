@@ -11,6 +11,7 @@ import io
 import math
 import functools
 import urllib
+import time
 
 import pandas as pd
 import numpy as np
@@ -22,6 +23,14 @@ import requests
 
 # The base URL to the site where the remote files are located
 base_url = 'https://github.com/alanmitchell/akwlib-export/raw/main/data/v01/'
+
+# This constant controls how frequently the library goes back to the GitHub server to
+# download the freshest AkWarm data.  This timeout is only checked when the heat_pump_from_id()
+# function below is called.
+LIB_TIMEOUT = 12     # units are Hours
+
+# this variable tracks the last time the Akwarm data was refreshed
+last_lib_download_ts = 0.0        # Unix timestamp
 
 def get_df(file_path):
     """Returns a Pandas DataFrame that is found at the 'file_path'
@@ -36,7 +45,7 @@ def get_df(file_path):
 # Functions to provide the library data to the rest of the
 # application.
 def cities():
-    """List of all (city name, city ID), alphabetically sorted.
+    """List of all (city name, city ID), alphabetically sorted.  
     """
     city_list = list(zip(df_city.Name, df_city.index))
     city_list.sort()   # sorts in place; returns None
@@ -44,7 +53,7 @@ def cities():
 
 def city_from_id(city_id):
     """Returns a Pandas series containing the city information for the City
-    identified by 'city_id'.
+    identified by 'city_id'. 
     """
     return df_city.loc[city_id]
 
@@ -114,8 +123,12 @@ def heat_pump_from_id(hp_id):
     the ID of 'hp_id'.  If 'hp_id' is a negative value, this method returns the characteristics
     of a generic heat pump that serves -hp_id heads.  So, if 'hp_id' is -2, characteristics
     of a two-head heat pump is returned.  These generic characteristics have been chosen to
-    be close to best-in-class.
+    be close to best-in-class. Also tests to determine whether AkWarm data should
+    be refreshed. 
     """
+    if time.time() - last_lib_download_ts > LIB_TIMEOUT * 3600.0:
+        refresh_data()
+
     if hp_id >= 0:
         return df_heatpumps.loc[hp_id]
     else:
@@ -188,8 +201,10 @@ def refresh_data():
     global df_util
     global df_heatpumps
     global df_fuel
+    global last_lib_download_ts        # tracks time of last refresh
 
     print('acquiring library data...')
+    last_lib_download_ts = time.time()
 
     # Key datasets are read in here and are available as module-level
     # variables for use in the functions above.
