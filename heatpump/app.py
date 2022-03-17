@@ -174,6 +174,13 @@ app.layout = html.Div(className='container', children=[
     less expensive.  This same approach should be used if you are in need of *replacing* your
     existing heating system; enter the additional cost of the heat pump install relative to 
     replacing the existing system.
+
+    **March 2022 Updates**: The calculator now uses fuel and electricity prices from the most
+    current AkWarm Home Energy Rating Library (updated every 6 months).  Also, the estimated efficiency
+    characteristics for heat pumps were adjusted 10% downward to more closely match measured 
+    data from heat pump units in Seward, Alaska.
+
+    For more information on development of this calculator, see [this page.](https://analysisnorth.com/pages/projects.html)
     ''')),
    
     LabeledSection('General', [
