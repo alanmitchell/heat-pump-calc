@@ -21,12 +21,7 @@ import requests
 # which are Pandas DataFrames
 
 # The base URL to the site where the remote files are located
-base_url = 'http://ak-energy-data.analysisnorth.com/'
-
-# They also can be pulled from the GitHub repo using the rawgit.com service.
-# The advantage is that you point to a particular commit, so the files and their
-# structure will never change.
-#base_url = 'https://cdn.rawgit.com/alanmitchell/ak-energy-admin/75db23ba/data/'
+base_url = 'https://github.com/alanmitchell/akwlib-export/raw/main/data/v01/'
 
 def get_df(file_path):
     """Returns a Pandas DataFrame that is found at the 'file_path'
@@ -175,7 +170,7 @@ def tmy_from_id(tmy_id):
     """Returns a DataFrame of TMY data for the climate site identified
     by 'tmy_id'.
     """
-    df = get_df(f'wx/tmy3/proc/{tmy_id}.pkl')
+    df = get_df(f'tmy3/{tmy_id}.pkl')
     return df
 
 def heating_design_temp(tmy_id):
@@ -200,13 +195,13 @@ def refresh_data():
     # variables for use in the functions above.
 
     # read in the DataFrame that describes the available TMY3 climate files.
-    df_tmy_meta = get_df('wx/tmy3/proc/tmy3_meta.pkl')
+    df_tmy_meta = get_df('tmy3/tmy3_meta.pkl')
 
     # Read in the other City and Utility Excel files.
-    df_city = get_df('city-util/proc/city.pkl')
+    df_city = get_df('city.pkl')
 
     # Retrive the list of utilities
-    df_util = get_df('city-util/proc/utility.pkl')
+    df_util = get_df('utility.pkl')
 
     # Retrieve list of Heat Pumps from a Google Sheet
     df_heatpumps = pd.read_csv('https://docs.google.com/spreadsheets/d/1kQTG81nBHGJn4ieC8ip6TlZbwRucipjSthEaNT85QFw/export?format=csv')
