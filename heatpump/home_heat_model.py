@@ -116,6 +116,12 @@ class HomeHeatModel(object):
     # convert to separate lists of temperatures and COPs
     TEMPS_FIT, COPS_FIT = tuple(zip(*COP_vs_TEMP))
 
+    # March 2022 adjustment to COPs.  A downward adjustment was made so that the model comes
+    # into better alignment with measured Seward COPs of 2.66 for HSPF = 15.0 Gree unit, and 
+    # COP = 2.62 for HSPF = 13.3 Fujitsu unit (both units owned by Phil Kaluza).
+    COP_ADJ = 0.9
+    COPS_FIT = COP_ADJ * np.array(COPS_FIT)
+
     # The HSPF value that this curve is associated with.  This is the average of the HSPFs
     # for the studies used to create the above COP vs. Temperature curve.  See the above 
     # referenced Jupyter notebook for more details.
