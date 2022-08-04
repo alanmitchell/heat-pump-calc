@@ -14,7 +14,7 @@ class ElecCostCalc:
         self,
         utility, 
         sales_tax=0.0,      
-        pce_limit=500.0,
+        pce_limit=750.0,
         ):
         """Constructor parameters:
         utility:            The electric utility object from the library module.

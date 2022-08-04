@@ -289,7 +289,7 @@ def inputs_to_vars(input_vals):
         pce_limit = 0.0
     else:
         if extras['bldg_type'] == 'res':
-            pce_limit = 500.0
+            pce_limit = 750.0
         elif extras['bldg_type'] == 'comm':
             # no PCE for commercial buildings
             pce_limit = 0.0
