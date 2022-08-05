@@ -294,7 +294,7 @@ app.layout = html.Div(className='container', children=[
             dcc.Markdown(dedent('''
             The following inputs asking for January and May electricity use are important in two situations:
 
-            * Your home or building is in Rural Alaska and receives Power Cost Equalization (PCE) limited to 500 kilowatt-hours per month.
+            * Your home or building is in Rural Alaska and receives Power Cost Equalization (PCE) limited to 750 kilowatt-hours per month.
             * Your utility has a "block" rate structure where the electricity rate varies depending on how much you use.
 
             If either one of those is true, review the Video Help below and take time to accurately fill out these inputs.
