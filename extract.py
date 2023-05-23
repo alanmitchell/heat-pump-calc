@@ -3,8 +3,10 @@ import gzip
 from glob import glob
 
 
-for f in glob('/home/alan/temp/hpc/*.gz'):
-    with gzip.open(f, 'rb') as f:
+for fn in glob('/home/tabb99/temp/hpc/*.gz'):
+    with gzip.open(fn, 'rb') as f:
         cobj = pickle.load(f)
-
-    cobj.df_hourly.to_csv('1683765593.32.df_hourly.csv')
+    print(fn)
+    base_fn = fn.split('/')[-1]
+    base_fn = '.'.join(base_fn.split('.')[:2])
+    cobj.df_hourly.to_csv(f'{base_fn}.df_hourly.csv')
