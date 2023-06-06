@@ -1,10 +1,13 @@
+# Creates a CSV file for the hourly results of all Calculator runs found in the
+# /home/alan/temp/hpc directory.
 import pickle
 import gzip
-from glob import glob
+from pathlib import Path
 
+base_dir = Path('/home/alan/temp/hpc')
+for f in base_dir.glob('*.gz'):
+    with gzip.open(f, 'rb') as gzf:
+        cobj = pickle.load(gzf)
+    print(f.stem, cobj.bldg_name)
 
-for f in glob('/home/alan/temp/hpc/*.gz'):
-    with gzip.open(f, 'rb') as f:
-        cobj = pickle.load(f)
-
-    cobj.df_hourly.to_csv('1683765593.32.df_hourly.csv')
+    cobj.df_hourly.to_csv(base_dir / f'{f.stem}.df_hourly.csv')
