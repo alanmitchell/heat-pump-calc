@@ -6,11 +6,10 @@ are used in the Energy Model are addressed here.
 import numbers
 import numpy as np
 from dash.dependencies import Input, State
+
+from heatpump.constants import ELECTRIC_ID
 from . import library as lib
 from .utils import is_null
-
-# Some Constants
-ELECTRIC_ID = 1    # The fuel ID for Electricity
 
 input_info = [
     ('bldg_name', 'Building Name', 'null-ok'),

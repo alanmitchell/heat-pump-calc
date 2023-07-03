@@ -17,7 +17,7 @@ from . import elec_cost
 from .home_heat_model import HomeHeatModel
 from .elec_cost import ElecCostCalc
 from .utils import is_null
-from . import ui_helper
+from . import constants
 
 # --------- Some Constants
 
@@ -168,7 +168,7 @@ class HP_model:
         # for the fuel type, e.g. gallons of oil.  Save this as an object attribute
         # so it is accessible in other routines.  See Evernote notes on values (AkWarm
         # for DHW and Michael Bluejay for Drying and Cooking).
-        is_electric = (s.exist_heat_fuel_id == ui_helper.ELECTRIC_ID)  # True if Electric
+        is_electric = (s.exist_heat_fuel_id == constants.ELECTRIC_ID)  # True if Electric
         s.fuel_other_uses = s.includes_dhw * 4.23e6 / fuel.dhw_effic
         s.fuel_other_uses += s.includes_dryer * (0.86e6 if is_electric else 2.15e6)
         s.fuel_other_uses += s.includes_cooking * (0.64e6 if is_electric else 0.8e6)
@@ -290,7 +290,7 @@ class HP_model:
 
         # Determine the base electric use by month.  Approach is different 
         # if there is electric heat.
-        is_electric_heat = (s.exist_heat_fuel_id == ui_helper.ELECTRIC_ID)
+        is_electric_heat = (s.exist_heat_fuel_id == constants.ELECTRIC_ID)
         if not is_electric_heat:
             # Fuel-based space heat.
             # The User supplied a January and a May kWh usage value that should

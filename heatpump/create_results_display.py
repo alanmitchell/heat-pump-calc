@@ -10,6 +10,8 @@ from dash import html
 import plotly.graph_objs as go
 from plotly import subplots
 
+import heatpump.constants
+
 from . import ui_helper
 from . import hp_model
 
@@ -55,7 +57,7 @@ def create_results(input_values):
 
     # Lots of special formatting for electric heat so make a variable
     # indicating whether electric heat is being analyzed.
-    is_electric = (mod.exist_heat_fuel_id == ui_helper.ELECTRIC_ID)
+    is_electric = (mod.exist_heat_fuel_id == heatpump.constants.ELECTRIC_ID)
 
     # This will be the list of children that is returned.  For each graph
     # or Markdown block, and item is added to this list.

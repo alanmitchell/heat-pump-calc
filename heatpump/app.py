@@ -12,6 +12,8 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+
+import heatpump.constants
 from .components import LabeledInput, LabeledSlider, LabeledSection, \
     LabeledDropdown, LabeledRadioItems, LabeledChecklist
 import numpy as np	
@@ -643,7 +645,7 @@ def set_occupants_vis(end_uses):
 def find_fuel_price(fuel_id, city_id):
 
     # Situations where there is no price to fill in
-    if fuel_id is None or fuel_id == ui_helper.ELECTRIC_ID or city_id is None:
+    if fuel_id is None or fuel_id == heatpump.constants.ELECTRIC_ID or city_id is None:
         return ''
 
     the_fuel = lib.fuel_from_id(fuel_id)
@@ -657,7 +659,7 @@ def find_fuel_price(fuel_id, city_id):
 @app.callback(Output('div-exist_unit_fuel_cost', 'style'),
     [Input('exist_heat_fuel_id', 'value')])
 def hide_fuel_cost(fuel_id):
-    if fuel_id == ui_helper.ELECTRIC_ID:
+    if fuel_id == heatpump.constants.ELECTRIC_ID:
         return {'display': 'none'}
     else:
         return {'display': 'block'}
@@ -675,7 +677,7 @@ def effic_choices(fuel_id):
 @app.callback(Output('div-elec-uses', 'style'),
     [Input('exist_heat_fuel_id', 'value'), Input('exist_fuel_use', 'value')])
 def hide_elec_uses_included(fuel_id, exist_use):
-    if fuel_id == ui_helper.ELECTRIC_ID and exist_use != '' and exist_use != None:
+    if fuel_id == heatpump.constants.ELECTRIC_ID and exist_use != '' and exist_use != None:
         return {'display': 'block'}
     else:
         return {'display': 'none'}
@@ -716,7 +718,7 @@ def update_price_units(fuel_id):
 def set_aux_elec(fuel_id):
     # Force No Aux use with Electric Heat, otherwise don't 
     # change setting.
-    if fuel_id == ui_helper.ELECTRIC_ID:
+    if fuel_id == heatpump.constants.ELECTRIC_ID:
         return 'no-fan'
     else:
         raise PreventUpdate
@@ -724,7 +726,7 @@ def set_aux_elec(fuel_id):
 @app.callback(Output('div-aux_elec', 'style'),
     [Input('exist_heat_fuel_id', 'value')])
 def hide_aux_elec(fuel_id):
-    if fuel_id == ui_helper.ELECTRIC_ID:
+    if fuel_id == heatpump.constants.ELECTRIC_ID:
         return {'display': 'none'}
     else:
         return {'display': 'block'}
@@ -740,7 +742,7 @@ def hide_heat_dist(point_source):
 @app.callback(Output('label-exist_fuel_use', 'children'),
     [Input('exist_heat_fuel_id', 'value')])
 def label_fuel_use(fuel_id):
-    if fuel_id == ui_helper.ELECTRIC_ID:
+    if fuel_id == heatpump.constants.ELECTRIC_ID:
         return 'Total Annual Electricity Use of the building.  (Optional, but very helpful!):'
     else:
         return 'Annual Fuel Use for the building including space heating and any other appliances that use that same fuel. (Optional, but very helpful for an accurate estimate of heat pump savings, particularly if your building is super-efficient or very inefficient.):'
@@ -750,7 +752,7 @@ def label_fuel_use(fuel_id):
 def whole_bldg_jan(city_id, fuel_id):
     if city_id is None:
         raise PreventUpdate
-    if fuel_id == ui_helper.ELECTRIC_ID:
+    if fuel_id == heatpump.constants.ELECTRIC_ID:
         return ''   # Blank it out so no errors can occur once it is hidden
     jan_elec = lib.city_from_id(city_id).avg_elec_usage[0]
     jan_elec = np.round(jan_elec, 0)
@@ -761,7 +763,7 @@ def whole_bldg_jan(city_id, fuel_id):
 def whole_bldg_may(city_id, fuel_id):
     if city_id is None:
         raise PreventUpdate
-    if fuel_id == ui_helper.ELECTRIC_ID:
+    if fuel_id == heatpump.constants.ELECTRIC_ID:
         return ''   # Blank it out so no errors can occur once it is hidden
     may_elec = lib.city_from_id(city_id).avg_elec_usage[4]
     may_elec = np.round(may_elec, 0)
@@ -770,7 +772,7 @@ def whole_bldg_may(city_id, fuel_id):
 @app.callback(Output('div-jan-may', 'style'),
     [Input('exist_heat_fuel_id', 'value')])
 def hide_jan_use(fuel_id):
-    if fuel_id == ui_helper.ELECTRIC_ID:
+    if fuel_id == heatpump.constants.ELECTRIC_ID:
         return {'display': 'none'}
     else:
         return {'display': 'block'}

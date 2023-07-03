@@ -6,7 +6,7 @@ import inspect
 import numpy as np
 
 from . import library as lib
-from . import ui_helper
+from . import constants
 from .utils import chg_nonnum
 
 def temp_depression(ua_per_ft2, 
@@ -301,7 +301,7 @@ class HomeHeatModel(object):
 
         # if this is electric heat as the secondary fuel, move the secondary fuel use into
         # the secondary kWh column and blank out the secondary fuel MMBtu.
-        if s.exist_heat_fuel_id  == ui_helper.ELECTRIC_ID:
+        if s.exist_heat_fuel_id  == constants.ELECTRIC_ID:
             dfh.secondary_kwh += dfh.secondary_fuel_mmbtu * 1e6 / s.exist_heat_fuel.btus
             dfh['secondary_fuel_mmbtu'] = 0.0
 
