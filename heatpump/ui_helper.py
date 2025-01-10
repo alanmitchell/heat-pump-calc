@@ -213,7 +213,7 @@ def inputs_to_vars(input_vals):
     utility = lib.util_from_id(city.ElecUtilities[0][1]).copy()
     utility.at['Name'] = 'Custom'
     utility.at['IsCommercial'] = False
-    utility.at['DemandCharge'] = np.NaN
+    utility.at['DemandCharge'] = np.nan
     # Blocks, PCE, Customer Charge will be set below if this object
     # is used.
 
@@ -230,7 +230,7 @@ def inputs_to_vars(input_vals):
             return errors, vars, extras
         else:
             # just one block
-            utility.at['Blocks'] = [(np.NaN, extras['elec_rate_ez'])]
+            utility.at['Blocks'] = [(np.nan, extras['elec_rate_ez'])]
             utility.at['PCE'] = extras['pce_ez']
             utility.at['CustomerChg'] = extras['customer_chg_ez']
 
